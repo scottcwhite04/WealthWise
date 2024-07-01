@@ -1,1 +1,1 @@
-# WealthWises
+# WealthWise
