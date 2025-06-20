@@ -232,7 +232,6 @@
       background: #f3c96b22;
       color: #f3c96b;
     }
-    /* For the Current Bank Balance bills list */
     .bills-list li {
       display: flex;
       justify-content: space-between;
@@ -264,7 +263,7 @@
 <body class="min-h-screen flex flex-col text-ww-light-text dark:text-ww-dark-text transition-colors duration-200">
   <!-- Header -->
   <header class="bg-ww-dark-bg dark:bg-ww-dark-bg text-ww-dark-accent py-4 px-2 flex items-center w-full shadow-md dark:shadow-none flex-shrink-0 border-b border-ww-light-accent-contrast dark:border-transparent transition-colors duration-200">
-    <a href="landing.html" id="ww-logo-link" class="font-bold text-xl md:text-2xl tracking-wide logo-title block text-ww-dark-accent ml-2" style="font-family:'Montserrat',Arial,sans-serif; text-decoration: none;">
+    <a href="index.html" id="ww-logo-link" class="font-bold text-xl md:text-2xl tracking-wide logo-title block text-ww-dark-accent ml-2" style="font-family:'Montserrat',Arial,sans-serif; text-decoration: none;">
       Wealthwise
     </a>
     <div class="ml-auto flex items-center gap-2">
@@ -314,8 +313,8 @@
 
       <!-- Dashboard Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 grid-cols-dashboard">
-        <!-- Account Balance Card UPDATED -->
-        <div class="card">
+        <!-- Account Balance Card (dynamic with Supabase) -->
+        <div class="card" id="bank-balance-card">
           <div class="dashboard-section-title flex items-center">
             <span class="icon-circle">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -324,203 +323,29 @@
             </span>
             Current Bank Balance <span class="text-ww-light-secondary text-xs ml-2">(after bills)</span>
           </div>
-          <div class="stat-value mb-1">$4,250.35</div>
-          <div class="text-ww-light-secondary dark:text-ww-dark-accent text-sm mb-1">
-            Updated 2 min ago
+          <div class="stat-value mb-1" id="user-balance-amount">$0.00</div>
+          <div class="text-ww-light-secondary dark:text-ww-dark-accent text-sm mb-1" id="user-balance-updated">
+            Loading...
           </div>
           <div class="mb-2 flex flex-col gap-1.5">
             <span class="font-semibold text-ww-light-accent dark:text-ww-dark-accent text-sm">
-              Pay Period: <span class="font-normal text-ww-light-secondary dark:text-ww-dark-accent">June 15, 2025 &ndash; June 30, 2025</span>
+              Pay Period:
+              <span class="font-normal text-ww-light-secondary dark:text-ww-dark-accent" id="user-balance-period">
+                Loading...
+              </span>
             </span>
           </div>
           <div class="mt-3">
             <div class="font-semibold text-ww-light-accent dark:text-ww-dark-accent text-sm mb-1">Bills Due This Pay Period</div>
-            <ul class="bills-list">
-              <li>
-                <span>
-                  <span class="font-medium text-ww-accent-blue dark:text-ww-dark-accent">Electric</span>
-                  <span class="ml-2 text-ww-light-secondary dark:text-ww-dark-accent">(Jun 26)</span>
-                </span>
-                <span class="font-semibold">$115.00</span>
-              </li>
-              <li>
-                <span>
-                  <span class="font-medium text-ww-accent-blue dark:text-ww-dark-accent">Internet</span>
-                  <span class="ml-2 text-ww-light-secondary dark:text-ww-dark-accent">(Jun 28)</span>
-                </span>
-                <span class="font-semibold">$55.00</span>
-              </li>
-              <li>
-                <span>
-                  <span class="font-medium text-ww-accent-blue dark:text-ww-dark-accent">Rent</span>
-                  <span class="ml-2 text-ww-light-secondary dark:text-ww-dark-accent">(Jul 1)</span>
-                </span>
-                <span class="font-semibold">$1,200.00</span>
-              </li>
+            <ul class="bills-list" id="user-balance-bills">
+              <li>Loading bills...</li>
             </ul>
           </div>
         </div>
-        <!-- 12-Month Balance Trends Card -->
-        <div class="card">
-          <div class="dashboard-section-title flex items-center">
-            <span class="icon-circle">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" d="M3 17v-2a4 4 0 014-4h10a4 4 0 014 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
-            </span>
-            Balance Trends (12 Months)
-          </div>
-          <div class="flex flex-col mb-2">
-            <div>
-              <span class="stat-label">12-mo High:</span>
-              <span class="stat-value">$7,800.22</span>
-            </div>
-            <div>
-              <span class="stat-label">12-mo Low:</span>
-              <span class="stat-value">$2,120.44</span>
-            </div>
-          </div>
-          <div class="chart-container">
-            <canvas id="trendChart"></canvas>
-          </div>
-        </div>
-        <!-- Budget Overview Card -->
-        <div class="card">
-          <div class="dashboard-section-title flex items-center">
-            <span class="icon-circle">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" d="M4 4h16v16H4V4z"/>
-                <path stroke-linecap="round" d="M4 9h16"/>
-              </svg>
-            </span>
-            Monthly Budget Overview
-          </div>
-          <div>
-            <span class="stat-label">Budgeted:</span> $3,500 <br>
-            <span class="stat-label">Spent:</span> $2,650 <br>
-            <span class="stat-label">Remaining:</span> <span class="stat-value">$850</span>
-          </div>
-          <div class="chart-container">
-            <canvas id="budgetChart"></canvas>
-          </div>
-          <button class="ww-btn mt-2" onclick="alert('Budget details coming soon!')">View Budget</button>
-        </div>
 
-        <!-- Upcoming Bills Card -->
-        <div class="card">
-          <div class="dashboard-section-title flex items-center">
-            <span class="icon-circle">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2v16z"/>
-              </svg>
-            </span>
-            Upcoming Bills
-          </div>
-          <ul class="mb-2">
-            <li><span class="stat-label">Rent</span>: $1,200 due Jul 1</li>
-            <li><span class="stat-label">Electric</span>: $115 due Jun 26</li>
-            <li><span class="stat-label">Internet</span>: $55 due Jun 28</li>
-          </ul>
-          <button class="ww-btn" onclick="alert('Bill management coming soon!')">Manage Bills</button>
-        </div>
-
-        <!-- Financial Goals Card -->
-        <div class="card">
-          <div class="dashboard-section-title flex items-center">
-            <span class="icon-circle">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" d="M12 8v8m0 0c-4 0-8-2-8-6V6a2 2 0 012-2h12a2 2 0 012 2v4c0 4-4 6-8 6z"/>
-              </svg>
-            </span>
-            Your Financial Goals
-          </div>
-          <ul>
-            <li><span class="stat-label">Emergency Fund</span>: <span class="stat-value">60%</span> complete</li>
-            <li><span class="stat-label">Vacation Savings</span>: <span class="stat-value">30%</span> complete</li>
-          </ul>
-          <button class="ww-btn mt-2" onclick="alert('Goals management coming soon!')">View Goals</button>
-        </div>
-
-        <!-- Stewardship Tips Card -->
-        <div class="card">
-          <div class="dashboard-section-title flex items-center">
-            <span class="icon-circle">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" d="M12 8v8m0 0c-4 0-8-2-8-6V6a2 2 0 012-2h12a2 2 0 012 2v4c0 4-4 6-8 6z"/>
-              </svg>
-            </span>
-            Today's Stewardship Tip
-          </div>
-          <div class="text-ww-light-secondary dark:text-ww-dark-accent mb-2">
-            Review your subscriptions and cancel any you no longer use. Small leaks sink big ships!
-          </div>
-          <button class="ww-btn" onclick="alert('More tips coming soon!')">See More Tips</button>
-        </div>
+        <!-- ...other dashboard cards... -->
       </div>
-
-      <!-- Calculators -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
-        <!-- Home Loan Calculator -->
-        <div class="card">
-          <div class="dashboard-section-title flex items-center">
-            <span class="icon-circle">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" d="M3 12l9-9 9 9"></path>
-                <path stroke-linecap="round" d="M9 21V9h6v12"></path>
-              </svg>
-            </span>
-            Home Loan Calculator
-          </div>
-          <label class="calc-label">Loan Amount ($)</label>
-          <input type="number" id="homeLoanAmount" class="calc-input" value="300000">
-          <label class="calc-label">Interest Rate (%)</label>
-          <input type="number" id="homeInterest" class="calc-input" value="5">
-          <label class="calc-label">Years</label>
-          <input type="number" id="homeYears" class="calc-input" value="30">
-          <button class="ww-btn w-full mt-2" onclick="calcHomeLoan()">Calculate Payment</button>
-          <div class="calc-result" id="homeLoanResult">Monthly Payment: $0.00</div>
-        </div>
-        <!-- Car Loan Calculator -->
-        <div class="card">
-          <div class="dashboard-section-title flex items-center">
-            <span class="icon-circle">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <rect x="2" y="7" width="20" height="7" rx="2" />
-                <circle cx="7.5" cy="16.5" r="2.5"/>
-                <circle cx="16.5" cy="16.5" r="2.5"/>
-              </svg>
-            </span>
-            Car Loan Calculator
-          </div>
-          <label class="calc-label">Loan Amount ($)</label>
-          <input type="number" id="carLoanAmount" class="calc-input" value="25000">
-          <label class="calc-label">Interest Rate (%)</label>
-          <input type="number" id="carInterest" class="calc-input" value="4">
-          <label class="calc-label">Years</label>
-          <input type="number" id="carYears" class="calc-input" value="5">
-          <button class="ww-btn w-full mt-2" onclick="calcCarLoan()">Calculate Payment</button>
-          <div class="calc-result" id="carLoanResult">Monthly Payment: $0.00</div>
-        </div>
-        <!-- Vacation Planner Calculator -->
-        <div class="card">
-          <div class="dashboard-section-title flex items-center">
-            <span class="icon-circle">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"/>
-                <path stroke-linecap="round" d="M7 10h10M7 14h6"/>
-              </svg>
-            </span>
-            Vacation Planner
-          </div>
-          <label class="calc-label">Goal Amount ($)</label>
-          <input type="number" id="vacGoal" class="calc-input" value="5000">
-          <label class="calc-label">Months Until Vacation</label>
-          <input type="number" id="vacMonths" class="calc-input" value="12">
-          <button class="ww-btn w-full mt-2" onclick="calcVacation()">Calculate Savings</button>
-          <div class="calc-result" id="vacationResult">Monthly Savings Needed: $0.00</div>
-        </div>
-      </div>
+      <!-- ...rest of dashboard (calculators etc) ... -->
     </div>
   </main>
 
@@ -533,101 +358,89 @@
     <div>&copy; 2025 Wealthwise. All rights reserved.</div>
   </footer>
 
-  <script>
-    // Set up Terms of Service footer link to return here
-    document.getElementById('footer-terms-link').href = '/terms-of-service.html?return=' + encodeURIComponent(window.location.href);
+  <!-- Supabase Integration for Current Bank Balance Card -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-    // Dark mode toggle
-    document.getElementById('theme-toggle').addEventListener('click', function() {
-      const html = document.documentElement;
-      const isDark = html.classList.contains('dark');
-      if (isDark) {
-        html.classList.remove('dark');
-        localStorage.setItem('wealthwise-theme', 'light');
-      } else {
-        html.classList.add('dark');
-        localStorage.setItem('wealthwise-theme', 'dark');
+    const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    function formatMoney(val) {
+      return "$" + Number(val).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+    function formatDate(dateStr) {
+      if (!dateStr) return "";
+      const d = new Date(dateStr);
+      return d.toLocaleDateString(undefined, {year: 'numeric', month: 'long', day: 'numeric'});
+    }
+    function formatDateShort(dateStr) {
+      if (!dateStr) return "";
+      const d = new Date(dateStr);
+      return d.toLocaleDateString(undefined, {month: 'short', day: 'numeric'});
+    }
+
+    async function loadCurrentBalanceCard() {
+      // 1. Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        document.getElementById("user-balance-amount").textContent = "$0.00";
+        document.getElementById("user-balance-period").textContent = "Not signed in";
+        document.getElementById("user-balance-updated").textContent = "Please log in";
+        document.getElementById("user-balance-bills").innerHTML = "<li>Not signed in</li>";
+        return;
       }
-    });
 
-    // Simulate user (replace with backend logic)
-    document.getElementById('welcome-user').textContent = "Hello, Scott!";
+      // 2. Get latest user_balances row for this user (order by end_date desc, limit 1)
+      const { data: balanceRows } = await supabase
+        .from('user_balances')
+        .select('total_remaining_balance,start_date,end_date,updated_at')
+        .eq('user_id', user.id)
+        .order('end_date', { ascending: false })
+        .limit(1);
 
-    // Chart.js charts for visuals
-    window.addEventListener('DOMContentLoaded', function() {
-      // 1. Balance over last 12 months (Line chart)
-      var ctxTrend = document.getElementById('trendChart').getContext('2d');
-      new Chart(ctxTrend, {
-        type: 'line',
-        data: {
-          labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-          datasets: [{
-            label: 'Balance',
-            borderColor: '#2563eb',
-            backgroundColor: 'rgba(37,99,235,0.08)',
-            data: [3000, 3200, 2500, 4000, 4100, 7000, 7800, 7000, 4200, 2700, 2120, 4250],
-            fill: true,
-            tension: 0.34,
-            pointRadius: 3,
-          }]
-        },
-        options: {
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { beginAtZero: false, grid: { color: '#e2e9f3' } },
-            x: { grid: { display: false } }
-          }
+      if (!balanceRows || balanceRows.length === 0) {
+        document.getElementById("user-balance-amount").textContent = "$0.00";
+        document.getElementById("user-balance-period").textContent = "No pay period found";
+        document.getElementById("user-balance-updated").textContent = "No data";
+        document.getElementById("user-balance-bills").innerHTML = "<li>No bills found</li>";
+        return;
+      }
+      const balance = balanceRows[0];
+      document.getElementById("user-balance-amount").textContent = formatMoney(balance.total_remaining_balance || 0);
+      document.getElementById("user-balance-period").textContent =
+        formatDate(balance.start_date) + " – " + formatDate(balance.end_date);
+      document.getElementById("user-balance-updated").textContent =
+        "Updated " + (balance.updated_at ? new Date(balance.updated_at).toLocaleString() : "recently");
+
+      // 3. Load the bills for this period for the user (if you have a bills table)
+      let billsHtml = '<li>No bills found for this pay period.</li>';
+      try {
+        const { data: bills } = await supabase
+          .from('bills')
+          .select('name,due_date,amount')
+          .eq('user_id', user.id)
+          .gte('due_date', balance.start_date)
+          .lte('due_date', balance.end_date)
+          .order('due_date', { ascending: true });
+        if (bills && bills.length > 0) {
+          billsHtml = bills.map(bill => `
+            <li>
+              <span>
+                <span class="font-medium text-ww-accent-blue dark:text-ww-dark-accent">${bill.name}</span>
+                <span class="ml-2 text-ww-light-secondary dark:text-ww-dark-accent">(${formatDateShort(bill.due_date)})</span>
+              </span>
+              <span class="font-semibold">${formatMoney(bill.amount)}</span>
+            </li>
+          `).join('');
         }
-      });
-
-      // 2. Budget Overview (Pie chart)
-      var ctxBudget = document.getElementById('budgetChart').getContext('2d');
-      new Chart(ctxBudget, {
-        type: 'doughnut',
-        data: {
-          labels: ['Spent', 'Remaining'],
-          datasets: [{
-            data: [2650, 850],
-            backgroundColor: ['#2563eb', '#f3c96b'],
-          }]
-        },
-        options: {
-          plugins: { legend: { display: true, position: 'bottom' } },
-          cutout: '65%',
-        }
-      });
-    });
-
-    // Calculators
-    function calcHomeLoan() {
-      const P = parseFloat(document.getElementById('homeLoanAmount').value);
-      const r = parseFloat(document.getElementById('homeInterest').value) / 100 / 12;
-      const n = parseFloat(document.getElementById('homeYears').value) * 12;
-      if (!P || !r || !n) { document.getElementById('homeLoanResult').textContent = "Monthly Payment: $0.00"; return; }
-      const monthly = (P * r) / (1 - Math.pow(1 + r, -n));
-      document.getElementById('homeLoanResult').textContent = "Monthly Payment: $" + monthly.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+      } catch (e) {
+        billsHtml = '<li>Error loading bills.</li>';
+      }
+      document.getElementById("user-balance-bills").innerHTML = billsHtml;
     }
-    function calcCarLoan() {
-      const P = parseFloat(document.getElementById('carLoanAmount').value);
-      const r = parseFloat(document.getElementById('carInterest').value) / 100 / 12;
-      const n = parseFloat(document.getElementById('carYears').value) * 12;
-      if (!P || !r || !n) { document.getElementById('carLoanResult').textContent = "Monthly Payment: $0.00"; return; }
-      const monthly = (P * r) / (1 - Math.pow(1 + r, -n));
-      document.getElementById('carLoanResult').textContent = "Monthly Payment: $" + monthly.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
-    }
-    function calcVacation() {
-      const goal = parseFloat(document.getElementById('vacGoal').value);
-      const months = parseFloat(document.getElementById('vacMonths').value);
-      if (!goal || !months) { document.getElementById('vacationResult').textContent = "Monthly Savings Needed: $0.00"; return; }
-      const monthly = goal / months;
-      document.getElementById('vacationResult').textContent = "Monthly Savings Needed: $" + monthly.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
-    }
-    calcHomeLoan(); calcCarLoan(); calcVacation();
-
-    // Log out button (just for demo)
-    document.getElementById('logout-btn').addEventListener('click', function() {
-      window.location.href = "login.html";
-    });
+    loadCurrentBalanceCard();
   </script>
+  <!-- ...rest of your scripts (theme toggle, charts, calculators, etc)... -->
 </body>
 </html>
