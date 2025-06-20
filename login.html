@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Wealthwise</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Set dark mode early to prevent FOUC -->
+  <script>
+    (function() {
+      let theme = localStorage.getItem('wealthwise-theme');
+      if (!theme) {
+        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:700,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'ww-dark-bg': '#1a2332',
+            'ww-dark-card': '#232c3f',
+            'ww-dark-text': '#e5e9f2',
+            'ww-dark-accent': '#f3c96b',
+            'ww-light-bg': '#f4f6fa',
+            'ww-light-card': '#fff',
+            'ww-light-text': '#22304a',
+            'ww-light-secondary': '#51607a',
+            'ww-light-accent': '#3157a1',
+            'ww-light-accent-contrast': '#e2e9f3',
+            'ww-accent-blue': '#2563eb',
+            'ww-accent-blue-dark': '#1d4ed8',
+            'ww-field-light': '#f9fafb',
+            'ww-field-lighter': '#f3f4f6',
+            'ww-light-yellow': '#FFD600',
+            'ww-light-yellow-hover': '#FFC300',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html, body {
+      background: #f4f6fa;
+      color: #22304a;
+      font-family: 'Montserrat', Arial, sans-serif !important;
+      transition: background 0.2s, color 0.2s;
+    }
+    body {
+      min-height: 100vh;
+    }
+    .dark body, body.dark {
+      background: #1a2332 !important;
+      color: #e5e9f2 !important;
+    }
+    .main-gradient-bg {
+      background: linear-gradient(90deg, #2563eb 60%, #f4f6fa 100%);
+    }
+    .dark .main-gradient-bg, body.dark .main-gradient-bg {
+      background: linear-gradient(90deg, #232c3f 70%, #1a2332 100%);
+    }
+    .login-form label,
+    .login-form input,
+    .login-form button,
+    .login-form .form-footer,
+    .login-form .form-text,
+    .login-form .forgot-link,
+    .login-form .signup-link {
+      font-family: 'Montserrat', Arial, sans-serif !important;
+    }
+    .slogan-glow {
+      background: linear-gradient(90deg, #FFD600 20%, #fff 70%);
+      color: #22304a;
+      padding-left: 0.5em;
+      padding-right: 0.5em;
+      border-radius: 0.5em;
+      box-shadow: 0 4px 24px 0 #FFD60033, 0 0 0 4px #FFD60022;
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-weight: bold;
+      display: inline-block;
+    }
+    @media (prefers-color-scheme: dark) {
+      .slogan-glow {
+        background: none;
+        color: #f3c96b;
+        box-shadow: none;
+      }
+    }
+    .dark .slogan-glow {
+      background: none !important;
+      color: #f3c96b !important;
+      box-shadow: none !important;
+    }
+    .verse-highlight {
+      color: #22304a;
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 0.2em 0.7em;
+      font-size: 0.78rem;
+      display: inline-block;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-decoration: none;
+    }
+    .verse-highlight:hover .verse-tooltip,
+    .verse-highlight:focus .verse-tooltip {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, 0) scale(1);
+    }
+    .verse-tooltip {
+      opacity: 0;
+      pointer-events: none;
+      position: absolute;
+      left: 50%;
+      top: 115%;
+      min-width: 220px;
+      max-width: 320px;
+      background: #fff;
+      color: #22304a;
+      border: 1px solid #FFD600;
+      border-radius: 0.75em;
+      font-weight: 500;
+      box-shadow: 0 8px 32px 0 #FFD60044;
+      padding: 0.85em 1.1em 0.7em 1.1em;
+      z-index: 30;
+      font-size: 0.97rem;
+      white-space: normal;
+      text-align: left;
+      line-height: 1.5;
+      transition: opacity 0.20s, transform 0.20s;
+      transform: translate(-50%, 0) scale(0.92);
+      font-family: 'Montserrat', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.6em;
+    }
+    .verse-tooltip .verse-link {
+      font-size: 0.78rem;
+      color: #3157a1;
+      text-decoration: underline;
+      font-weight: 600;
+      margin-top: 0.35em;
+      display: inline-block;
+    }
+    .verse-tooltip .verse-version {
+      font-size: 0.75rem;
+      color: #888;
+      margin-top: 0.5em;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+    @media (prefers-color-scheme: dark) {
+      .verse-highlight {
+        background: none;
+        color: #b4c4e0;
+        box-shadow: none;
+      }
+      .verse-tooltip {
+        background: #232c3f;
+        color: #f3c96b;
+        border: 1px solid #f3c96b;
+        box-shadow: 0 8px 32px 0 #f3c96b44;
+      }
+      .verse-tooltip .verse-link {
+        color: #f3c96b;
+      }
+      .verse-tooltip .verse-version {
+        color: #fff;
+      }
+    }
+    .dark .verse-highlight {
+      background: none !important;
+      color: #b4c4e0 !important;
+      box-shadow: none !important;
+    }
+    .dark .verse-tooltip {
+      background: #232c3f !important;
+      color: #f3c96b !important;
+      border: 1px solid #f3c96b !important;
+      box-shadow: 0 8px 32px 0 #f3c96b44 !important;
+    }
+    .dark .verse-tooltip .verse-link {
+      color: #f3c96b !important;
+    }
+    .dark .verse-tooltip .verse-version {
+      color: #e5e9f2 !important;
+    }
+    .subhead-strong {
+      color: #1a2332;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      font-size: 1.1rem;
+      padding: 0.2em 0.7em;
+      margin-top: 0.2em;
+      margin-bottom: 0.2em;
+      display: inline-block;
+      font-family: 'Montserrat', Arial, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      .subhead-strong {
+        background: none;
+        color: #e5e9f2;
+        box-shadow: none;
+      }
+    }
+    .dark .subhead-strong {
+      background: none !important;
+      color: #e5e9f2 !important;
+      box-shadow: none !important;
+    }
+    /* Custom caret color and always dark font for input fields */
+    .login-form input,
+    .login-form select,
+    .login-form textarea {
+      color: #1a2332 !important;
+      background-color: #fff !important;
+      font-size: 0.93rem !important;
+      padding-top: 0.25rem !important;
+      padding-bottom: 0.25rem !important;
+      height: 1.7rem !important;
+      caret-color: #1a2332 !important;
+    }
+    .dark .login-form input,
+    .dark .login-form select,
+    .dark .login-form textarea {
+      color: #1a2332 !important;
+      background-color: #fff !important;
+      caret-color: #1a2332 !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col text-ww-light-text dark:text-ww-dark-text transition-colors duration-200">
+  <div class="main-gradient-bg flex flex-col min-h-screen w-full transition-colors duration-200">
+    <!-- Header -->
+    <header class="bg-ww-dark-bg dark:bg-ww-dark-bg text-ww-dark-accent py-4 px-2 flex items-center w-full shadow-md dark:shadow-none flex-shrink-0 border-b border-ww-light-accent-contrast dark:border-transparent transition-colors duration-200">
+      <a href="landing.html" id="ww-logo-link" class="font-bold text-xl md:text-2xl tracking-wide logo-title block text-ww-dark-accent ml-2" style="font-family:'Montserrat',Arial,sans-serif; text-decoration: none;">
+        Wealthwise
+      </a>
+      <button id="theme-toggle" type="button" class="ml-auto mr-2 p-2 rounded-lg focus:outline-none transition hover:bg-ww-light-accent-contrast dark:hover:bg-ww-dark-card" title="Toggle dark/light mode">
+        <!-- Sun (Light Mode) -->
+        <svg class="w-6 h-6 text-ww-light-accent dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="5" stroke="currentColor" fill="none"/>
+          <path stroke-linecap="round" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M16.36 16.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M16.36 7.64l1.42-1.42"/>
+        </svg>
+        <!-- Moon (Dark Mode) -->
+        <svg class="w-6 h-6 text-ww-dark-accent hidden dark:inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3c.47 0 .94.03 1.41.08a7 7 0 008.3 9.71c.05.47.08.94.08 1.41z"/>
+        </svg>
+      </button>
+    </header>
+    <!-- Main Content -->
+    <main class="flex-1 flex items-center justify-center w-full px-2 transition-colors duration-200">
+      <div class="w-full max-w-3xl flex flex-col md:flex-row md:items-center md:justify-center gap-4 md:gap-8 content-responsive">
+        <!-- Slogan Box (logo above slogan) - NO BACKGROUND -->
+        <div class="flex flex-col items-center md:items-start text-center md:text-left max-w-xs w-full slogan-box mt-2 md:mt-0 mx-auto transition-colors duration-200">
+          <div class="flex flex-col items-center md:items-start mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-1" viewBox="0 0 48 48" fill="none">
+              <circle cx="24" cy="24" r="19" fill="#FFD600" stroke="#FFC300" stroke-width="2" class="dark:fill-[#f3c96b] dark:stroke-[#eab308]"/>
+              <ellipse cx="24" cy="24" rx="7" ry="7.5" fill="#fffbe9" />
+              <ellipse cx="24" cy="22" rx="3.6" ry="3.1" fill="#eab308" />
+              <path d="M10 34 Q15 26 24 34 Q33 26 38 34" stroke="#23ad74" stroke-width="2" fill="none"/>
+              <text x="24" y="30" text-anchor="middle" font-family="Montserrat, Arial, sans-serif" font-size="9" fill="#1a2332" font-weight="bold">WW</text>
+            </svg>
+            <a
+              class="verse-highlight mt-1 mb-1"
+              href="https://www.bible.com/bible/114/MAT.22.21.NKJV"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Read in YouVersion Bible"
+              tabindex="0"
+            >
+              Matthew 22:21
+              <span class="verse-tooltip">
+                Render therefore to Caesar the things that are Caesar’s, and to God the things that are God’s.
+                <span class="verse-version">NKJV</span>
+                <span class="verse-link">Read in YouVersion</span>
+              </span>
+            </a>
+          </div>
+          <div class="mb-2">
+            <span class="slogan-glow text-lg md:text-xl slogan">Wealth &amp; Wisdom</span>
+          </div>
+          <div class="subhead-strong">Budget the way God intended.</div>
+        </div>
+        <!-- Login Card -->
+        <div
+          class="
+            bg-ww-dark-card text-ww-dark-text
+            dark:bg-ww-light-card dark:text-ww-light-text
+            rounded-xl shadow-xl p-5 md:p-7 flex flex-col w-full max-w-xs card border-0
+            mx-auto
+            transition-colors duration-200
+          "
+        >
+          <form class="login-form flex flex-col gap-1" id="signin-form" autocomplete="off">
+            <h3 class="text-center text-ww-light-accent dark:text-[#b98e0e] font-bold text-lg md:text-xl mb-2" style="font-family: 'Montserrat', Arial, sans-serif;">Sign In</h3>
+            <div class="form-text text-center text-white dark:text-[#6b7280] mb-2 transition-colors duration-200">Sign in to your account to manage your budget, bills, and more.</div>
+            <div class="mb-3">
+              <label for="signin-email" class="block font-bold mb-1 text-ww-dark-text dark:text-ww-light-text">Email address</label>
+              <input
+                type="email"
+                class="
+                  form-control block w-full rounded-md border border-gray-200 dark:border-gray-300
+                  bg-white/80 text-ww-dark-text placeholder-gray-400
+                  dark:bg-white/90 dark:text-ww-light-text dark:placeholder-gray-400
+                  px-3 py-2 focus:border-ww-accent-blue focus:ring-2 focus:ring-ww-accent-blue/30 transition
+                "
+                id="signin-email"
+                required
+                autocomplete="username"
+              >
+            </div>
+            <div class="mb-3">
+              <label for="signin-password" class="block font-bold mb-1 text-ww-dark-text dark:text-ww-light-text">Password</label>
+              <input
+                type="password"
+                class="
+                  form-control block w-full rounded-md border border-gray-200 dark:border-gray-300
+                  bg-white/80 text-ww-dark-text placeholder-gray-400
+                  dark:bg-white/90 dark:text-ww-light-text dark:placeholder-gray-400
+                  px-3 py-2 focus:border-ww-accent-blue focus:ring-2 focus:ring-ww-accent-blue/30 transition
+                "
+                id="signin-password"
+                required
+                autocomplete="current-password"
+              >
+            </div>
+            <a class="forgot-link text-ww-light-yellow dark:text-ww-dark-accent font-bold hover:text-ww-light-yellow-hover dark:hover:text-ww-dark-accent text-sm text-right block mb-2 transition-colors" href="/users/password/new">Forgot password?</a>
+            <button
+              type="submit"
+              class="
+                btn btn-primary w-full
+                bg-ww-accent-blue text-white font-bold py-2 rounded-md transition mb-2 shadow-lg
+                hover:bg-ww-accent-blue-dark focus:ring-2 focus:ring-offset-2 focus:ring-ww-accent-blue
+                text-lg tracking-wide border-0
+              "
+            >
+              Sign In
+            </button>
+            <div class="login-error text-red-600 dark:text-red-400 text-center font-semibold min-h-[1.2em] mb-1" id="signin-error"></div>
+            <div class="form-footer text-center text-sm text-ww-dark-text dark:text-ww-light-text mt-2">
+              New to Wealthwise?<br>
+              <a class="signup-link text-ww-light-yellow dark:text-ww-dark-accent font-bold hover:text-ww-light-yellow-hover dark:hover:text-ww-dark-accent transition-colors" href="signup.html">Sign up today.</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+    <!-- Footer -->
+    <footer class="text-center text-ww-dark-text dark:text-[#e5e9f2] bg-ww-dark-bg dark:bg-ww-dark-bg border-t border-ww-light-accent-contrast dark:border-[#232c3f] py-3 mt-auto w-full text-sm transition-colors duration-200">
+      <div class="mb-1 footer-links">
+        <a href="/terms/" class="mx-2 text-ww-light-yellow dark:text-ww-dark-accent font-bold hover:text-ww-light-yellow-hover dark:hover:text-ww-dark-accent transition-colors">Terms of Service</a>
+        <a href="/privacy-policy/" class="mx-2 text-ww-light-yellow dark:text-ww-dark-accent font-bold hover:text-ww-light-yellow-hover dark:hover:text-ww-dark-accent transition-colors">Privacy Policy</a>
+      </div>
+      <div>&copy; 2025 Wealthwise. All rights reserved.</div>
+    </footer>
+  </div>
+  <script>
+    document.getElementById('theme-toggle').addEventListener('click', function() {
+      const html = document.documentElement;
+      const isDark = html.classList.contains('dark');
+      if (isDark) {
+        html.classList.remove('dark');
+        localStorage.setItem('wealthwise-theme', 'light');
+      } else {
+        html.classList.add('dark');
+        localStorage.setItem('wealthwise-theme', 'dark');
+      }
+    });
+  </script>
+  <!-- Supabase Auth and UI Logic -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+    const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Sign In
+    document.getElementById('signin-form').onsubmit = async function(e) {
+      e.preventDefault();
+      document.getElementById('signin-error').textContent = '';
+      const email = document.getElementById('signin-email').value;
+      const password = document.getElementById('signin-password').value;
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        document.getElementById('signin-error').textContent = error.message;
+        return;
+      }
+      if (!data.session) {
+        document.getElementById('signin-error').textContent = "Login failed. Please confirm your email before logging in.";
+        return;
+      }
+      // Redirect to dashboard.html after successful login
+      window.location.href = "dashboard.html";
+    };
+  </script>
+</body>
+</html>

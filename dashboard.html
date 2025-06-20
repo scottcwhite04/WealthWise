@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Dashboard - Wealthwise</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Tailwind CSS & Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:700,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'ww-dark-bg': '#1a2332',
+            'ww-dark-card': '#232c3f',
+            'ww-dark-text': '#e5e9f2',
+            'ww-dark-accent': '#f3c96b',
+            'ww-light-bg': '#f4f6fa',
+            'ww-light-card': '#fff',
+            'ww-light-text': '#22304a',
+            'ww-light-secondary': '#51607a',
+            'ww-light-accent': '#3157a1',
+            'ww-light-accent-contrast': '#e2e9f3',
+            'ww-accent-blue': '#2563eb',
+            'ww-accent-blue-dark': '#1d4ed8',
+            'ww-field-light': '#f9fafb',
+            'ww-field-lighter': '#f3f4f6',
+            'ww-light-yellow': '#FFD600',
+            'ww-light-yellow-hover': '#FFC300',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html, body {
+      background: #f4f6fa;
+      color: #22304a;
+      font-family: 'Montserrat', Arial, sans-serif !important;
+      transition: background 0.2s, color 0.2s;
+    }
+    .dark body, body.dark {
+      background: #1a2332 !important;
+      color: #e5e9f2 !important;
+    }
+    .dashboard-title {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      color: #2563eb;
+      margin-bottom: 0.3em;
+      font-family: 'Montserrat', Arial, sans-serif;
+    }
+    .dark .dashboard-title {
+      color: #f3c96b !important;
+    }
+    .dashboard-section-title {
+      font-size: 1.1em;
+      font-weight: 700;
+      color: #3157a1;
+      letter-spacing: 0.01em;
+      margin-bottom: 0.3em;
+      font-family: 'Montserrat', Arial, sans-serif;
+    }
+    .dark .dashboard-section-title {
+      color: #f3c96b !important;
+    }
+    .card {
+      background: #fff;
+      border-radius: 1em;
+      box-shadow: 0 8px 32px 0 rgba(49, 87, 161, 0.14);
+      padding: 2em 1.5em;
+      margin-bottom: 2em;
+      transition: background 0.2s, color 0.2s;
+    }
+    .dark .card {
+      background: #232c3f !important;
+      color: #e5e9f2 !important;
+      box-shadow: 0 8px 32px 0 #232c3f22;
+    }
+    .ww-btn {
+      display: inline-block;
+      background: #2563eb;
+      color: #fff;
+      padding: 0.7em 1.5em;
+      border-radius: 0.5em;
+      font-weight: 600;
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-size: 1.07em;
+      box-shadow: 0 4px 18px 0 #2563eb22;
+      border: none;
+      cursor: pointer;
+      letter-spacing: 0.03em;
+      transition: background 0.18s, color 0.18s;
+    }
+    .ww-btn:hover {
+      background: #1d4ed8;
+      color: #FFD600;
+    }
+    .logout-btn {
+      background: #b91c1c;
+      color: #fff;
+      margin-left: 1em;
+      font-weight: 700;
+      transition: background 0.18s, color 0.18s;
+    }
+    .logout-btn:hover {
+      background: #991b1b;
+      color: #FFD600;
+    }
+    .stat-label {
+      font-weight: 600;
+      color: #3157a1;
+      letter-spacing: 0.01em;
+      font-size: 1em;
+      margin-bottom: 0.07em;
+    }
+    .stat-value {
+      font-weight: 800;
+      font-size: 1.4em;
+      color: #2563eb;
+    }
+    .dark .stat-label { color: #f3c96b !important; }
+    .dark .stat-value { color: #f3c96b !important; }
+    .verse-card {
+      background: linear-gradient(90deg, #2563eb 55%, #f4f6fa 100%);
+      color: #fff;
+      border-radius: 1em;
+      box-shadow: 0 4px 24px 0 #2563eb33;
+      min-height: 120px;
+      margin-bottom: 2em;
+      padding: 1.7em 1.5em 1.2em 1.5em;
+      position: relative;
+      overflow: hidden;
+    }
+    .dark .verse-card {
+      background: linear-gradient(90deg, #232c3f 70%, #1a2332 100%) !important;
+      color: #f3c96b !important;
+    }
+    .verse-ref {
+      font-weight: 700;
+      font-size: 1.08em;
+      letter-spacing: 0.03em;
+    }
+    .verse-text {
+      font-size: 1.1em;
+      font-style: italic;
+      margin: 0.7em 0 0.5em 0;
+      color: #fff;
+    }
+    .dark .verse-text { color: #f3c96b !important; }
+    .verse-life {
+      background: rgba(255,255,255,0.16);
+      color: #fff;
+      font-size: 0.97em;
+      border-radius: 0.6em;
+      padding: 0.5em 1em;
+      margin-top: 0.5em;
+      margin-bottom: 0.2em;
+      display: inline-block;
+    }
+    .dark .verse-life {
+      background: #232c3f;
+      color: #f3c96b;
+    }
+    @media (max-width: 900px) {
+      .grid-cols-dashboard {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 650px) {
+      .dashboard-title {
+        font-size: 1.25em;
+      }
+      .card,
+      .verse-card {
+        padding: 1em 0.5em;
+      }
+    }
+    .chart-container {
+      width: 100%;
+      height: 180px;
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
+    }
+    .calc-input {
+      background: #f9fafb;
+      border: 1px solid #d1d5db;
+      border-radius: 0.4em;
+      padding: 0.4em 0.6em;
+      margin-bottom: 0.7em;
+      width: 100%;
+      font-size: 1em;
+    }
+    .dark .calc-input {
+      background: #232c3f;
+      color: #e5e9f2;
+      border: 1px solid #444;
+    }
+    .calc-label {
+      font-weight: 600;
+      font-size: 0.97em;
+      color: #3157a1;
+    }
+    .dark .calc-label {
+      color: #f3c96b;
+    }
+    .calc-result {
+      font-size: 1.1em;
+      font-weight: 700;
+      color: #2563eb;
+      margin-top: 0.5em;
+    }
+    .dark .calc-result {
+      color: #f3c96b;
+    }
+    .icon-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #2563eb22;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 0.5em;
+      color: #2563eb;
+    }
+    .dark .icon-circle {
+      background: #f3c96b22;
+      color: #f3c96b;
+    }
+    /* For the Current Bank Balance bills list */
+    .bills-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.45em 0;
+    }
+    .bills-list li:not(:last-child) {
+      border-bottom: 1px solid #e2e9f3;
+    }
+    .dark .bills-list li:not(:last-child) {
+      border-bottom: 1px solid #3a4667;
+    }
+  </style>
+  <script>
+    // Early set dark mode
+    (function() {
+      let theme = localStorage.getItem('wealthwise-theme');
+      if (!theme) {
+        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
+</head>
+<body class="min-h-screen flex flex-col text-ww-light-text dark:text-ww-dark-text transition-colors duration-200">
+  <!-- Header -->
+  <header class="bg-ww-dark-bg dark:bg-ww-dark-bg text-ww-dark-accent py-4 px-2 flex items-center w-full shadow-md dark:shadow-none flex-shrink-0 border-b border-ww-light-accent-contrast dark:border-transparent transition-colors duration-200">
+    <a href="landing.html" id="ww-logo-link" class="font-bold text-xl md:text-2xl tracking-wide logo-title block text-ww-dark-accent ml-2" style="font-family:'Montserrat',Arial,sans-serif; text-decoration: none;">
+      Wealthwise
+    </a>
+    <div class="ml-auto flex items-center gap-2">
+      <span id="welcome-user" class="text-ww-dark-accent dark:text-ww-dark-accent font-semibold text-base mr-3"></span>
+      <button id="theme-toggle" type="button" class="p-2 rounded-lg focus:outline-none transition hover:bg-ww-light-accent-contrast dark:hover:bg-ww-dark-card" title="Toggle dark/light mode">
+        <!-- Sun (Light Mode) -->
+        <svg class="w-6 h-6 text-ww-light-accent dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="5" stroke="currentColor" fill="none"/>
+          <path stroke-linecap="round" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M16.36 16.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M16.36 7.64l1.42-1.42"/>
+        </svg>
+        <!-- Moon (Dark Mode) -->
+        <svg class="w-6 h-6 text-ww-dark-accent hidden dark:inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3c.47 0 .94.03 1.41.08a7 7 0 008.3 9.71c.05.47.08.94.08 1.41z"/>
+        </svg>
+      </button>
+      <button id="logout-btn" class="logout-btn ww-btn" type="button">Log Out</button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 flex flex-col items-center w-full px-2 transition-colors duration-200">
+    <div class="w-full max-w-6xl mt-8">
+      <div class="dashboard-title text-center">Your Wealthwise Dashboard</div>
+      <div class="text-center text-ww-light-secondary dark:text-ww-dark-accent mb-7">
+        Steward your time, resources, and money with wisdom.
+      </div>
+
+      <!-- Daily Verse & Inspiration Card -->
+      <div class="verse-card mb-8 flex flex-col md:flex-row items-center">
+        <div class="icon-circle mb-2 md:mb-0 md:mr-5">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/>
+          </svg>
+        </div>
+        <div>
+          <div class="verse-ref">Luke 16:10</div>
+          <div class="verse-text">
+            “Whoever can be trusted with very little can also be trusted with much...”
+          </div>
+          <div class="verse-life">
+            <strong>Life Application:</strong>
+            Faithfulness in small things builds the foundation for managing greater resources.<br>
+            Start today by honoring God in every transaction and every minute.
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 grid-cols-dashboard">
+        <!-- Account Balance Card UPDATED -->
+        <div class="card">
+          <div class="dashboard-section-title flex items-center">
+            <span class="icon-circle">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" d="M12 8v8m0 0c-4 0-8-2-8-6V6a2 2 0 012-2h12a2 2 0 012 2v4c0 4-4 6-8 6z"/>
+              </svg>
+            </span>
+            Current Bank Balance <span class="text-ww-light-secondary text-xs ml-2">(after bills)</span>
+          </div>
+          <div class="stat-value mb-1">$4,250.35</div>
+          <div class="text-ww-light-secondary dark:text-ww-dark-accent text-sm mb-1">
+            Updated 2 min ago
+          </div>
+          <div class="mb-2 flex flex-col gap-1.5">
+            <span class="font-semibold text-ww-light-accent dark:text-ww-dark-accent text-sm">
+              Pay Period: <span class="font-normal text-ww-light-secondary dark:text-ww-dark-accent">June 15, 2025 &ndash; June 30, 2025</span>
+            </span>
+          </div>
+          <div class="mt-3">
+            <div class="font-semibold text-ww-light-accent dark:text-ww-dark-accent text-sm mb-1">Bills Due This Pay Period</div>
+            <ul class="bills-list">
+              <li>
+                <span>
+                  <span class="font-medium text-ww-accent-blue dark:text-ww-dark-accent">Electric</span>
+                  <span class="ml-2 text-ww-light-secondary dark:text-ww-dark-accent">(Jun 26)</span>
+                </span>
+                <span class="font-semibold">$115.00</span>
+              </li>
+              <li>
+                <span>
+                  <span class="font-medium text-ww-accent-blue dark:text-ww-dark-accent">Internet</span>
+                  <span class="ml-2 text-ww-light-secondary dark:text-ww-dark-accent">(Jun 28)</span>
+                </span>
+                <span class="font-semibold">$55.00</span>
+              </li>
+              <li>
+                <span>
+                  <span class="font-medium text-ww-accent-blue dark:text-ww-dark-accent">Rent</span>
+                  <span class="ml-2 text-ww-light-secondary dark:text-ww-dark-accent">(Jul 1)</span>
+                </span>
+                <span class="font-semibold">$1,200.00</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- 12-Month Balance Trends Card -->
+        <div class="card">
+          <div class="dashboard-section-title flex items-center">
+            <span class="icon-circle">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" d="M3 17v-2a4 4 0 014-4h10a4 4 0 014 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </span>
+            Balance Trends (12 Months)
+          </div>
+          <div class="flex flex-col mb-2">
+            <div>
+              <span class="stat-label">12-mo High:</span>
+              <span class="stat-value">$7,800.22</span>
+            </div>
+            <div>
+              <span class="stat-label">12-mo Low:</span>
+              <span class="stat-value">$2,120.44</span>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+        <!-- Budget Overview Card -->
+        <div class="card">
+          <div class="dashboard-section-title flex items-center">
+            <span class="icon-circle">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" d="M4 4h16v16H4V4z"/>
+                <path stroke-linecap="round" d="M4 9h16"/>
+              </svg>
+            </span>
+            Monthly Budget Overview
+          </div>
+          <div>
+            <span class="stat-label">Budgeted:</span> $3,500 <br>
+            <span class="stat-label">Spent:</span> $2,650 <br>
+            <span class="stat-label">Remaining:</span> <span class="stat-value">$850</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="budgetChart"></canvas>
+          </div>
+          <button class="ww-btn mt-2" onclick="alert('Budget details coming soon!')">View Budget</button>
+        </div>
+
+        <!-- Upcoming Bills Card -->
+        <div class="card">
+          <div class="dashboard-section-title flex items-center">
+            <span class="icon-circle">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2v16z"/>
+              </svg>
+            </span>
+            Upcoming Bills
+          </div>
+          <ul class="mb-2">
+            <li><span class="stat-label">Rent</span>: $1,200 due Jul 1</li>
+            <li><span class="stat-label">Electric</span>: $115 due Jun 26</li>
+            <li><span class="stat-label">Internet</span>: $55 due Jun 28</li>
+          </ul>
+          <button class="ww-btn" onclick="alert('Bill management coming soon!')">Manage Bills</button>
+        </div>
+
+        <!-- Financial Goals Card -->
+        <div class="card">
+          <div class="dashboard-section-title flex items-center">
+            <span class="icon-circle">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" d="M12 8v8m0 0c-4 0-8-2-8-6V6a2 2 0 012-2h12a2 2 0 012 2v4c0 4-4 6-8 6z"/>
+              </svg>
+            </span>
+            Your Financial Goals
+          </div>
+          <ul>
+            <li><span class="stat-label">Emergency Fund</span>: <span class="stat-value">60%</span> complete</li>
+            <li><span class="stat-label">Vacation Savings</span>: <span class="stat-value">30%</span> complete</li>
+          </ul>
+          <button class="ww-btn mt-2" onclick="alert('Goals management coming soon!')">View Goals</button>
+        </div>
+
+        <!-- Stewardship Tips Card -->
+        <div class="card">
+          <div class="dashboard-section-title flex items-center">
+            <span class="icon-circle">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" d="M12 8v8m0 0c-4 0-8-2-8-6V6a2 2 0 012-2h12a2 2 0 012 2v4c0 4-4 6-8 6z"/>
+              </svg>
+            </span>
+            Today's Stewardship Tip
+          </div>
+          <div class="text-ww-light-secondary dark:text-ww-dark-accent mb-2">
+            Review your subscriptions and cancel any you no longer use. Small leaks sink big ships!
+          </div>
+          <button class="ww-btn" onclick="alert('More tips coming soon!')">See More Tips</button>
+        </div>
+      </div>
+
+      <!-- Calculators -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+        <!-- Home Loan Calculator -->
+        <div class="card">
+          <div class="dashboard-section-title flex items-center">
+            <span class="icon-circle">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" d="M3 12l9-9 9 9"></path>
+                <path stroke-linecap="round" d="M9 21V9h6v12"></path>
+              </svg>
+            </span>
+            Home Loan Calculator
+          </div>
+          <label class="calc-label">Loan Amount ($)</label>
+          <input type="number" id="homeLoanAmount" class="calc-input" value="300000">
+          <label class="calc-label">Interest Rate (%)</label>
+          <input type="number" id="homeInterest" class="calc-input" value="5">
+          <label class="calc-label">Years</label>
+          <input type="number" id="homeYears" class="calc-input" value="30">
+          <button class="ww-btn w-full mt-2" onclick="calcHomeLoan()">Calculate Payment</button>
+          <div class="calc-result" id="homeLoanResult">Monthly Payment: $0.00</div>
+        </div>
+        <!-- Car Loan Calculator -->
+        <div class="card">
+          <div class="dashboard-section-title flex items-center">
+            <span class="icon-circle">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="2" y="7" width="20" height="7" rx="2" />
+                <circle cx="7.5" cy="16.5" r="2.5"/>
+                <circle cx="16.5" cy="16.5" r="2.5"/>
+              </svg>
+            </span>
+            Car Loan Calculator
+          </div>
+          <label class="calc-label">Loan Amount ($)</label>
+          <input type="number" id="carLoanAmount" class="calc-input" value="25000">
+          <label class="calc-label">Interest Rate (%)</label>
+          <input type="number" id="carInterest" class="calc-input" value="4">
+          <label class="calc-label">Years</label>
+          <input type="number" id="carYears" class="calc-input" value="5">
+          <button class="ww-btn w-full mt-2" onclick="calcCarLoan()">Calculate Payment</button>
+          <div class="calc-result" id="carLoanResult">Monthly Payment: $0.00</div>
+        </div>
+        <!-- Vacation Planner Calculator -->
+        <div class="card">
+          <div class="dashboard-section-title flex items-center">
+            <span class="icon-circle">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <path stroke-linecap="round" d="M7 10h10M7 14h6"/>
+              </svg>
+            </span>
+            Vacation Planner
+          </div>
+          <label class="calc-label">Goal Amount ($)</label>
+          <input type="number" id="vacGoal" class="calc-input" value="5000">
+          <label class="calc-label">Months Until Vacation</label>
+          <input type="number" id="vacMonths" class="calc-input" value="12">
+          <button class="ww-btn w-full mt-2" onclick="calcVacation()">Calculate Savings</button>
+          <div class="calc-result" id="vacationResult">Monthly Savings Needed: $0.00</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center text-ww-dark-text dark:text-[#e5e9f2] bg-ww-dark-bg dark:bg-ww-dark-bg border-t border-ww-light-accent-contrast dark:border-[#232c3f] py-3 mt-auto w-full text-sm transition-colors duration-200">
+    <div class="mb-1 footer-links">
+      <a href="/terms-of-service.html?return=" id="footer-terms-link" class="mx-2 text-ww-light-yellow dark:text-ww-dark-accent font-bold hover:text-ww-light-yellow-hover dark:hover:text-ww-dark-accent transition-colors">Terms of Service</a>
+      <a href="/privacy-policy/" class="mx-2 text-ww-light-yellow dark:text-ww-dark-accent font-bold hover:text-ww-light-yellow-hover dark:hover:text-ww-dark-accent transition-colors">Privacy Policy</a>
+    </div>
+    <div>&copy; 2025 Wealthwise. All rights reserved.</div>
+  </footer>
+
+  <script>
+    // Set up Terms of Service footer link to return here
+    document.getElementById('footer-terms-link').href = '/terms-of-service.html?return=' + encodeURIComponent(window.location.href);
+
+    // Dark mode toggle
+    document.getElementById('theme-toggle').addEventListener('click', function() {
+      const html = document.documentElement;
+      const isDark = html.classList.contains('dark');
+      if (isDark) {
+        html.classList.remove('dark');
+        localStorage.setItem('wealthwise-theme', 'light');
+      } else {
+        html.classList.add('dark');
+        localStorage.setItem('wealthwise-theme', 'dark');
+      }
+    });
+
+    // Simulate user (replace with backend logic)
+    document.getElementById('welcome-user').textContent = "Hello, Scott!";
+
+    // Chart.js charts for visuals
+    window.addEventListener('DOMContentLoaded', function() {
+      // 1. Balance over last 12 months (Line chart)
+      var ctxTrend = document.getElementById('trendChart').getContext('2d');
+      new Chart(ctxTrend, {
+        type: 'line',
+        data: {
+          labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          datasets: [{
+            label: 'Balance',
+            borderColor: '#2563eb',
+            backgroundColor: 'rgba(37,99,235,0.08)',
+            data: [3000, 3200, 2500, 4000, 4100, 7000, 7800, 7000, 4200, 2700, 2120, 4250],
+            fill: true,
+            tension: 0.34,
+            pointRadius: 3,
+          }]
+        },
+        options: {
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: false, grid: { color: '#e2e9f3' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+
+      // 2. Budget Overview (Pie chart)
+      var ctxBudget = document.getElementById('budgetChart').getContext('2d');
+      new Chart(ctxBudget, {
+        type: 'doughnut',
+        data: {
+          labels: ['Spent', 'Remaining'],
+          datasets: [{
+            data: [2650, 850],
+            backgroundColor: ['#2563eb', '#f3c96b'],
+          }]
+        },
+        options: {
+          plugins: { legend: { display: true, position: 'bottom' } },
+          cutout: '65%',
+        }
+      });
+    });
+
+    // Calculators
+    function calcHomeLoan() {
+      const P = parseFloat(document.getElementById('homeLoanAmount').value);
+      const r = parseFloat(document.getElementById('homeInterest').value) / 100 / 12;
+      const n = parseFloat(document.getElementById('homeYears').value) * 12;
+      if (!P || !r || !n) { document.getElementById('homeLoanResult').textContent = "Monthly Payment: $0.00"; return; }
+      const monthly = (P * r) / (1 - Math.pow(1 + r, -n));
+      document.getElementById('homeLoanResult').textContent = "Monthly Payment: $" + monthly.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+    function calcCarLoan() {
+      const P = parseFloat(document.getElementById('carLoanAmount').value);
+      const r = parseFloat(document.getElementById('carInterest').value) / 100 / 12;
+      const n = parseFloat(document.getElementById('carYears').value) * 12;
+      if (!P || !r || !n) { document.getElementById('carLoanResult').textContent = "Monthly Payment: $0.00"; return; }
+      const monthly = (P * r) / (1 - Math.pow(1 + r, -n));
+      document.getElementById('carLoanResult').textContent = "Monthly Payment: $" + monthly.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+    function calcVacation() {
+      const goal = parseFloat(document.getElementById('vacGoal').value);
+      const months = parseFloat(document.getElementById('vacMonths').value);
+      if (!goal || !months) { document.getElementById('vacationResult').textContent = "Monthly Savings Needed: $0.00"; return; }
+      const monthly = goal / months;
+      document.getElementById('vacationResult').textContent = "Monthly Savings Needed: $" + monthly.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+    calcHomeLoan(); calcCarLoan(); calcVacation();
+
+    // Log out button (just for demo)
+    document.getElementById('logout-btn').addEventListener('click', function() {
+      window.location.href = "login.html";
+    });
+  </script>
+</body>
+</html>

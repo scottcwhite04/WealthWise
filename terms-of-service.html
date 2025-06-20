@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Terms of Service - Wealthwise</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    html, body {
+      background: #f4f6fa;
+      color: #22304a;
+      font-family: 'Montserrat', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .overlay-bg {
+      position: fixed;
+      inset: 0;
+      background: rgba(34, 48, 74, 0.62);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      transition: opacity 0.25s;
+    }
+    .tos-modal {
+      background: #fff;
+      color: #22304a;
+      border-radius: 1.2em;
+      box-shadow: 0 12px 36px 0 rgba(34, 48, 74, 0.16);
+      max-width: 700px;
+      width: 96%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2.2em 2em 1.5em 2em;
+      position: relative;
+      animation: fade-in 0.3s;
+    }
+    @keyframes fade-in {
+      from {transform: scale(0.96); opacity: 0;}
+      to   {transform: scale(1); opacity: 1;}
+    }
+    .tos-title {
+      margin-top: 0;
+      margin-bottom: 0.6em;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #2563eb;
+      letter-spacing: 0.02em;
+      text-align: center;
+      font-family: 'Montserrat', Arial, sans-serif;
+    }
+    .tos-section-title {
+      font-size: 1.17rem;
+      font-weight: 600;
+      margin-top: 1.6em;
+      margin-bottom: 0.3em;
+      color: #3157a1;
+      letter-spacing: 0.01em;
+    }
+    .tos-section {
+      margin-bottom: 1em;
+      line-height: 1.7;
+      font-size: 1.06em;
+    }
+    .tos-date {
+      font-size: 0.98em;
+      color: #51607a;
+      text-align: center;
+      margin-bottom: 1.5em;
+    }
+    .tos-modal::-webkit-scrollbar {
+      width: 0.5em;
+      background: #e2e9f3;
+    }
+    .tos-modal::-webkit-scrollbar-thumb {
+      background: #d4e0f5;
+      border-radius: 0.6em;
+    }
+    .close-btn {
+      position: absolute;
+      top: 1.1em;
+      right: 1.2em;
+      background: none;
+      border: none;
+      font-size: 1.7em;
+      color: #b4c4e0;
+      cursor: pointer;
+      font-weight: 700;
+      transition: color 0.15s;
+      z-index: 2;
+    }
+    .close-btn:hover {
+      color: #c1121f;
+    }
+    @media (max-width: 650px) {
+      .tos-modal {
+        padding: 1.2em 0.7em 1.5em 0.7em;
+      }
+      .tos-title {
+        font-size: 1.3em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay-bg" id="tosOverlay" style="display:flex;">
+    <div class="tos-modal" role="dialog" aria-modal="true" aria-labelledby="tosTitle">
+      <button class="close-btn" id="closeTosBtn" title="Close Terms of Service" aria-label="Close">&times;</button>
+      <h1 class="tos-title" id="tosTitle">Terms of Service</h1>
+      <div class="tos-date"><em>Last Updated: June 20, 2025</em></div>
+
+      <div class="tos-section">
+        Welcome to Wealthwise! Please read these Terms of Service ("Terms", "Terms of Service") carefully before using our website and services (the "Service") operated by Wealthwise ("us", "we", or "our").
+        <br><br>
+        By accessing or using the Service, you agree to be bound by these Terms. If you do not agree with any part of the terms, please do not use our Service.
+      </div>
+
+      <div class="tos-section">
+        <div class="tos-section-title">1. Use of Our Service</div>
+        You must be at least 18 years old to use our Service. By using the Service, you represent that you meet this requirement.<br>
+        You agree not to use the Service for any unlawful or prohibited purpose. You may not use our Service to engage in any activity that could damage, disable, overburden, or impair the functioning of the Service.
+      </div>
+
+      <div class="tos-section">
+        <div class="tos-section-title">2. Account Registration</div>
+        To access certain features, you may be required to register for an account. You agree to provide accurate, current, and complete information and to keep your account details updated.<br>
+        You are responsible for maintaining the confidentiality of your account and password. You agree to notify us promptly of any unauthorized use or suspected breach of security.
+      </div>
+
+      <div class="tos-section">
+        <div class="tos-section-title">3. Intellectual Property</div>
+        All content, features, and functionality on the Service (including but not limited to text, graphics, logos, and software) are the exclusive property of Wealthwise and its licensors. You may not copy, modify, distribute, or create derivative works without our written permission.
+      </div>
+
+      <div class="tos-section">
+        <div class="tos-section-title">4. User Content</div>
+        You retain ownership of the content you submit or upload, but you grant us a non-exclusive, worldwide, royalty-free license to use, display, and distribute your content as necessary to provide the Service.<br>
+        You are solely responsible for your content and agree not to submit anything unlawful, infringing, or otherwise objectionable.
+      </div>
+
+      <div class="tos-section">
+        <div class="tos-section-title">5. Termination</div>
+        We reserve the right to suspend or terminate your access to the Service at our sole discretion, without notice or liability, for any reason, including if you breach these Terms.
+      </div>
+
+      <div class="tos-section">
+        <div class="tos-section-title">6. Disclaimers</div>
+        The Service is provided "AS IS" and "AS AVAILABLE" without warranties of any kind. We do not warrant that the Service will be uninterrupted, error-free, or secure.
+      </div>
+
+      <div class="tos-section">
+        <div class="tos-section-title">7. Limitation of Liability</div>
+        To the fullest extent permitted by law, Wealthwise and its affiliates will not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues.
+      </div>
+
+      <div class="tos-section">
+        <div class="tos-section-title">8. Changes to Terms</div>
+        We reserve the right to update these Terms at any time. Changes will be effective when posted. Your continued use of the Service constitutes acceptance of the new Terms.
+      </div>
+
+      <div class="tos-section">
+        <div class="tos-section-title">9. Governing Law</div>
+        These Terms are governed by the laws of the State of Alabama, United States of America, without regard to its conflict of law principles.
+      </div>
+
+      <div class="tos-section">
+        <div class="tos-section-title">10. Contact Us</div>
+        If you have any questions about these Terms, please contact us at <a href="mailto:wealthwise@gmail.com">wealthwise@gmail.com</a>.
+      </div>
+
+      <div class="tos-section" style="text-align:center; margin-top:2em;">
+        <strong>By using Wealthwise, you acknowledge that you have read, understood, and agree to these Terms of Service.</strong>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Get the referring page from query parameter or fallback to history.back
+    const overlay = document.getElementById('tosOverlay');
+    const closeBtn = document.getElementById('closeTosBtn');
+    
+    // Parse the "return" parameter from the URL
+    function getReturnUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const ret = params.get("return");
+      // If not present, fallback to document.referrer (if it's same-origin)
+      if (ret) return decodeURIComponent(ret);
+      if (document.referrer && document.referrer.indexOf(window.location.origin) === 0)
+        return document.referrer;
+      return null;
+    }
+    function goBackOrMain() {
+      const ret = getReturnUrl();
+      if (ret && ret !== window.location.href) {
+        window.location.href = ret;
+      } else {
+        window.history.back();
+      }
+    }
+
+    closeBtn.addEventListener('click', goBackOrMain);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        goBackOrMain();
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (overlay.style.display === 'flex' && e.key === 'Escape') {
+        goBackOrMain();
+      }
+    });
+  </script>
+</body>
+</html>
