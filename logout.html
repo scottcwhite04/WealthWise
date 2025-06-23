@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Logged Out - Wealthwise</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Tailwind CSS & Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:700,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'ww-dark-bg': '#1a2332',
+            'ww-dark-card': '#232c3f',
+            'ww-dark-text': '#e5e9f2',
+            'ww-dark-accent': '#f3c96b',
+            'ww-light-bg': '#f4f6fa',
+            'ww-light-card': '#fff',
+            'ww-light-text': '#22304a',
+            'ww-light-accent': '#3157a1',
+            'ww-light-accent-contrast': '#e2e9f3',
+            'ww-accent-blue': '#2563eb'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html, body {
+      background: #f4f6fa;
+      color: #22304a;
+      font-family: 'Montserrat', Arial, sans-serif !important;
+      transition: background 0.2s, color 0.2s;
+    }
+    .dark body, body.dark {
+      background: #1a2332 !important;
+      color: #e5e9f2 !important;
+    }
+    .logo-title {
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: #2563eb;
+      text-decoration: none;
+    }
+    .dark .logo-title {
+      color: #f3c96b !important;
+    }
+    .logout-card {
+      background: #fff;
+      border-radius: 1em;
+      box-shadow: 0 8px 32px 0 rgba(49, 87, 161, 0.14);
+      padding: 2em 2em 2em 2em;
+      max-width: 400px;
+      margin: 2em auto 0 auto;
+      text-align: center;
+      transition: background 0.2s, color 0.2s;
+    }
+    .dark .logout-card {
+      background: #232c3f !important;
+      color: #e5e9f2 !important;
+      box-shadow: 0 8px 32px 0 #232c3f22;
+    }
+    .ww-btn {
+      display: inline-block;
+      background: #2563eb;
+      color: #fff;
+      padding: 0.7em 2em;
+      border-radius: 0.5em;
+      font-weight: 600;
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-size: 1.07em;
+      box-shadow: 0 4px 18px 0 #2563eb22;
+      border: none;
+      cursor: pointer;
+      letter-spacing: 0.03em;
+      transition: background 0.18s, color 0.18s;
+      margin-top: 1.5em;
+    }
+    .ww-btn:hover {
+      background: #1d4ed8;
+      color: #FFD600;
+    }
+    a.ww-btn-alt {
+      display: inline-block;
+      border: 2px solid #2563eb;
+      background: transparent;
+      color: #2563eb;
+      padding: 0.7em 2em;
+      border-radius: 0.5em;
+      font-weight: 600;
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-size: 1.07em;
+      letter-spacing: 0.03em;
+      margin-top: 0.7em;
+      margin-left: 0.5em;
+      transition: background 0.18s, color 0.18s;
+      text-decoration: none;
+    }
+    a.ww-btn-alt:hover {
+      background: #2563eb;
+      color: #fff;
+    }
+    .logout-message {
+      font-size: 1.25em;
+      margin-bottom: 0.7em;
+      font-weight: 600;
+      color: #3157a1;
+      letter-spacing: 0.01em;
+    }
+    .dark .logout-message {
+      color: #f3c96b;
+    }
+    .logout-detail {
+      color: #51607a;
+      font-size: 1em;
+      margin-bottom: 1.4em;
+    }
+    .dark .logout-detail {
+      color: #f3c96b;
+    }
+    .footer-links a {
+      color: #2563eb;
+      font-weight: 600;
+      margin: 0 0.6em;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+    .dark .footer-links a {
+      color: #f3c96b !important;
+    }
+  </style>
+  <script>
+    (function() {
+      let theme = localStorage.getItem('wealthwise-theme');
+      if (!theme) {
+        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
+</head>
+<body class="min-h-screen flex flex-col text-ww-light-text dark:text-ww-dark-text transition-colors duration-200">
+  <!-- Header -->
+  <header class="bg-ww-dark-bg dark:bg-ww-dark-bg text-ww-dark-accent py-4 px-2 flex items-center w-full shadow-md dark:shadow-none flex-shrink-0 border-b border-ww-light-accent-contrast dark:border-transparent transition-colors duration-200">
+    <a href="index.html" class="logo-title block ml-2">Wealthwise</a>
+    <div class="ml-auto flex items-center gap-2">
+      <button id="theme-toggle" type="button" class="p-2 rounded-lg focus:outline-none transition hover:bg-ww-light-accent-contrast dark:hover:bg-ww-dark-card" title="Toggle dark/light mode">
+        <!-- Sun (Light Mode) -->
+        <svg class="w-6 h-6 text-ww-light-accent dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="5" stroke="currentColor" fill="none"/>
+          <path stroke-linecap="round" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M16.36 16.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M16.36 7.64l1.42-1.42"/>
+        </svg>
+        <!-- Moon (Dark Mode) -->
+        <svg class="w-6 h-6 text-ww-dark-accent hidden dark:inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3c.47 0 .94.03 1.41.08a7 7 0 008.3 9.71c.05.47.08.94.08 1.41z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow flex flex-col items-center justify-center w-full px-2">
+    <div class="logout-card">
+      <div class="logout-message">You have been securely signed out.</div>
+      <div class="logout-detail">Thank you for using Wealthwise.<br>
+        For your security, please close your browser if you're on a public or shared device.
+      </div>
+      <a href="login.html" class="ww-btn">Return to Login</a>
+      <a href="index.html" class="ww-btn-alt">Back to Home</a>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center text-ww-dark-text dark:text-[#e5e9f2] bg-ww-dark-bg dark:bg-ww-dark-bg border-t border-ww-light-accent-contrast dark:border-[#232c3f] py-3 mt-auto w-full text-sm transition-colors duration-200">
+    <div class="mb-1 footer-links">
+      <a href="/terms-of-service.html" class="mx-2 font-bold hover:text-ww-light-accent transition-colors">Terms of Service</a>
+      <a href="/privacy-policy/" class="mx-2 font-bold hover:text-ww-light-accent transition-colors">Privacy Policy</a>
+    </div>
+    <div>&copy; 2025 Wealthwise. All rights reserved.</div>
+  </footer>
+
+  <script>
+    // Dark mode toggle
+    document.getElementById('theme-toggle').addEventListener('click', function() {
+      const html = document.documentElement;
+      const isDark = html.classList.contains('dark');
+      if (isDark) {
+        html.classList.remove('dark');
+        localStorage.setItem('wealthwise-theme', 'light');
+      } else {
+        html.classList.add('dark');
+        localStorage.setItem('wealthwise-theme', 'dark');
+      }
+    });
+  </script>
+</body>
+</html>
