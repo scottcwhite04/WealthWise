@@ -5,6 +5,148 @@ const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+function formatAvatarUrl(display_name, avatar_url) {
+  return avatar_url?.trim()
+    ? avatar_url
+    : `https://ui-avatars.com/api/?background=3157a1&color=fff&name=${encodeURIComponent(display_name || 'User')}`;
+}
+
+function profileDropdownHTML(display_name, avatar_url) {
+  return `
+    <div class="flex items-center gap-2">
+      <span class="hidden md:block text-base font-semibold text-ww-dark-accent dark:text-ww-dark-accent">Hello, ${display_name}</span>
+      <button id="ww-avatar-btn" class="ww-avatar-btn relative focus:outline-none group" type="button" aria-label="Profile menu">
+        <img src="${formatAvatarUrl(display_name, avatar_url)}" alt="User avatar" />
+      </button>
+    </div>
+    <div id="ww-user-dropdown" class="ww-user-dropdown">
+      <button id="ww-profile-update-btn" type="button">Update Profile</button>
+      <button id="ww-logout-btn" type="button" style="color:#b91c1c;">Log Out</button>
+    </div>
+  `;
+}
+
+function profileModalHTML(profile) {
+  return `
+  <div id="ww-profile-modal" class="ww-profile-modal modal">
+    <div class="modal-content dark:bg-ww-dark-card dark:text-ww-dark-text relative" style="max-width: 440px;">
+      <button class="modal-close" id="ww-profile-modal-close" aria-label="Close">&times;</button>
+      <h2 class="dashboard-section-title mb-3">Update Profile</h2>
+      <form id="ww-profile-form" class="space-y-3">
+        <div>
+          <label class="block font-semibold mb-1" for="profile_display_name">Display Name</label>
+          <input type="text" id="profile_display_name" name="display_name" class="form-input w-full" required value="${profile?.display_name || ''}">
+        </div>
+        <div>
+          <label class="block font-semibold mb-1" for="profile_avatar_url">Avatar URL</label>
+          <input type="url" id="profile_avatar_url" name="avatar_url" class="form-input w-full" value="${profile?.avatar_url || ''}">
+        </div>
+        <div>
+          <label class="block font-semibold mb-1" for="profile_address_line1">Address Line 1</label>
+          <input type="text" id="profile_address_line1" name="address_line1" class="form-input w-full" value="${profile?.address_line1 || ''}">
+        </div>
+        <div>
+          <label class="block font-semibold mb-1" for="profile_address_line2">Address Line 2</label>
+          <input type="text" id="profile_address_line2" name="address_line2" class="form-input w-full" value="${profile?.address_line2 || ''}">
+        </div>
+        <div>
+          <label class="block font-semibold mb-1" for="profile_city">City</label>
+          <input type="text" id="profile_city" name="city" class="form-input w-full" value="${profile?.city || ''}">
+        </div>
+        <div class="flex gap-2">
+          <div class="flex-1">
+            <label class="block font-semibold mb-1" for="profile_state">State</label>
+            <input type="text" id="profile_state" name="state" class="form-input w-full" value="${profile?.state || ''}">
+          </div>
+          <div class="flex-1">
+            <label class="block font-semibold mb-1" for="profile_postal_code">Postal Code</label>
+            <input type="text" id="profile_postal_code" name="postal_code" class="form-input w-full" value="${profile?.postal_code || ''}">
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1" for="profile_country">Country</label>
+          <input type="text" id="profile_country" name="country" class="form-input w-full" value="${profile?.country || ''}">
+        </div>
+        <div>
+          <label class="block font-semibold mb-1" for="profile_phone">Phone</label>
+          <input type="tel" id="profile_phone" name="phone" class="form-input w-full" value="${profile?.phone || ''}">
+        </div>
+        <div>
+          <label class="block font-semibold mb-1" for="profile_birthdate">Birthdate</label>
+          <input type="date" id="profile_birthdate" name="birthdate" class="form-input w-full" value="${profile?.birthdate ? profile.birthdate.split('T')[0] : ''}">
+        </div>
+        <button type="submit" class="ww-btn w-full">Save Changes</button>
+      </form>
+    </div>
+  </div>
+  `;
+}
+
+async function renderProfileGreeting() {
+  const container = document.getElementById('profile-greeting-inject');
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  container.innerHTML = profileDropdownHTML(profile?.display_name || 'User', profile?.avatar_url);
+
+  const avatarBtn = document.getElementById('ww-avatar-btn');
+  const dropdown = document.getElementById('ww-user-dropdown');
+  avatarBtn.onclick = e => {
+    dropdown.classList.toggle('open');
+    e.stopPropagation();
+  };
+  document.body.addEventListener('click', () => dropdown.classList.remove('open'));
+  dropdown.onclick = e => e.stopPropagation();
+
+  document.getElementById('ww-logout-btn').onclick = async () => {
+    await supabase.auth.signOut();
+    window.location.href = 'logout.html';
+  };
+
+  document.getElementById('ww-profile-update-btn').onclick = () => {
+    showProfileModal(profile);
+    dropdown.classList.remove('open');
+  };
+}
+
+function showProfileModal(profile) {
+  let modal = document.getElementById('ww-profile-modal');
+  if (modal) modal.remove();
+  document.body.insertAdjacentHTML('beforeend', profileModalHTML(profile));
+  modal = document.getElementById('ww-profile-modal');
+  modal.classList.add('open');
+  document.getElementById('ww-profile-modal-close').onclick = () => modal.classList.remove('open');
+  modal.onclick = e => { if (e.target === modal) modal.classList.remove('open'); };
+  document.getElementById('ww-profile-form').onsubmit = async function(e) {
+    e.preventDefault();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const values = {};
+    for (const el of this.elements) {
+      if (el.name) values[el.name] = el.value;
+    }
+    const { error } = await supabase.from('profiles').update(values).eq('id', user.id);
+    if (error) alert('Error updating profile: ' + error.message);
+    else {
+      modal.classList.remove('open');
+      await renderProfileGreeting();
+    }
+  };
+  document.addEventListener('keydown', function esc(e) {
+    if (e.key === "Escape") {
+      modal.classList.remove('open');
+      document.removeEventListener('keydown', esc);
+    }
+  });
+}
+
+window.addEventListener('DOMContentLoaded', renderProfileGreeting);
+
 // --- HELPER FUNCTIONS ---
 function formatMoney(val) {
   return "$" + Number(val || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
