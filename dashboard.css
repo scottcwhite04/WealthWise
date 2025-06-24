@@ -29,7 +29,7 @@ header {
   box-sizing: border-box;
 }
 
-/* Profile greeting and dropdown */
+/* Profile greeting and dropdown - toggle on left, greeting, then avatar */
 #profile-greeting-inject {
   display: flex;
   align-items: center;
@@ -42,7 +42,24 @@ header {
   min-width: 0;
 }
 
+.theme-toggle-btn {
+  order: 0;
+  position: relative;
+  z-index: 100;
+  background: #fff;
+  color: #3157a1;
+  border-radius: 9999px;
+  padding: 0.5em 0.8em;
+  font-size: 1.15em;
+  border: 1px solid #e2e9f3;
+  cursor: pointer;
+  margin: 0 0.4rem 0 0;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
 #profile-greeting-inject .greeting-text {
+  order: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -55,23 +72,8 @@ header {
   max-width: 33vw;
 }
 
-/* THEME TOGGLE BUTTON: Always visible between greeting and avatar */
-.theme-toggle-btn {
-  position: relative;
-  z-index: 100;
-  background: #fff;
-  color: #3157a1;
-  border-radius: 9999px;
-  padding: 0.5em 0.8em;
-  font-size: 1.15em;
-  border: 1px solid #e2e9f3;
-  cursor: pointer;
-  margin: 0 0.5rem;
-  flex-shrink: 0;
-  box-sizing: border-box;
-}
-
 .ww-avatar-btn {
+  order: 2;
   width: 40px;
   height: 40px;
   min-width: 40px;
@@ -110,7 +112,7 @@ header {
   .theme-toggle-btn {
     font-size: 1em;
     padding: 0.3em 0.5em;
-    margin: 0 0.2rem;
+    margin: 0 0.15rem 0 0;
   }
   .ww-avatar-btn,
   .ww-avatar-btn img {
