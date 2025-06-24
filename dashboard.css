@@ -23,7 +23,7 @@ body.dark, .dark body {
   font-size: 1.15em;
   border: 1px solid #e2e9f3;
   cursor: pointer;
-  margin-left: 1rem;
+  margin-left: 10rem;
 }
 header, .header-bar, #profile-greeting-inject {
   overflow: visible !important;
