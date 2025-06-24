@@ -3,19 +3,62 @@ html, body {
   color: #22304a;
   font-family: 'Montserrat', Arial, sans-serif !important;
   transition: background 0.2s, color 0.2s;
-}
-body,
-html {
   min-height: 100vh;
   width: 100vw;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
 body.dark, .dark body {
   background: #1a2332 !important;
   color: #e5e9f2 !important;
 }
+
+/* Prevent horizontal scroll everywhere */
+body, html, #__next, #main, .w-full, .max-w-6xl {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box;
+}
+
+/* Header fix */
+header {
+  width: 100vw;
+  min-width: 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Profile greeting and dropdown */
+#profile-greeting-inject {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  max-width: 100vw;
+  flex-shrink: 1;
+  padding-right: 8px;
+  overflow: visible;
+  min-width: 0;
+}
+
+#profile-greeting-inject .greeting-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #3157a1;
+  min-width: 0;
+  max-width: 33vw;
+}
+
+/* THEME TOGGLE BUTTON: Always visible between greeting and avatar */
 .theme-toggle-btn {
-  position: relative;         /* or absolute/fixed for overlays */
-  z-index: 100;               /* above most content */
+  position: relative;
+  z-index: 100;
   background: #fff;
   color: #3157a1;
   border-radius: 9999px;
@@ -23,11 +66,154 @@ body.dark, .dark body {
   font-size: 1.15em;
   border: 1px solid #e2e9f3;
   cursor: pointer;
-  margin-left: 1rem;
+  margin: 0 0.5rem;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
-header, .header-bar, #profile-greeting-inject {
-  overflow: visible !important;
+
+.ww-avatar-btn {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  flex-shrink: 0;
+  margin-left: 0.2rem;
+  border-radius: 9999px;
+  border: 2px solid #2563eb;
+  background: #fff;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border 0.18s;
+  box-sizing: border-box;
 }
+.ww-avatar-btn img {
+  border-radius: 9999px;
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  background: #f3f6fa;
+  display: block;
+}
+.ww-avatar-btn:focus,
+.ww-avatar-btn:hover {
+  border-color: #f3c96b;
+}
+
+/* Hide greeting text and shrink avatar for very small screens */
+@media (max-width: 480px) {
+  #profile-greeting-inject .greeting-text {
+    display: none;
+  }
+  .theme-toggle-btn {
+    font-size: 1em;
+    padding: 0.3em 0.5em;
+    margin: 0 0.2rem;
+  }
+  .ww-avatar-btn,
+  .ww-avatar-btn img {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+  }
+  #profile-greeting-inject {
+    gap: 0.2rem;
+    padding-right: 2px;
+  }
+}
+
+/* Dropdown fix */
+.ww-user-dropdown {
+  min-width: 170px;
+  box-shadow: 0 8px 24px 0 rgba(49, 87, 161, 0.18);
+  border-radius: 0.6em;
+  border: 1px solid #e2e9f3;
+  background: #fff;
+  position: absolute;
+  right: 0;
+  top: 48px;
+  z-index: 40;
+  display: none;
+  overflow: visible;
+}
+.ww-user-dropdown.open { display: block; }
+.dark .ww-user-dropdown {
+  background: #232c3f !important;
+  color: #e5e9f2 !important;
+  border-color: #232c3f;
+}
+.ww-user-dropdown button,
+.ww-user-dropdown a {
+  width: 100%;
+  text-align: left;
+  padding: 0.8em 1em;
+  background: none;
+  border: none;
+  font-weight: 500;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.15s;
+  color: inherit;
+  text-decoration: none;
+  display: block;
+}
+.ww-user-dropdown button:hover,
+.ww-user-dropdown a:hover {
+  background: #f3f4f6;
+  color: #2563eb;
+}
+.dark .ww-user-dropdown button:hover,
+.dark .ww-user-dropdown a:hover {
+  background: #1a2332 !important;
+  color: #f3c96b !important;
+}
+@media (max-width: 800px) {
+  #profile-greeting-inject .greeting-text {
+    max-width: 70px;
+  }
+}
+@media (max-width: 600px) {
+  #profile-greeting-inject .greeting-text {
+    display: none;
+  }
+  .ww-avatar-btn {
+    margin-left: 0;
+  }
+}
+
+/* Prevent content overflow in .w-full and .max-w-6xl containers */
+.w-full, .max-w-6xl {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+}
+
+/* Fix for main content */
+main {
+  width: 100vw;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Prevent all dashboard cards from causing overflow */
+.card, .verse-card {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
+}
+
+/* General fix for all flex layouts that may overflow */
+.flex, .flex-row, .flex-col {
+  min-width: 0;
+}
+
+/* --- Existing Wealthwise Dashboard Styles --- */
 .dashboard-title {
   font-size: 2rem;
   font-weight: 700;
@@ -315,117 +501,6 @@ header, .header-bar, #profile-greeting-inject {
 }
 .dark .bills-table td {
   background: #232c3f;
-}
-
-/* Profile greeting and dropdown */
-#profile-greeting-inject {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  position: relative;
-  max-width: 100vw;
-  padding-right: 8px;
-  flex-shrink: 1;
-  overflow: visible;
-}
-#profile-greeting-inject .greeting-text, #profile-greeting-inject span {
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  display: inline-block;
-  vertical-align: middle;
-}
-#profile-greeting-inject > * {
-  min-width: 0;
-}
-.ww-avatar-btn {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
-  min-height: 40px;
-  flex-shrink: 0;
-  margin-left: 0.2rem;
-  border-radius: 9999px;
-  border: 2px solid #2563eb;
-  background: #fff;
-  padding: 0;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: border 0.18s;
-  box-sizing: border-box;
-}
-.ww-avatar-btn img {
-  border-radius: 9999px;
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  background: #f3f6fa;
-  display: block;
-}
-.ww-avatar-btn:focus,
-.ww-avatar-btn:hover {
-  border-color: #f3c96b;
-}
-.ww-user-dropdown {
-  min-width: 170px;
-  box-shadow: 0 8px 24px 0 rgba(49, 87, 161, 0.18);
-  border-radius: 0.6em;
-  border: 1px solid #e2e9f3;
-  background: #fff;
-  position: absolute;
-  right: 0;
-  top: 48px;
-  z-index: 40;
-  display: none;
-  overflow: visible;
-}
-.ww-user-dropdown.open { display: block; }
-.dark .ww-user-dropdown {
-  background: #232c3f !important;
-  color: #e5e9f2 !important;
-  border-color: #232c3f;
-}
-.ww-user-dropdown button,
-.ww-user-dropdown a {
-  width: 100%;
-  text-align: left;
-  padding: 0.8em 1em;
-  background: none;
-  border: none;
-  font-weight: 500;
-  font-family: 'Montserrat', Arial, sans-serif;
-  font-size: 1em;
-  cursor: pointer;
-  transition: background 0.15s;
-  color: inherit;
-  text-decoration: none;
-  display: block;
-}
-.ww-user-dropdown button:hover,
-.ww-user-dropdown a:hover {
-  background: #f3f4f6;
-  color: #2563eb;
-}
-.dark .ww-user-dropdown button:hover,
-.dark .ww-user-dropdown a:hover {
-  background: #1a2332 !important;
-  color: #f3c96b !important;
-}
-@media (max-width: 800px) {
-  #profile-greeting-inject .greeting-text, #profile-greeting-inject span {
-    max-width: 70px;
-  }
-}
-@media (max-width: 600px) {
-  #profile-greeting-inject .greeting-text, #profile-greeting-inject span {
-    display: none;
-  }
-  .ww-avatar-btn {
-    margin-left: 0;
-  }
 }
 
 /* Modal for profile update */
