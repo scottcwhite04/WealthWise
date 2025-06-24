@@ -1,4 +1,4 @@
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 // --- SUPABASE CONFIG ---
 const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
@@ -12,9 +12,10 @@ function formatAvatarUrl(display_name, avatar_url) {
 }
 
 function profileDropdownHTML(display_name, avatar_url) {
+  // Always show display_name, never truncate on desktop
   return `
     <div class="flex items-center gap-2">
-      <span class="hidden md:block text-base font-semibold text-ww-dark-accent dark:text-ww-dark-accent">Hello, ${display_name}</span>
+      <span class="greeting-text text-base font-semibold text-ww-dark-accent dark:text-ww-dark-accent">Hello, ${display_name}</span>
       <button id="ww-avatar-btn" class="ww-avatar-btn relative focus:outline-none group" type="button" aria-label="Profile menu">
         <img src="${formatAvatarUrl(display_name, avatar_url)}" alt="User avatar" />
       </button>
@@ -162,17 +163,6 @@ function formatDateShort(dateStr) {
   return d.toLocaleDateString(undefined, {month: 'short', day: 'numeric'});
 }
 
-// --- DASHBOARD GREETING ---
-async function setUserGreeting() {
-  const { data: { user } } = await supabase.auth.getUser();
-  let name = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email || user?.id || '';
-  if (name && name.includes('@')) {
-    name = name.split('@')[0];
-  }
-  document.getElementById('welcome-user').textContent = name ? `Hello, ${name}!` : '';
-}
-setUserGreeting();
-
 // --- DASHBOARD SNAPSHOT CARD ---
 async function loadCurrentBalanceCard() {
   const { data: { user } } = await supabase.auth.getUser();
@@ -232,8 +222,6 @@ async function loadCurrentBalanceCard() {
       .gte('due_date', balance.start_date)
       .lte('due_date', balance.end_date)
       .order('due_date', { ascending: true });
-
-    console.log('Bills for current period:', bills); // DEBUG
 
     if (bills && bills.length > 0) {
       billsHtml = bills.map(bill => `
