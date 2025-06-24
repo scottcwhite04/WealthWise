@@ -13,6 +13,21 @@ body.dark, .dark body {
   background: #1a2332 !important;
   color: #e5e9f2 !important;
 }
+.theme-toggle-btn {
+  position: relative;         /* or absolute/fixed for overlays */
+  z-index: 100;               /* above most content */
+  background: #fff;
+  color: #3157a1;
+  border-radius: 9999px;
+  padding: 0.5em 0.8em;
+  font-size: 1.15em;
+  border: 1px solid #e2e9f3;
+  cursor: pointer;
+  margin-left: 1rem;
+}
+header, .header-bar, #profile-greeting-inject {
+  overflow: visible !important;
+}
 .dashboard-title {
   font-size: 2rem;
   font-weight: 700;
