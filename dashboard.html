@@ -52,23 +52,12 @@
 </head>
 <body class="min-h-screen flex flex-col text-ww-light-text dark:text-ww-dark-text transition-colors duration-200">
   <!-- Header -->
+  <!-- Header -->
   <header class="bg-ww-dark-bg dark:bg-ww-dark-bg text-ww-dark-accent py-4 px-2 flex items-center w-full shadow-md dark:shadow-none flex-shrink-0 border-b border-ww-light-accent-contrast dark:border-transparent transition-colors duration-200">
     <a href="index.html" id="ww-logo-link" class="font-bold text-xl md:text-2xl tracking-wide logo-title block text-ww-dark-accent ml-2" style="font-family:'Montserrat',Arial,sans-serif; text-decoration: none;">
       Wealthwise
     </a>
-    <div class="ml-auto flex items-center gap-2">
-      <span id="welcome-user" class="text-ww-dark-accent dark:text-ww-dark-accent font-semibold text-base mr-3"></span>
-      <button id="theme-toggle" type="button" class="p-2 rounded-lg focus:outline-none transition hover:bg-ww-light-accent-contrast dark:hover:bg-ww-dark-card" title="Toggle dark/light mode">
-        <svg class="w-6 h-6 text-ww-light-accent dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="5" stroke="currentColor" fill="none"/>
-          <path stroke-linecap="round" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M16.36 16.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M16.36 7.64l1.42-1.42"/>
-        </svg>
-        <svg class="w-6 h-6 text-ww-dark-accent hidden dark:inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3c.47 0 .94.03 1.41.08a7 7 0 008.3 9.71c.05.47.08.94.08 1.41z"/>
-        </svg>
-      </button>
-      <button id="logout-btn" class="logout-btn ww-btn" type="button" onclick="window.location.href='logout.html'">Log Out</button>
-    </div>
+    <div class="ml-auto flex items-center gap-2" id="profile-greeting-inject"></div>
   </header>
   <main class="flex-1 flex flex-col items-center w-full px-2 transition-colors duration-200">
     <div class="w-full max-w-6xl mt-8">
