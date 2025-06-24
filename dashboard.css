@@ -308,13 +308,13 @@ body.dark, .dark body {
   align-items: center;
   gap: 0.5rem;
   position: relative;
-  /* Prevent overflow on the right */
   max-width: 100vw;
   padding-right: 8px;
   flex-shrink: 1;
+  overflow: visible;
 }
-#profile-greeting-inject .greeting-text {
-  max-width: 120px;         /* Or a value that fits your layout */
+#profile-greeting-inject .greeting-text, #profile-greeting-inject span {
+  max-width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -331,6 +331,16 @@ body.dark, .dark body {
   min-height: 40px;
   flex-shrink: 0;
   margin-left: 0.2rem;
+  border-radius: 9999px;
+  border: 2px solid #2563eb;
+  background: #fff;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border 0.18s;
+  box-sizing: border-box;
 }
 .ww-avatar-btn img {
   border-radius: 9999px;
@@ -389,34 +399,21 @@ body.dark, .dark body {
   background: #1a2332 !important;
   color: #f3c96b !important;
 }
-#profile-greeting-inject span {
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  display: inline-block;
-  vertical-align: middle;
-}
-#profile-greeting-inject {
-  max-width: 100vw;
-  overflow: visible;
-  padding-right: 12px;
-  flex-shrink: 1;
-}
 @media (max-width: 800px) {
-  #profile-greeting-inject span {
+  #profile-greeting-inject .greeting-text, #profile-greeting-inject span {
     max-width: 70px;
   }
 }
 @media (max-width: 600px) {
-  #profile-greeting-inject .greeting-text {
+  #profile-greeting-inject .greeting-text, #profile-greeting-inject span {
     display: none;
   }
-}
   .ww-avatar-btn {
     margin-left: 0;
   }
 }
+
+/* Modal for profile update */
 .ww-profile-modal.modal {
   display: none;
   position: fixed;
