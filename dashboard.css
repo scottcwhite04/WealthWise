@@ -308,24 +308,34 @@ body.dark, .dark body {
   align-items: center;
   gap: 0.5rem;
   position: relative;
+  /* Prevent overflow on the right */
+  max-width: 100vw;
+  padding-right: 8px;
+  flex-shrink: 1;
+}
+#profile-greeting-inject > * {
+  min-width: 0;
 }
 .ww-avatar-btn {
   border-radius: 9999px;
   border: 2px solid #2563eb;
   background: #fff;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   padding: 0;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: border 0.18s;
+  flex-shrink: 0;
+  margin-left: 0.25rem;
+  box-sizing: border-box;
 }
 .ww-avatar-btn img {
   border-radius: 9999px;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   object-fit: cover;
   background: #f3f6fa;
   display: block;
@@ -342,9 +352,10 @@ body.dark, .dark body {
   background: #fff;
   position: absolute;
   right: 0;
-  top: 56px;
+  top: 48px;
   z-index: 40;
   display: none;
+  overflow: visible;
 }
 .ww-user-dropdown.open { display: block; }
 .dark .ww-user-dropdown {
@@ -377,6 +388,27 @@ body.dark, .dark body {
 .dark .ww-user-dropdown a:hover {
   background: #1a2332 !important;
   color: #f3c96b !important;
+}
+#profile-greeting-inject span {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
+}
+@media (max-width: 800px) {
+  #profile-greeting-inject span {
+    max-width: 70px;
+  }
+}
+@media (max-width: 600px) {
+  #profile-greeting-inject span {
+    display: none;
+  }
+  .ww-avatar-btn {
+    margin-left: 0;
+  }
 }
 .ww-profile-modal.modal {
   display: none;
