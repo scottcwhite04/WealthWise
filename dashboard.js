@@ -1,4 +1,4 @@
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 // --- SUPABASE CONFIG ---
 const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
@@ -20,16 +20,113 @@ function formatDateShort(dateStr) {
   return d.toLocaleDateString(undefined, {month: 'short', day: 'numeric'});
 }
 
-// --- DASHBOARD GREETING ---
-async function setUserGreeting() {
-  const { data: { user } } = await supabase.auth.getUser();
-  let name = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email || user?.id || '';
-  if (name && name.includes('@')) {
-    name = name.split('@')[0];
+// --- CLEAN PROFESSIONAL THEME TOGGLE ---
+// Find header toggle and icons, if they exist
+function setupThemeToggle() {
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  if (!themeToggleBtn) return;
+
+  // Replace innerHTML with a modern toggle switch
+  themeToggleBtn.innerHTML = `
+    <span class="sr-only">Toggle dark mode</span>
+    <span class="toggle-bg" style="
+      display:inline-block;
+      width:40px;
+      height:22px;
+      border-radius:9999px;
+      background:#e2e9f3;
+      position:relative;
+      vertical-align:middle;
+      transition:background 0.16s;
+      ">
+      <span id="toggle-ball" style="
+        width:18px;height:18px;display:block;position:absolute;top:2px;left:2px;
+        border-radius:50%;background:#2563eb;transition:left 0.16s, background 0.16s;
+        box-shadow:0 1px 4px #22304a22;
+      "></span>
+      <span id="toggle-sun" style="
+        position:absolute;left:7px;top:3px;font-size:12px;z-index:10;color:#FFD600;">☀️</span>
+      <span id="toggle-moon" style="
+        position:absolute;right:7px;top:3px;font-size:12px;z-index:10;display:none;color:#FFD600;">🌙</span>
+    </span>
+  `;
+
+  function updateToggleVisual() {
+    const isDark = document.documentElement.classList.contains('dark');
+    const ball = document.getElementById('toggle-ball');
+    const sun = document.getElementById('toggle-sun');
+    const moon = document.getElementById('toggle-moon');
+    const bg = themeToggleBtn.querySelector('.toggle-bg');
+    if (isDark) {
+      ball.style.left = "20px";
+      ball.style.background = "#f3c96b";
+      sun.style.display = "none";
+      moon.style.display = "block";
+      bg.style.background = "#333b4d";
+    } else {
+      ball.style.left = "2px";
+      ball.style.background = "#2563eb";
+      sun.style.display = "block";
+      moon.style.display = "none";
+      bg.style.background = "#e2e9f3";
+    }
   }
-  document.getElementById('welcome-user').textContent = name ? `Hello, ${name}!` : '';
+  updateToggleVisual();
+  themeToggleBtn.onclick = () => {
+    const html = document.documentElement;
+    const isDark = html.classList.contains('dark');
+    if (isDark) {
+      html.classList.remove('dark');
+      localStorage.setItem('wealthwise-theme', 'light');
+    } else {
+      html.classList.add('dark');
+      localStorage.setItem('wealthwise-theme', 'dark');
+    }
+    updateToggleVisual();
+  };
 }
-setUserGreeting();
+
+// --- DASHBOARD GREETING & AVATAR FROM profiles TABLE ---
+async function setUserGreetingAndAvatar() {
+  const { data: { user } } = await supabase.auth.getUser();
+  let greeting = '';
+  let avatarUrl = 'https://ui-avatars.com/api/?name=W+User&background=2563eb&color=fff';
+
+  if (user) {
+    // Fetch from profiles table
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('display_name,avatar_url')
+      .eq('id', user.id)
+      .single();
+
+    if (profile) {
+      greeting = profile.display_name ? `Hello, ${profile.display_name}!` : '';
+      if (profile.avatar_url) {
+        avatarUrl = profile.avatar_url;
+      }
+    } else {
+      // fallback to user_metadata/email
+      let name = user.user_metadata?.full_name || user.user_metadata?.name || user.email || user.id || '';
+      if (name && name.includes('@')) name = name.split('@')[0];
+      greeting = name ? `Hello, ${name}!` : '';
+    }
+  }
+
+  // Header area (if present)
+  const headerGreeting = document.getElementById('header-greeting');
+  if (headerGreeting) headerGreeting.textContent = greeting;
+  const headerAvatar = document.getElementById('header-avatar-img');
+  if (headerAvatar) headerAvatar.src = avatarUrl;
+
+  // Dashboard area (if present)
+  const welcomeUser = document.getElementById('welcome-user');
+  if (welcomeUser) welcomeUser.textContent = greeting;
+  const dashboardAvatar = document.getElementById('dashboard-avatar-img');
+  if (dashboardAvatar) dashboardAvatar.src = avatarUrl;
+}
+setupThemeToggle();
+setUserGreetingAndAvatar();
 
 // --- DASHBOARD SNAPSHOT CARD ---
 async function loadCurrentBalanceCard() {
@@ -91,8 +188,6 @@ async function loadCurrentBalanceCard() {
       .lte('due_date', balance.end_date)
       .order('due_date', { ascending: true });
 
-    console.log('Bills for current period:', bills); // DEBUG
-
     if (bills && bills.length > 0) {
       billsHtml = bills.map(bill => `
         <li>
@@ -134,6 +229,7 @@ window.handlePaidCheckboxChange = async function(event) {
   await loadCurrentBalanceCard();
 };
 
+// --- ALLOWANCES MODAL LOGIC ---
 // --- ALLOWANCES MODAL LOGIC ---
 let loggedInUser = null;
 async function fetchUserAllowances() {
@@ -380,39 +476,38 @@ window.deleteBillModal = async function(billId) {
 
 // --- CHART AND FOOTER ---
 document.getElementById('footer-terms-link').href = '/terms-of-service.html?return=' + encodeURIComponent(window.location.href);
-document.getElementById('theme-toggle').addEventListener('click', function() {
-  const html = document.documentElement;
-  const isDark = html.classList.contains('dark');
-  if (isDark) {
-    html.classList.remove('dark');
-    localStorage.setItem('wealthwise-theme', 'light');
-  } else {
-    html.classList.add('dark');
-    localStorage.setItem('wealthwise-theme', 'dark');
-  }
-});
+
+// Chart.js rendering for trends (unchanged)
 window.addEventListener('DOMContentLoaded', function() {
-  var ctxTrend = document.getElementById('trendChart').getContext('2d');
-  new Chart(ctxTrend, {
-    type: 'line',
-    data: {
-      labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-      datasets: [{
-        label: 'Balance',
-        borderColor: '#2563eb',
-        backgroundColor: 'rgba(37,99,235,0.08)',
-        data: [3000, 3200, 2500, 4000, 4100, 7000, 7800, 7000, 4200, 2700, 2120, 4250],
-        fill: true,
-        tension: 0.34,
-        pointRadius: 3,
-      }]
-    },
-    options: {
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { beginAtZero: false, grid: { color: '#e2e9f3' } },
-        x: { grid: { display: false } }
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  if (themeToggleBtn && !themeToggleBtn.hasAttribute('data-setup')) {
+    setupThemeToggle();
+    themeToggleBtn.setAttribute('data-setup', 'true');
+  }
+  var ctxTrend = document.getElementById('trendChart');
+  if (ctxTrend) {
+    ctxTrend = ctxTrend.getContext('2d');
+    new Chart(ctxTrend, {
+      type: 'line',
+      data: {
+        labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          label: 'Balance',
+          borderColor: '#2563eb',
+          backgroundColor: 'rgba(37,99,235,0.08)',
+          data: [3000, 3200, 2500, 4000, 4100, 7000, 7800, 7000, 4200, 2700, 2120, 4250],
+          fill: true,
+          tension: 0.34,
+          pointRadius: 3,
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: false, grid: { color: '#e2e9f3' } },
+          x: { grid: { display: false } }
+        }
       }
-    }
-  });
+    });
+  }
 });
