@@ -19,7 +19,7 @@ const headerHTML = `
     border-bottom: 1.5px solid #e2e9f3;
     font-family: 'Montserrat', Arial, sans-serif;
   }
-  .logo-title {
+  #ww-header-bar .logo-title {
     font-weight: bold;
     font-size: 1.35rem;
     letter-spacing: 0.03em;
@@ -31,10 +31,16 @@ const headerHTML = `
     margin-left: auto;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding-right: 10px;
+    gap: 0.5rem;
+    min-width: 0;
+    padding-right: 6px;
+    max-width: 100vw;
+    overflow: visible;
+    flex-shrink: 1;
   }
   .theme-toggle-btn {
+    margin-left: auto;
+    margin-right: 0.5rem;
     background: none;
     border: none;
     padding: 0.5rem;
@@ -48,13 +54,6 @@ const headerHTML = `
   }
   .theme-toggle-btn:hover {
     background: #232c3f;
-  }
-  .avatar-img {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #f3c96b;
   }
   .d-none { display: none !important; }
   .d-inline { display: inline !important; }
