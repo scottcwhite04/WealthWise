@@ -1,6 +1,10 @@
-// layout.js
+// Supabase Init
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Header HTML & CSS with SVG theme toggle (mirrors your working homepage toggle)
+// Header HTML
 const headerHTML = `
 <style>
   #ww-header-bar {
@@ -52,27 +56,76 @@ const headerHTML = `
   }
   .d-none { display: none !important; }
   .d-inline { display: inline !important; }
+  .avatar-img {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 2px solid #2563eb;
+    object-fit: cover;
+    margin-left: 8px;
+    background: #fff;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .logout-btn {
+    background: #b91c1c;
+    color: #fff;
+    border: none;
+    font-weight: 700;
+    padding: 0.45em 1.1em;
+    border-radius: 0.5em;
+    margin-left: 1em;
+    font-family: 'Montserrat', Arial, sans-serif;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background 0.18s, color 0.18s;
+    box-shadow: 0 4px 18px 0 #b91c1c22;
+    letter-spacing: 0.03em;
+    display: inline-block;
+  }
+  .logout-btn:hover {
+    background: #991b1b;
+    color: #FFD600;
+  }
+  @media (max-width: 600px) {
+    .avatar-img {
+      width: 30px;
+      height: 30px;
+      margin-left: 3px;
+    }
+    #profile-greeting-inject {
+      gap: 0.2rem;
+      padding-right: 2px;
+    }
+    .logout-btn {
+      font-size: 0.92em;
+      padding: 0.34em 0.7em;
+      margin-left: 0.35em;
+    }
+  }
 </style>
 <header id="ww-header-bar">
-  <a href="index.html" class="logo-title" style="font-family:'Montserrat',Arial,sans-serif;">Wealthwise</a>
+  <a href="index.html" class="logo-title">Wealthwise</a>
   <div id="profile-greeting-inject">
-    <button id="theme-toggle" type="button" class="theme-toggle-btn" title="Toggle dark/light mode">
- <!-- Sun (Light Mode) -->
-<svg id="theme-sun" class="d-none" style="width:1.7em;height:1.7em;vertical-align:middle;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-  <circle cx="12" cy="12" r="5" stroke="currentColor" fill="none"/>
-  <path stroke-linecap="round" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M16.36 16.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M16.36 7.64l1.42-1.42"/>
-</svg>
-
-<!-- Moon (Dark Mode) -->
-<svg id="theme-moon" class="d-none" style="width:1.7em;height:1.7em;vertical-align:middle;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3c.47 0 .94.03 1.41.08a7 7 0 008.3 9.71c.05.47.08.94.08 1.41z"/>
-</svg>
-
+    <button id="theme-toggle" type="button" class="theme-toggle-btn" title="Toggle dark/light mode" aria-label="Toggle dark/light mode">
+      <!-- Sun (Light Mode) -->
+      <svg id="theme-sun" class="d-none" style="width:1.7em;height:1.7em;vertical-align:middle;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="5" stroke="currentColor" fill="none"/>
+        <path stroke-linecap="round" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M16.36 16.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M16.36 7.64l1.42-1.42"/>
+      </svg>
+      <!-- Moon (Dark Mode) -->
+      <svg id="theme-moon" class="d-none" style="width:1.7em;height:1.7em;vertical-align:middle;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3c.47 0 .94.03 1.41.08a7 7 0 008.3 9.71c.05.47.08.94.08 1.41z"/>
+      </svg>
     </button>
+    <span id="welcome-text" style="white-space: nowrap; font-size: 1rem;"></span>
+    <img id="user-avatar" class="avatar-img" src="" alt="User Avatar" />
+    <button id="logout-btn" class="logout-btn" type="button" style="display:none;">Logout</button>
   </div>
 </header>
 `;
 
+// Footer HTML
 const footerHTML = `
 <style>
   #ww-footer-bar {
@@ -120,64 +173,87 @@ const footerHTML = `
 document.getElementById("ww-header").innerHTML = headerHTML;
 document.getElementById("ww-footer").innerHTML = footerHTML;
 
-// Set return link for terms
-const termsLink = document.getElementById("footer-terms-link");
-if (termsLink) {
-  termsLink.href = '/terms-of-service.html?return=' + encodeURIComponent(window.location.href);
-}
-
-// Theme toggle logic (mirrors your working example)
+// Theme Functions
 function updateThemeIcons() {
   const isDark = document.documentElement.classList.contains('dark');
   const sun = document.getElementById('theme-sun');
   const moon = document.getElementById('theme-moon');
   if (sun && moon) {
-    if (isDark) {
-      sun.classList.add('d-none');
-      moon.classList.remove('d-none');
-    } else {
-      sun.classList.remove('d-none');
-      moon.classList.add('d-none');
-    }
+    sun.classList.toggle('d-none', isDark);
+    moon.classList.toggle('d-none', !isDark);
   }
 }
 function setDarkMode(isDark) {
-  const html = document.documentElement;
-  const body = document.body;
-  if (isDark) {
-    html.classList.add('dark');
-    body.classList.add('dark');
-    localStorage.setItem('wealthwise-theme', 'dark');
-  } else {
-    html.classList.remove('dark');
-    body.classList.remove('dark');
-    localStorage.setItem('wealthwise-theme', 'light');
-  }
+  document.documentElement.classList.toggle('dark', isDark);
+  document.body.classList.toggle('dark', isDark);
+  localStorage.setItem('wealthwise-theme', isDark ? 'dark' : 'light');
   updateThemeIcons();
 }
-
-// Ensure toggle is set up after DOM and header are ready
 function initThemeToggle() {
-  // Set initial icon state and class
   let theme = localStorage.getItem('wealthwise-theme');
   if (!theme) {
     theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
   setDarkMode(theme === 'dark');
-
-  // Attach event listener (after DOM is ready!)
-  const themeToggle = document.getElementById('theme-toggle');
-  if (themeToggle) {
-    themeToggle.addEventListener('click', function() {
+  const toggleBtn = document.getElementById('theme-toggle');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
       const isDark = document.documentElement.classList.contains('dark');
       setDarkMode(!isDark);
     });
   }
 }
 
-// Wait until DOM is fully loaded so SVGs/icons exist
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initThemeToggle);
-} else {
+// Supabase: Load User Profile (Greeting + Avatar + Logout)
+async function loadUserProfile() {
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  const welcomeText = document.getElementById('welcome-text');
+  const avatarImg = document.getElementById('user-avatar');
+  const logoutBtn = document.getElementById('logout-btn');
+  if (userError || !user) {
+    if (welcomeText) welcomeText.textContent = '';
+    if (avatarImg) avatarImg.style.display = "none";
+    if (logoutBtn) logoutBtn.style.display = "none";
+    return;
+  }
+
+  // Show logout button if signed in
+  if (logoutBtn) logoutBtn.style.display = "inline-block";
+
+  // Wire logout
+  if (logoutBtn) {
+    logoutBtn.onclick = async () => {
+      await supabase.auth.signOut();
+      window.location.href = "/login.html";
+    };
+  }
+
+  // Fetch profile for display name and avatar
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('display_name, avatar_url')
+    .eq('id', user.id)
+    .single();
+
+  if (!profileError && profile) {
+    if (welcomeText) welcomeText.textContent = `Welcome, ${profile.display_name}`;
+    if (avatarImg && profile.avatar_url) {
+      avatarImg.src = profile.avatar_url;
+      avatarImg.style.display = "inline-block";
+    }
+  } else {
+    if (welcomeText) welcomeText.textContent = `Welcome`;
+    if (avatarImg) avatarImg.style.display = "none";
+  }
+}
+
+// Init everything after DOM loads
+function initLayout() {
   initThemeToggle();
+  loadUserProfile();
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initLayout);
+} else {
+  initLayout();
 }
