@@ -20,13 +20,12 @@ function formatDateShort(dateStr) {
   return d.toLocaleDateString(undefined, {month: 'short', day: 'numeric'});
 }
 
-// --- CLEAN PROFESSIONAL THEME TOGGLE ---
-// Find header toggle and icons, if they exist
+// --- THEME TOGGLE (CLEAN AND PROFESSIONAL) ---
 function setupThemeToggle() {
   const themeToggleBtn = document.getElementById('theme-toggle');
   if (!themeToggleBtn) return;
 
-  // Replace innerHTML with a modern toggle switch
+  // Modern toggle switch UI
   themeToggleBtn.innerHTML = `
     <span class="sr-only">Toggle dark mode</span>
     <span class="toggle-bg" style="
@@ -86,7 +85,7 @@ function setupThemeToggle() {
   };
 }
 
-// --- DASHBOARD GREETING & AVATAR FROM profiles TABLE ---
+// --- GREETING & AVATAR FROM PROFILES TABLE ---
 async function setUserGreetingAndAvatar() {
   const { data: { user } } = await supabase.auth.getUser();
   let greeting = '';
@@ -102,9 +101,7 @@ async function setUserGreetingAndAvatar() {
 
     if (profile) {
       greeting = profile.display_name ? `Hello, ${profile.display_name}!` : '';
-      if (profile.avatar_url) {
-        avatarUrl = profile.avatar_url;
-      }
+      if (profile.avatar_url) avatarUrl = profile.avatar_url;
     } else {
       // fallback to user_metadata/email
       let name = user.user_metadata?.full_name || user.user_metadata?.name || user.email || user.id || '';
@@ -125,8 +122,46 @@ async function setUserGreetingAndAvatar() {
   const dashboardAvatar = document.getElementById('dashboard-avatar-img');
   if (dashboardAvatar) dashboardAvatar.src = avatarUrl;
 }
-setupThemeToggle();
-setUserGreetingAndAvatar();
+
+// --- INIT ON LOAD ---
+window.addEventListener('DOMContentLoaded', function() {
+  setupThemeToggle();
+  setUserGreetingAndAvatar();
+
+  // Chart.js rendering for trends
+  var ctxTrend = document.getElementById('trendChart');
+  if (ctxTrend) {
+    ctxTrend = ctxTrend.getContext('2d');
+    new Chart(ctxTrend, {
+      type: 'line',
+      data: {
+        labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          label: 'Balance',
+          borderColor: '#2563eb',
+          backgroundColor: 'rgba(37,99,235,0.08)',
+          data: [3000, 3200, 2500, 4000, 4100, 7000, 7800, 7000, 4200, 2700, 2120, 4250],
+          fill: true,
+          tension: 0.34,
+          pointRadius: 3,
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: false, grid: { color: '#e2e9f3' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  // Terms link update
+  const termsLink = document.getElementById('footer-terms-link');
+  if (termsLink) {
+    termsLink.href = '/terms-of-service.html?return=' + encodeURIComponent(window.location.href);
+  }
+});
 
 // --- DASHBOARD SNAPSHOT CARD ---
 async function loadCurrentBalanceCard() {
@@ -229,7 +264,6 @@ window.handlePaidCheckboxChange = async function(event) {
   await loadCurrentBalanceCard();
 };
 
-// --- ALLOWANCES MODAL LOGIC ---
 // --- ALLOWANCES MODAL LOGIC ---
 let loggedInUser = null;
 async function fetchUserAllowances() {
