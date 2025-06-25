@@ -66,88 +66,109 @@ export function getDashboardSnapshotCardHTML() {
 }
 
 async function loadCurrentBalanceCard() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    document.getElementById("user-balance-amount").textContent = "$0.00";
-    document.getElementById("user-balance-period").textContent = "Not signed in";
-    document.getElementById("user-food-allowance").textContent = "Food: $0.00";
-    document.getElementById("user-fuel-allowance").textContent = "Fuel: $0.00";
-    document.getElementById("user-balance-bills").innerHTML = "<li>Not signed in</li>";
-    return;
-  }
-
-  // Get latest balance snapshot and pay period
-  const { data: balanceRows } = await supabase
-    .from('user_balances')
-    .select('total_remaining_balance,start_date,end_date')
-    .eq('user_id', user.id)
-    .order('end_date', { ascending: false })
-    .limit(1);
-
-  let balance = null;
-  if (balanceRows && balanceRows.length > 0) {
-    balance = balanceRows[0];
-    document.getElementById("user-balance-amount").textContent =
-      formatMoney(balance.total_remaining_balance || 0);
-    document.getElementById("user-balance-period").textContent =
-      formatDate(balance.start_date) + " - " + formatDate(balance.end_date);
-  } else {
-    document.getElementById("user-balance-amount").textContent = "$0.00";
-    document.getElementById("user-balance-period").textContent = "No pay period found";
-  }
-
-  // Get Allowances
-  const { data: allowances } = await supabase
-    .from('current_food_and_fuel_allowance')
-    .select('allowance_name,amount')
-    .eq('user_id', user.id);
-
-  let foodAmt = 0, fuelAmt = 0;
-  if (allowances && Array.isArray(allowances)) {
-    const food = allowances.find(a => a.allowance_name.toLowerCase() === 'food');
-    const fuel = allowances.find(a => a.allowance_name.toLowerCase() === 'fuel');
-    foodAmt = food ? food.amount : 0;
-    fuelAmt = fuel ? fuel.amount : 0;
-  }
-  document.getElementById("user-food-allowance").textContent = `Food: ${formatMoney(foodAmt)}`;
-  document.getElementById("user-fuel-allowance").textContent = `Fuel: ${formatMoney(fuelAmt)}`;
-
-  // Get bills for this pay period (SHOW ALL, regardless of paid status)
-  let billsHtml = '<li>No bills found for this pay period.</li>';
-  if (balance) {
-    const { data: bills } = await supabase
-      .from('bills')
-      .select('id,bill_name,due_date,amount,is_paid')
-      .eq('user_id', user.id)
-      .eq('record_type', 'original')
-      .gte('due_date', balance.start_date)
-      .lte('due_date', balance.end_date)
-      .order('due_date', { ascending: true });
-
-    if (bills && bills.length > 0) {
-      billsHtml = bills.map(bill => `
-        <li>
-          <label>
-            <input 
-              type="checkbox" 
-              ${bill.is_paid ? "checked" : ""} 
-              data-bill-id="${bill.id}" 
-              onchange="window.handlePaidCheckboxChange && window.handlePaidCheckboxChange(event)"
-              style="accent-color: #2563eb; margin-right:6px;"
-            >
-            <span class="bill-name font-medium text-ww-accent-blue dark:text-ww-dark-accent ${bill.is_paid ? 'line-through text-gray-400' : ''}" title="${bill.bill_name}">${bill.bill_name}</span>
-            <span class="bill-date ml-2 text-ww-light-secondary dark:text-ww-dark-accent">(${formatDateShort(bill.due_date)})</span>
-            <span class="bill-amount font-semibold ml-auto">${formatMoney(bill.amount)}</span>
-          </label>
-        </li>
-      `).join('');
+  try {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError) {
+      console.error("Supabase getUser error:", userError);
     }
+    if (!user) {
+      document.getElementById("user-balance-amount").textContent = "$0.00";
+      document.getElementById("user-balance-period").textContent = "Not signed in";
+      document.getElementById("user-food-allowance").textContent = "Food: $0.00";
+      document.getElementById("user-fuel-allowance").textContent = "Fuel: $0.00";
+      document.getElementById("user-balance-bills").innerHTML = "<li>Not signed in</li>";
+      return;
+    }
+
+    // Get latest balance snapshot and pay period
+    const { data: balanceRows, error: balanceError } = await supabase
+      .from('user_balances')
+      .select('total_remaining_balance,start_date,end_date')
+      .eq('user_id', user.id)
+      .order('end_date', { ascending: false })
+      .limit(1);
+
+    if (balanceError) {
+      console.error("Supabase user_balances error:", balanceError);
+    }
+
+    let balance = null;
+    if (balanceRows && balanceRows.length > 0) {
+      balance = balanceRows[0];
+      document.getElementById("user-balance-amount").textContent =
+        formatMoney(balance.total_remaining_balance || 0);
+      document.getElementById("user-balance-period").textContent =
+        formatDate(balance.start_date) + " - " + formatDate(balance.end_date);
+    } else {
+      document.getElementById("user-balance-amount").textContent = "$0.00";
+      document.getElementById("user-balance-period").textContent = "No pay period found";
+    }
+
+    // Get Allowances
+    const { data: allowances, error: allowancesError } = await supabase
+      .from('current_food_and_fuel_allowance')
+      .select('allowance_name,amount')
+      .eq('user_id', user.id);
+
+    if (allowancesError) {
+      console.error("Supabase current_food_and_fuel_allowance error:", allowancesError);
+    }
+
+    let foodAmt = 0, fuelAmt = 0;
+    if (allowances && Array.isArray(allowances)) {
+      const food = allowances.find(a => a.allowance_name.toLowerCase() === 'food');
+      const fuel = allowances.find(a => a.allowance_name.toLowerCase() === 'fuel');
+      foodAmt = food ? food.amount : 0;
+      fuelAmt = fuel ? fuel.amount : 0;
+    }
+    document.getElementById("user-food-allowance").textContent = `Food: ${formatMoney(foodAmt)}`;
+    document.getElementById("user-fuel-allowance").textContent = `Fuel: ${formatMoney(fuelAmt)}`;
+
+    // Get bills for this pay period (SHOW ALL, regardless of paid status)
+    let billsHtml = '<li>No bills found for this pay period.</li>';
+    if (balance) {
+      const { data: bills, error: billsError } = await supabase
+        .from('bills')
+        .select('id,bill_name,due_date,amount,is_paid')
+        .eq('user_id', user.id)
+        .eq('record_type', 'original')
+        .gte('due_date', balance.start_date)
+        .lte('due_date', balance.end_date)
+        .order('due_date', { ascending: true });
+
+      if (billsError) {
+        console.error("Supabase bills error:", billsError);
+      }
+
+      if (bills && bills.length > 0) {
+        billsHtml = bills.map(bill => `
+          <li>
+            <label>
+              <input 
+                type="checkbox" 
+                ${bill.is_paid ? "checked" : ""} 
+                data-bill-id="${bill.id}" 
+                onchange="window.handlePaidCheckboxChange && window.handlePaidCheckboxChange(event)"
+                style="accent-color: #2563eb; margin-right:6px;"
+              >
+              <span class="bill-name font-medium text-ww-accent-blue dark:text-ww-dark-accent ${bill.is_paid ? 'line-through text-gray-400' : ''}" title="${bill.bill_name}">${bill.bill_name}</span>
+              <span class="bill-date ml-2 text-ww-light-secondary dark:text-ww-dark-accent">(${formatDateShort(bill.due_date)})</span>
+              <span class="bill-amount font-semibold ml-auto">${formatMoney(bill.amount)}</span>
+            </label>
+          </li>
+        `).join('');
+      }
+    }
+    document.getElementById("user-balance-bills").innerHTML = billsHtml;
+  } catch (err) {
+    console.error("Error in loadCurrentBalanceCard:", err);
+    document.getElementById("user-balance-bills").innerHTML = `<li style="color:red;">Error loading data</li>`;
   }
-  document.getElementById("user-balance-bills").innerHTML = billsHtml;
 }
 window.loadCurrentBalanceCard = loadCurrentBalanceCard;
 
 if (document.getElementById('dashboard-snapshot-root')) {
   document.getElementById('dashboard-snapshot-root').innerHTML = getDashboardSnapshotCardHTML();
-  loadCurrentBalanceCard();
+  // Wait for the DOM elements to be inserted before loading data
+  setTimeout(loadCurrentBalanceCard, 0);
 }
