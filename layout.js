@@ -33,20 +33,23 @@ const headerHTML = `
     overflow: visible;
     flex-shrink: 1;
   }
-    .ww-header .theme-toggle-btn {
-      margin-left: auto;
-      margin-right: 0.5rem;
-      background: none;
-      border: none;
-      padding: 0.5rem;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      transition: background 0.2s;
-      color: #f3c96b;
-    }
-    .ww-header .theme-toggle-btn:hover {
-      background: #232c3f;
-    }
+  .theme-toggle-btn {
+    margin-left: auto;
+    margin-right: 0.5rem;
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    color: #f3c96b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .theme-toggle-btn:hover {
+    background: #232c3f;
+  }
   .d-none { display: none !important; }
   .d-inline { display: inline !important; }
 </style>
