@@ -1,3 +1,4 @@
+I need the css to be in the layout.js file below:
 // Supabase Init
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
