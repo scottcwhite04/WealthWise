@@ -130,8 +130,13 @@ function updateThemeIcons() {
   const sun = document.getElementById('theme-sun');
   const moon = document.getElementById('theme-moon');
   if (sun && moon) {
-    sun.classList.toggle('d-none', isDark);
-    moon.classList.toggle('d-none', !isDark);
+    if (isDark) {
+      sun.classList.add('d-none');
+      moon.classList.remove('d-none');
+    } else {
+      sun.classList.remove('d-none');
+      moon.classList.add('d-none');
+    }
   }
 }
 function setDarkMode(isDark) {
@@ -150,7 +155,7 @@ function setDarkMode(isDark) {
 }
 
 // Ensure toggle is set up after DOM and header are ready
-document.addEventListener('DOMContentLoaded', function() {
+function initThemeToggle() {
   // Set initial icon state and class
   let theme = localStorage.getItem('wealthwise-theme');
   if (!theme) {
@@ -166,4 +171,11 @@ document.addEventListener('DOMContentLoaded', function() {
       setDarkMode(!isDark);
     });
   }
-});
+}
+
+// Wait until DOM is fully loaded so SVGs/icons exist
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initThemeToggle);
+} else {
+  initThemeToggle();
+}
