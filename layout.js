@@ -59,18 +59,68 @@ const headerHTML = `
   .d-inline { display: inline !important; }
 </style>
 <header id="ww-header-bar">
+  <a href="index.html" class="logo-title" style="font-family:'Montserrat',Arial,sans-serif;">Wealthwise</a>
+  <div id="profile-greeting-inject"></div>
+</header>
+`;
+
+const footerHTML = `
+<style>
+  #ww-footer-bar {
+    text-align: center;
+    color: #e5e9f2;
+    background: #1a2332;
+    border-top: 1.5px solid #e2e9f3;
+    padding: 1.1rem 0 0.85rem 0;
+    width: 100vw;
+    font-size: 0.94em;
+    font-family: 'Montserrat', Arial, sans-serif;
+    margin-top: auto;
+    box-sizing: border-box;
+  }
+  #ww-footer-bar .footer-links a {
+    margin: 0 0.6em;
+    color: #FFD600;
+    font-weight: bold;
+    text-decoration: none;
+    transition: color 0.18s;
+  }
+  #ww-footer-bar .footer-links a:hover {
+    color: #FFC300;
+  }
+  @media (max-width: 500px) {
+    #ww-footer-bar {
+      font-size: 0.82em;
+      padding: 0.7rem 0 0.5rem 0;
+    }
+    #ww-footer-bar .footer-links {
+      margin-bottom: 0.5em;
+    }
+  }
+</style>
+<footer id="ww-footer-bar">
+  <div class="footer-links">
+    <a href="/terms-of-service.html?return=" id="footer-terms-link">Terms of Service</a>
+    <a href="/privacy-policy/">Privacy Policy</a>
+  </div>
+  <div>&copy; 2025 Wealthwise. All rights reserved.</div>
+</footer>
+`;
+<header id="ww-header-bar">
   <a href="index.html" class="logo-title">Wealthwise</a>
   <div id="profile-greeting-inject">
     <button id="theme-toggle" type="button" class="theme-toggle-btn" title="Toggle dark/light mode">
-      <!-- Sun Icon -->
-      <svg id="theme-sun" class="d-none" style="width:1.7em;height:1.7em;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="5" stroke="currentColor" fill="none"/>
-        <path stroke-linecap="round" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M16.36 16.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M16.36 7.64l1.42-1.42"/>
-      </svg>
-      <!-- Moon Icon -->
-      <svg id="theme-moon" class="d-none" style="width:1.7em;height:1.7em;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3c.47 0 .94.03 1.41.08a7 7 0 008.3 9.71c.05.47.08.94.08 1.41z"/>
-      </svg>
+<!-- Sun (Light Mode) -->
+<svg id="theme-sun" class="d-none" style="width:1.7em;height:1.7em;vertical-align:middle;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+  <circle cx="12" cy="12" r="5" stroke="currentColor" fill="none"/>
+  <path stroke-linecap="round" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M16.36 16.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M16.36 7.64l1.42-1.42"/>
+</svg>
+
+<!-- Moon (Dark Mode) -->
+<svg id="theme-moon" class="d-none" style="width:1.7em;height:1.7em;vertical-align:middle;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3c.47 0 .94.03 1.41.08a7 7 0 008.3 9.71c.05.47.08.94.08 1.41z"/>
+</svg>
+
     </button>
     <span id="welcome-text" style="white-space: nowrap; font-size: 1rem;"></span>
     <img id="user-avatar" class="avatar-img" src="" alt="User Avatar" />
@@ -78,18 +128,10 @@ const headerHTML = `
 </header>
 `;
 
-// Footer HTML remains unchanged
-const footerHTML = `...`; // (your existing footer code)
 
 // Insert header and footer into the DOM
 document.getElementById("ww-header").innerHTML = headerHTML;
 document.getElementById("ww-footer").innerHTML = footerHTML;
-
-// Terms link return logic
-const termsLink = document.getElementById("footer-terms-link");
-if (termsLink) {
-  termsLink.href = '/terms-of-service.html?return=' + encodeURIComponent(window.location.href);
-}
 
 // Theme Functions
 function updateThemeIcons() {
