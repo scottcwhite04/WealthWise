@@ -567,9 +567,10 @@
 <!-- ============================== -->
 <script type="module">
 // ====== LAYOUT.JS BEGIN ======
+// Supabase Init
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // Your full key here
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // Replace with full key
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const headerHTML = `
@@ -587,10 +588,9 @@ const headerHTML = `
     position: relative;
     z-index: 100;
   }
-  #ww-header-bar .logo-title {
+  .logo-title {
     font-weight: bold;
     font-size: 1.35rem;
-    letter-spacing: 0.03em;
     color: #f3c96b;
     text-decoration: none;
     margin-left: 0.5rem;
@@ -600,31 +600,21 @@ const headerHTML = `
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    min-width: 0;
-    padding-right: 6px;
-    max-width: 100vw;
+    padding-right: 10px;
     position: relative;
-    /* overflow: visible !important;  <-- NOT needed if not set elsewhere */
-    z-index: 101;
+    z-index: 200;
   }
   .theme-toggle-btn {
-    margin-left: auto;
-    margin-right: 0.5rem;
     background: none;
     border: none;
     padding: 0.5rem;
     border-radius: 0.5rem;
     cursor: pointer;
-    transition: background 0.2s;
     color: #f3c96b;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
   .theme-toggle-btn:hover {
     background: #232c3f;
   }
-  .d-none { display: none !important; }
   .avatar-img-btn {
     background: none;
     border: none;
@@ -632,10 +622,9 @@ const headerHTML = `
     margin: 0;
     display: flex;
     align-items: center;
-    cursor: pointer;
-    border-radius: 50%;
     position: relative;
-    outline: none;
+    border-radius: 50%;
+    cursor: pointer;
   }
   .avatar-img {
     width: 38px;
@@ -643,141 +632,109 @@ const headerHTML = `
     border-radius: 50%;
     border: 2px solid #2563eb;
     object-fit: cover;
-    margin-left: 8px;
     background: #fff;
-    display: inline-block;
-    vertical-align: middle;
   }
   .ww-user-dropdown {
     display: none;
     position: absolute;
     right: 0;
-    top: 120%;
+    top: 110%;
     background: #fff;
     color: #1a2332;
     border: 1px solid #e2e9f3;
     border-radius: 0.7em;
-    min-width: 180px;
-    box-shadow: 0 8px 24px 0 rgba(49, 87, 161, 0.12);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    min-width: 200px;
     z-index: 9999;
-    padding: 0.25em 0 0.15em 0;
-    text-align: left;
-    font-family: 'Montserrat', Arial, sans-serif;
-    white-space: nowrap;
-    overflow: visible !important;  /* NO SCROLLING EVER */
-    max-height: none !important;
   }
-  .avatar-img-btn.open .ww-user-dropdown,
-  .avatar-img-btn:focus .ww-user-dropdown,
-  .avatar-img-btn:active .ww-user-dropdown,
-  .avatar-img-btn:hover .ww-user-dropdown {
+  .ww-user-dropdown.open {
     display: block;
-  }
-  .dark .ww-user-dropdown {
-    background: #232c3f !important;
-    color: #e5e9f2 !important;
-    border-color: #232c3f;
   }
   .ww-user-dropdown__profile {
     display: flex;
+    gap: 0.6em;
     align-items: center;
-    padding: 0.8em 1.2em 0.6em 1.2em;
+    padding: 0.8em 1em 0.6em 1em;
     border-bottom: 1px solid #e2e9f3;
-    gap: 0.7em;
-    background: none;
   }
   .ww-user-dropdown__profile-avatar {
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    object-fit: cover;
     border: 1.5px solid #2563eb;
+    object-fit: cover;
   }
   .ww-user-dropdown__profile-info {
     display: flex;
     flex-direction: column;
   }
   .ww-user-dropdown__profile-name {
-    font-weight: 700;
-    font-size: 1.03em;
+    font-weight: bold;
+    font-size: 1em;
     color: #2563eb;
-    line-height: 1.1;
+  }
+  .ww-user-dropdown__profile-email {
+    font-size: 0.9em;
+    color: #555;
+  }
+  .ww-user-dropdown button {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0.7em 1em;
+    text-align: left;
+    font-weight: 600;
+    font-size: 1em;
+    color: #b91c1c;
+    cursor: pointer;
+    border-radius: 0 0 0.7em 0.7em;
+  }
+  .ww-user-dropdown button:hover {
+    background: #f3f4f6;
+  }
+  .dark .ww-user-dropdown {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-color: #334155;
   }
   .dark .ww-user-dropdown__profile-name {
     color: #FFD600;
   }
-  .ww-user-dropdown__profile-email {
-    font-size: 0.95em;
-    color: #51607a;
-  }
   .dark .ww-user-dropdown__profile-email {
-    color: #f3c96b;
+    color: #facc15;
   }
-  .ww-user-dropdown button, .ww-user-dropdown a {
-    width: 100%;
-    text-align: left;
-    padding: 0.7em 1.2em;
-    background: none;
-    border: none;
-    font-weight: 600;
-    font-size: 1em;
-    cursor: pointer;
-    color: #b91c1c;
-    text-decoration: none;
-    border-radius: 0 0 0.7em 0.7em;
-    transition: background 0.15s, color 0.15s;
-  }
-  .dark .ww-user-dropdown button, .dark .ww-user-dropdown a {
+  .dark .ww-user-dropdown button {
     color: #f87171;
   }
-  .ww-user-dropdown button:hover, .ww-user-dropdown a:hover {
-    background: #f3f4f6;
-    color: #b91c1c;
-  }
-  .dark .ww-user-dropdown button:hover,
-  .dark .ww-user-dropdown a:hover {
-    background: #1a2332 !important;
-    color: #FFD600 !important;
-  }
-  @media (max-width: 600px) {
-    .avatar-img {
-      width: 30px;
-      height: 30px;
-      margin-left: 3px;
-    }
-    #profile-greeting-inject {
-      gap: 0.2rem;
-      padding-right: 2px;
-    }
+  .dark .ww-user-dropdown button:hover {
+    background: #0f172a;
   }
 </style>
 <header id="ww-header-bar">
   <a href="index.html" class="logo-title">Wealthwise</a>
   <div id="profile-greeting-inject">
-    <button id="theme-toggle" type="button" class="theme-toggle-btn" title="Toggle dark/light mode" aria-label="Toggle dark/light mode">
-      <!-- Sun (Light Mode) -->
-      <svg id="theme-sun" class="d-none" style="width:1.7em;height:1.7em;vertical-align:middle;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="5" stroke="currentColor" fill="none"/>
+    <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Theme">
+      <svg id="theme-sun" class="d-none" style="width:1.7em;height:1.7em;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="5" />
         <path stroke-linecap="round" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M16.36 16.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M16.36 7.64l1.42-1.42"/>
       </svg>
-      <!-- Moon (Dark Mode) -->
-      <svg id="theme-moon" class="d-none" style="width:1.7em;height:1.7em;vertical-align:middle;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3c.47 0 .94.03 1.41.08a7 7 0 008.3 9.71c.05.47.08.94.08 1.41z"/>
+      <svg id="theme-moon" class="d-none" style="width:1.7em;height:1.7em;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3a7 7 0 008.3 9.71z"/>
       </svg>
     </button>
-    <span id="welcome-text" style="white-space: nowrap; font-size: 1rem;"></span>
-    <div style="position:relative;display:inline-block;">
-      <button id="avatar-dropdown-btn" class="avatar-img-btn" tabindex="0" aria-haspopup="true" aria-expanded="false">
-        <img id="user-avatar" class="avatar-img" src="" alt="User Avatar" />
+    <span id="welcome-text" style="font-size: 1rem; white-space: nowrap;"></span>
+    <div style="position:relative;">
+      <button id="avatar-dropdown-btn" class="avatar-img-btn">
+        <img id="user-avatar" class="avatar-img" src="" alt="Avatar">
         <div class="ww-user-dropdown" id="avatar-dropdown-menu">
-          <div class="ww-user-dropdown__profile" id="ww-dropdown-profile">
-            <img class="ww-user-dropdown__profile-avatar" id="dropdown-profile-avatar" src="" alt="User Avatar" />
+          <div class="ww-user-dropdown__profile">
+            <img id="dropdown-profile-avatar" class="ww-user-dropdown__profile-avatar" src="" alt="Profile">
             <div class="ww-user-dropdown__profile-info">
-              <span class="ww-user-dropdown__profile-name" id="dropdown-profile-name"></span>
-              <span class="ww-user-dropdown__profile-email" id="dropdown-profile-email"></span>
+              <span id="dropdown-profile-name" class="ww-user-dropdown__profile-name"></span>
+              <span id="dropdown-profile-email" class="ww-user-dropdown__profile-email"></span>
             </div>
           </div>
-          <button id="logout-btn" type="button" class="logout-btn" style="width:100%;text-align:left;margin:0;border-radius:0 0 0.7em 0.7em;background:none;color:inherit;font-weight:600;padding:0.7em 1.2em;">Logout</button>
+          <button id="logout-btn">Logout</button>
         </div>
       </button>
     </div>
@@ -785,14 +742,79 @@ const headerHTML = `
 </header>
 `;
 
-const footerHTML = `...`; // (Unchanged, as before)
+document.getElementById("ww-header").innerHTML = headerHTML;
 
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById("ww-header").innerHTML = headerHTML;
-  document.getElementById("ww-footer").innerHTML = footerHTML;
+function updateThemeIcons() {
+  const isDark = document.documentElement.classList.contains('dark');
+  document.getElementById('theme-sun').classList.toggle('d-none', isDark);
+  document.getElementById('theme-moon').classList.toggle('d-none', !isDark);
+}
+
+function setDarkMode(isDark) {
+  document.documentElement.classList.toggle('dark', isDark);
+  document.body.classList.toggle('dark', isDark);
+  localStorage.setItem('wealthwise-theme', isDark ? 'dark' : 'light');
+  updateThemeIcons();
+}
+
+function initThemeToggle() {
+  let theme = localStorage.getItem('wealthwise-theme');
+  if (!theme) {
+    theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  setDarkMode(theme === 'dark');
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    const isDark = document.documentElement.classList.contains('dark');
+    setDarkMode(!isDark);
+  });
+}
+
+async function loadUserProfile() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('display_name, avatar_url, email')
+    .eq('id', user.id)
+    .single();
+
+  if (profile) {
+    document.getElementById('welcome-text').textContent = `Welcome, ${profile.display_name}`;
+    document.getElementById('user-avatar').src = profile.avatar_url || '';
+    document.getElementById('dropdown-profile-avatar').src = profile.avatar_url || '';
+    document.getElementById('dropdown-profile-name').textContent = profile.display_name;
+    document.getElementById('dropdown-profile-email').textContent = profile.email;
+  }
+}
+
+function setupDropdown() {
+  const btn = document.getElementById('avatar-dropdown-btn');
+  const menu = document.getElementById('avatar-dropdown-menu');
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    menu.classList.toggle('open');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!btn.contains(e.target)) {
+      menu.classList.remove('open');
+    }
+  });
+}
+
+function initLayout() {
+  initThemeToggle();
+  loadUserProfile();
+  setupDropdown();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initLayout);
+} else {
   initLayout();
-});
-
+}
 // --- rest of layout.js code for theme, user profile, dropdown logic (unchanged) ---
 </script>
 <!-- ============================== -->
