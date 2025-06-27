@@ -4,403 +4,192 @@
   <meta charset="utf-8">
   <title>Dashboard - Wealthwise</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Tailwind CSS & Google Fonts -->
+  <!-- ========== TAILWIND & GOOGLE FONTS SECTION ========== -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:700,400&display=swap" rel="stylesheet">
+  <!-- Tailwind config must be set BEFORE loading the CDN script! -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+  <script>
+    window.tailwind = window.tailwind || {};
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'ww-dark-bg': '#1a2332',
+            'ww-dark-card': '#232c3f',
+            'ww-dark-text': '#e5e9f2',
+            'ww-dark-accent': '#f3c96b',
+            'ww-light-bg': '#f4f6fa',
+            'ww-light-card': '#fff',
+            'ww-light-text': '#22304a',
+            'ww-light-secondary': '#51607a',
+            'ww-light-accent': '#3157a1',
+            'ww-light-accent-contrast': '#e2e9f3',
+            'ww-accent-blue': '#2563eb',
+            'ww-accent-blue-dark': '#1d4ed8',
+            'ww-field-light': '#f9fafb',
+            'ww-field-lighter': '#f3f4f6',
+            'ww-light-yellow': '#FFD600',
+            'ww-light-yellow-hover': '#FFC300',
+          }
+        }
+      }
+    }
+  </script>
+  <!-- ========== CSS SECTION ========== -->
   <style>
-    /* =================== START EXISTING CSS =================== */
     html, body {
       background: #f4f6fa;
       color: #22304a;
       font-family: 'Montserrat', Arial, sans-serif !important;
       transition: background 0.2s, color 0.2s;
       min-height: 100vh;
-      width: 100vw;
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
     }
-    body.dark, .dark body {
+    .dark body, body.dark {
       background: #1a2332 !important;
       color: #e5e9f2 !important;
     }
-    body, html, #__next, #main, .w-full, .max-w-6xl {
-      max-width: 100vw !important;
-      overflow-x: hidden !important;
-      box-sizing: border-box;
-    }
-    header {
-      width: 100vw;
-      min-width: 0;
-      overflow-x: hidden;
-      box-sizing: border-box;
-    }
-    .w-full, .max-w-6xl {
-      box-sizing: border-box;
-      min-width: 0;
-      max-width: 100vw !important;
-      overflow-x: hidden !important;
-    }
-    main {
-      width: 100vw;
-      box-sizing: border-box;
-      overflow-x: hidden;
-    }
-    .card, .verse-card {
-      min-width: 0;
-      max-width: 100%;
-      box-sizing: border-box;
-      overflow-x: auto;
-    }
-    .flex, .flex-row, .flex-col {
-      min-width: 0;
-    }
-    .dashboard-title {
-      font-size: 2rem;
-      font-weight: 700;
-      letter-spacing: 0.03em;
-      color: #2563eb;
-      margin-bottom: 0.3em;
-      font-family: 'Montserrat', Arial, sans-serif;
-    }
-    .dark .dashboard-title {
-      color: #f3c96b !important;
-    }
-    .dashboard-section-title {
-      font-size: 1.1em;
-      font-weight: 700;
-      color: #3157a1;
-      letter-spacing: 0.01em;
-      margin-bottom: 0.3em;
-      font-family: 'Montserrat', Arial, sans-serif;
-    }
-    .dark .dashboard-section-title {
-      color: #f3c96b !important;
-    }
-    .card {
-      background: #fff;
-      border-radius: 1em;
-      box-shadow: 0 8px 32px 0 rgba(49, 87, 161, 0.14);
-      padding: 2em 1.5em;
-      margin-bottom: 2em;
-      transition: background 0.2s, color 0.2s;
-    }
-    .dark .card {
-      background: #232c3f !important;
-      color: #e5e9f2 !important;
-      box-shadow: 0 8px 32px 0 #232c3f22;
-    }
-    .ww-btn {
-      display: inline-block;
-      background: #2563eb;
-      color: #fff;
-      padding: 0.7em 1.5em;
-      border-radius: 0.5em;
-      font-weight: 600;
-      font-family: 'Montserrat', Arial, sans-serif;
-      font-size: 1.07em;
-      box-shadow: 0 4px 18px 0 #2563eb22;
+    .avatar-img-btn {
+      background: none;
       border: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      align-items: center;
       cursor: pointer;
-      letter-spacing: 0.03em;
-      transition: background 0.18s, color 0.18s;
-    }
-    .ww-btn:hover {
-      background: #1d4ed8;
-      color: #FFD600;
-    }
-    .logout-btn {
-      background: #b91c1c;
-      color: #fff;
-      margin-left: 1em;
-      font-weight: 700;
-      transition: background 0.18s, color 0.18s;
-    }
-    .logout-btn:hover {
-      background: #991b1b;
-      color: #FFD600;
-    }
-    .stat-label {
-      font-weight: 600;
-      color: #3157a1;
-      letter-spacing: 0.01em;
-      font-size: 1em;
-      margin-bottom: 0.07em;
-    }
-    .dark .stat-label {
-      color: #f3c96b !important;
-    }
-    .stat-value {
-      font-weight: 800;
-      font-size: 1.4em;
-      color: #2563eb;
-    }
-    .dark .stat-value {
-      color: #f3c96b !important;
-    }
-    .verse-card {
-      background: linear-gradient(90deg, #2563eb 55%, #f4f6fa 100%);
-      color: #fff;
-      border-radius: 1em;
-      box-shadow: 0 4px 24px 0 #2563eb33;
-      min-height: 120px;
-      margin-bottom: 2em;
-      padding: 1.7em 1.5em 1.2em 1.5em;
-      position: relative;
-      overflow: hidden;
-    }
-    .dark .verse-card {
-      background: linear-gradient(90deg, #232c3f 70%, #1a2332 100%) !important;
-      color: #f3c96b !important;
-    }
-    .verse-ref {
-      font-weight: 700;
-      font-size: 1.08em;
-      letter-spacing: 0.03em;
-    }
-    .verse-text {
-      font-size: 1.1em;
-      font-style: italic;
-      margin: 0.7em 0 0.5em 0;
-      color: #fff;
-    }
-    .dark .verse-text {
-      color: #f3c96b !important;
-    }
-    .verse-life {
-      background: rgba(255,255,255,0.16);
-      color: #fff;
-      font-size: 0.97em;
-      border-radius: 0.6em;
-      padding: 0.5em 1em;
-      margin-top: 0.5em;
-      margin-bottom: 0.2em;
-      display: inline-block;
-    }
-    .dark .verse-life {
-      background: #232c3f;
-      color: #f3c96b;
-    }
-    @media (max-width: 900px) {
-      .grid-cols-dashboard {
-        grid-template-columns: 1fr;
-      }
-    }
-    @media (max-width: 650px) {
-      .dashboard-title {
-        font-size: 1.25em;
-      }
-      .card,
-      .verse-card {
-        padding: 1em 0.5em;
-      }
-    }
-    .chart-container {
-      width: 100%;
-      height: 180px;
-      margin-top: 0.5em;
-      margin-bottom: 0.5em;
-    }
-    .icon-circle {
-      width: 36px;
-      height: 36px;
       border-radius: 50%;
-      background: #2563eb22;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 0.5em;
-      color: #2563eb;
-    }
-    .dark .icon-circle {
-      background: #f3c96b22;
-      color: #f3c96b;
-    }
-    .bills-list li {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 0.45em 0;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-    }
-    .bills-list label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      width: 100%;
-      flex-wrap: nowrap;
-      white-space: nowrap;
-      overflow-x: auto;
-    }
-    .bills-list span.bill-name {
-      flex: 1 1 0;
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .bills-list span.bill-date {
-      flex-shrink: 0;
-      color: var(--tw-prose-invert, #51607a);
-      font-size: 0.93em;
-    }
-    .bills-list span.bill-amount {
-      flex-shrink: 0;
-      font-weight: 600;
-      margin-left: auto;
-    }
-    .line-through {
-      text-decoration: line-through;
-    }
-    .text-gray-400 {
-      color: #9ca3af;
-    }
-    @media (max-width: 600px) {
-      .bills-list label {
-        font-size: 0.96em;
-        gap: 4px;
-      }
-      .bills-list span.bill-amount {
-        font-size: 0.98em;
-      }
-    }
-    .bills-list li:not(:last-child) {
-      border-bottom: 1px solid #e2e9f3;
-    }
-    .dark .bills-list li:not(:last-child) {
-      border-bottom: 1px solid #3a4667;
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 50;
-      left: 0;
-      top: 0;
-      width: 100vw;
-      height: 100vh;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.35);
-      justify-content: center;
-      align-items: center;
-      transition: opacity 0.2s;
-    }
-    .modal.open {
-      display: flex;
-    }
-    .modal-content {
-      background: #fff;
-      border-radius: 1em;
-      padding: 2em 1.5em;
-      box-shadow: 0 8px 32px 0 rgba(49, 87, 161, 0.18);
-      min-width: 340px;
-      max-width: 95vw;
-      max-height: 90vh;
-      overflow: auto;
       position: relative;
+      outline: none;
     }
-    .dark .modal-content {
-      background: #232c3f !important;
-      color: #e5e9f2 !important;
-      box-shadow: 0 8px 32px 0 #232c3f44;
+    .avatar-img {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 2px solid #2563eb;
+      object-fit: cover;
+      background: #fff;
+      display: inline-block;
+      vertical-align: middle;
     }
-    .modal-close {
+    .ww-user-dropdown {
+      display: none;
       position: absolute;
-      right: 1.2em;
-      top: 1.2em;
-      cursor: pointer;
-      font-size: 1.5em;
-      color: #2563eb;
-      background: none;
-      border: none;
-      z-index: 2;
-    }
-    .dark .modal-close {
-      color: #f3c96b;
-    }
-    .bills-table th, .bills-table td {
-      padding: 0.5em 0.7em;
+      right: 0;
+      top: 110%;
+      background: #fff;
+      color: #1a2332;
+      border: 1px solid #e2e9f3;
+      border-radius: 0.7em;
+      min-width: 220px;
+      width: max-content;
+      box-shadow: 0 8px 24px 0 rgba(49, 87, 161, 0.15);
       text-align: left;
+      font-family: 'Montserrat', Arial, sans-serif;
+      white-space: nowrap;
+      z-index: 10000;
     }
-    .bills-table th {
-      background: #f4f6fa;
-      font-weight: 700;
-      color: #2563eb;
-    }
-    .dark .bills-table th {
-      background: #232c3f;
-      color: #f3c96b;
-    }
-    .bills-table tr:nth-child(even) td {
-      background: #f9fafb;
-    }
-    .dark .bills-table tr:nth-child(even) td {
-      background: #1a2332;
-    }
-    .bills-table td {
-      background: #fff;
-    }
-    .dark .bills-table td {
-      background: #232c3f;
-    }
-    .ww-profile-modal.modal {
-      display: none;
-      position: fixed;
-      z-index: 60;
-      left: 0;
-      top: 0;
-      width: 100vw;
-      height: 100vh;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.35);
-      justify-content: center;
-      align-items: center;
-      transition: opacity 0.2s;
-    }
-    .ww-profile-modal.modal.open {
-      display: flex;
-    }
-    .ww-profile-modal .modal-content {
-      background: #fff;
-      border-radius: 1em;
-      padding: 2em 1.5em;
-      box-shadow: 0 8px 32px 0 rgba(49, 87, 161, 0.18);
-      min-width: 340px;
-      max-width: 95vw;
-      max-height: 90vh;
-      overflow: auto;
-      position: relative;
-    }
-    .dark .ww-profile-modal .modal-content {
+    .dark .ww-user-dropdown {
       background: #232c3f !important;
       color: #e5e9f2 !important;
-      box-shadow: 0 8px 32px 0 #232c3f44;
+      border-color: #232c3f;
     }
-    .ww-profile-modal .modal-close {
-      position: absolute;
-      right: 1.2em;
-      top: 1.2em;
-      cursor: pointer;
-      font-size: 1.5em;
+    .ww-user-dropdown__profile {
+      display: flex;
+      align-items: center;
+      padding: 1em 1.2em 0.8em 1.2em;
+      border-bottom: 1px solid #e2e9f3;
+      gap: 0.7em;
+    }
+    .ww-user-dropdown__profile-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #2563eb;
+    }
+    .dark .ww-user-dropdown__profile-avatar {
+      border-color: #FFD600;
+    }
+    .ww-user-dropdown__profile-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .ww-user-dropdown__profile-name {
+      font-weight: 700;
+      font-size: 1.14em;
       color: #2563eb;
-      background: none;
-      border: none;
-      z-index: 2;
+      line-height: 1.1;
     }
-    .dark .ww-profile-modal .modal-close {
+    .dark .ww-user-dropdown__profile-name {
+      color: #FFD600;
+    }
+    .ww-user-dropdown__profile-email {
+      font-size: 0.97em;
+      color: #51607a;
+    }
+    .dark .ww-user-dropdown__profile-email {
       color: #f3c96b;
     }
-    @media (max-width: 600px) {
-      .ww-profile-modal .modal-content {
-        padding: 1em 0.5em;
-        min-width: 90vw;
+    .ww-user-dropdown button {
+      width: 100%;
+      text-align: left;
+      padding: 0.85em 1.5em;
+      background: none;
+      border: none;
+      font-weight: 600;
+      font-size: 1em;
+      cursor: pointer;
+      color: #b91c1c;
+      border-radius: 0 0 0.7em 0.7em;
+      transition: background 0.15s, color 0.15s;
+    }
+    .dark .ww-user-dropdown button {
+      color: #f87171;
+    }
+    .ww-user-dropdown button:hover {
+      background: #f3f4f6;
+      color: #b91c1c;
+    }
+    .dark .ww-user-dropdown button:hover {
+      background: #1a2332 !important;
+      color: #FFD600 !important;
+    }
+    .footer-links a {
+      margin: 0 0.6em;
+      color: #FFD600;
+      font-weight: bold;
+      text-decoration: none;
+      transition: color 0.18s;
+    }
+    .footer-links a:hover {
+      color: #FFC300;
+    }
+    .dark .footer-links a {
+      color: #FFD600;
+    }
+    .dark .footer-links a:hover {
+      color: #FFC300;
+    }
+    /* Hide avatar on mobile/ipad, show hamburger */
+    @media (max-width: 1024px) {
+      #avatar-dropdown-btn {
+        display: none !important;
+      }
+      #hamburger-btn {
+        display: inline-flex !important;
       }
     }
-    /* =================== END EXISTING CSS =================== */
+    @media (min-width: 1025px) {
+      #avatar-dropdown-btn {
+        display: inline-flex !important;
+      }
+      #hamburger-btn {
+        display: none !important;
+      }
+    }
   </style>
-  <link href="https://fonts.googleapis.com/css?family=Montserrat:700,400&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="dashboard.css">
   <script>
+    // ========== DARK MODE INITIALIZER SECTION ==========
     (function() {
       let theme = localStorage.getItem('wealthwise-theme');
       if (!theme) {
@@ -413,347 +202,104 @@
       }
     })();
   </script>
-  <!-- ============================== -->
-  <!--      START LAYOUT.JS CODE      -->
-  <!-- ============================== -->
-  <script type="module">
-    // ====== LAYOUT.JS BEGIN ======
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-    const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+</head>
+<body class="min-h-screen flex flex-col text-ww-light-text dark:text-ww-dark-text transition-colors duration-200">
 
-    const headerHTML = `
-    <style>
-      #ww-header-bar {
-        background: #1a2332;
-        color: #f3c96b;
-        padding: 1.1rem 0.5rem;
-        display: flex;
-        align-items: center;
-        width: 100vw;
-        box-sizing: border-box;
-        border-bottom: 1.5px solid #e2e9f3;
-        font-family: 'Montserrat', Arial, sans-serif;
-      }
-      #ww-header-bar .logo-title {
-        font-weight: bold;
-        font-size: 1.35rem;
-        letter-spacing: 0.03em;
-        color: #f3c96b;
-        text-decoration: none;
-        margin-left: 0.5rem;
-      }
-      #profile-greeting-inject {
-        margin-left: auto;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        min-width: 0;
-        padding-right: 6px;
-        max-width: 100vw;
-        overflow: visible;
-        flex-shrink: 1;
-      }
-      .theme-toggle-btn {
-        margin-left: auto;
-        margin-right: 0.5rem;
-        background: none;
-        border: none;
-        padding: 0.5rem;
-        border-radius: 0.5rem;
-        cursor: pointer;
-        transition: background 0.2s;
-        color: #f3c96b;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .theme-toggle-btn:hover {
-        background: #232c3f;
-      }
-      .d-none { display: none !important; }
-      .d-inline { display: inline !important; }
-      .avatar-img-btn {
-        background: none;
-        border: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        border-radius: 50%;
-        position: relative;
-        outline: none;
-      }
-      .avatar-img {
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        border: 2px solid #2563eb;
-        object-fit: cover;
-        margin-left: 8px;
-        background: #fff;
-        display: inline-block;
-        vertical-align: middle;
-      }
-      .avatar-img-btn:focus .ww-user-dropdown,
-      .avatar-img-btn:active .ww-user-dropdown,
-      .avatar-img-btn:hover .ww-user-dropdown {
-        display: block;
-      }
-.ww-user-dropdown {
-  display: none;
-  position: absolute;
-  right: 0;
-  top: 110%;
-  background: #fff;
-  color: #1a2332;
-  border: 1px solid #e2e9f3;
-  border-radius: 0.7em;
-  min-width: 200px;
-  width: max-content; /* Allow dropdown to expand for content */
-  max-width: 90vw;    /* Prevent overflow off the viewport */
-  box-shadow: 0 8px 24px 0 rgba(49, 87, 161, 0.15);
-  padding: 0.25em 0 0.15em 0;
-  text-align: left;
-  font-family: 'Montserrat', Arial, sans-serif;
-  white-space: nowrap;
-  z-index: 9999;
-  overflow: visible !important;
-  max-height: none !important;
-}
-.ww-user-dropdown.open {
-  display: block;
-}
-header,
-body,
-html,
-#profile-greeting-inject,
-#ww-header-bar {
-  overflow: visible !important;
-  max-width: none !important;
-}
-      .dark .ww-user-dropdown {
-        background: #232c3f !important;
-        color: #e5e9f2 !important;
-        border-color: #232c3f;
-      }
-      .ww-user-dropdown__profile {
-        display: flex;
-        align-items: center;
-        padding: 0.8em 1.2em 0.6em 1.2em;
-        border-bottom: 1px solid #e2e9f3;
-        gap: 0.7em;
-      }
-      .ww-user-dropdown__profile-avatar {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 1.5px solid #2563eb;
-      }
-      .ww-user-dropdown__profile-info {
-        display: flex;
-        flex-direction: column;
-      }
-      .ww-user-dropdown__profile-name {
-        font-weight: 700;
-        font-size: 1.03em;
-        color: #2563eb;
-        line-height: 1.1;
-      }
-      .dark .ww-user-dropdown__profile-name {
-        color: #FFD600;
-      }
-      .ww-user-dropdown__profile-email {
-        font-size: 0.95em;
-        color: #51607a;
-      }
-      .dark .ww-user-dropdown__profile-email {
-        color: #f3c96b;
-      }
-      .ww-user-dropdown button, .ww-user-dropdown a {
-        width: 100%;
-        text-align: left;
-        padding: 0.7em 1.2em;
-        background: none;
-        border: none;
-        font-weight: 600;
-        font-size: 1em;
-        cursor: pointer;
-        color: #b91c1c;
-        text-decoration: none;
-        border-radius: 0 0 0.7em 0.7em;
-        transition: background 0.15s, color 0.15s;
-      }
-      .dark .ww-user-dropdown button, .dark .ww-user-dropdown a {
-        color: #f87171;
-      }
-      .ww-user-dropdown button:hover, .ww-user-dropdown a:hover {
-        background: #f3f4f6;
-        color: #b91c1c;
-      }
-      .dark .ww-user-dropdown button:hover,
-      .dark .ww-user-dropdown a:hover {
-        background: #1a2332 !important;
-        color: #FFD600 !important;
-      }
-      @media (max-width: 600px) {
-        .avatar-img {
-          width: 30px;
-          height: 30px;
-          margin-left: 3px;
-        }
-        #profile-greeting-inject {
-          gap: 0.2rem;
-          padding-right: 2px;
-        }
-      }
-    </style>
-    <header id="ww-header-bar">
-      <a href="index.html" class="logo-title">Wealthwise</a>
-      <div id="profile-greeting-inject">
-        <button id="theme-toggle" type="button" class="theme-toggle-btn" title="Toggle dark/light mode" aria-label="Toggle dark/light mode">
-          <!-- Sun (Light Mode) -->
-          <svg id="theme-sun" class="d-none" style="width:1.7em;height:1.7em;vertical-align:middle;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="5" stroke="currentColor" fill="none"/>
-            <path stroke-linecap="round" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M16.36 16.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M16.36 7.64l1.42-1.42"/>
-          </svg>
-          <!-- Moon (Dark Mode) -->
-          <svg id="theme-moon" class="d-none" style="width:1.7em;height:1.7em;vertical-align:middle;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3c.47 0 .94.03 1.41.08a7 7 0 008.3 9.71c.05.47.08.94.08 1.41z"/>
+  <!-- ========== HEADER SECTION ========== -->
+  <header class="bg-ww-dark-bg text-ww-dark-accent py-4 px-2 flex items-center w-full shadow-md flex-shrink-0 border-b border-ww-light-accent-contrast transition-colors duration-200" id="ww-header-bar">
+    <a href="index.html" class="font-bold text-xl md:text-2xl tracking-wide logo-title block text-ww-light-yellow dark:text-ww-dark-accent ml-2" style="font-family:'Montserrat',Arial,sans-serif; text-decoration: none;">
+      Wealthwise
+    </a>
+    <div class="ml-auto flex items-center gap-2" id="header-right">
+      <!-- Theme Toggle -->
+      <button id="theme-toggle" type="button" class="p-2 rounded-lg focus:outline-none transition hover:bg-ww-light-accent-contrast dark:hover:bg-ww-dark-card" title="Toggle dark/light mode">
+        <svg class="w-6 h-6 text-ww-light-yellow dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="5" stroke="currentColor" fill="none"/>
+          <path stroke-linecap="round" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M16.36 16.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M16.36 7.64l1.42-1.42"/>
+        </svg>
+        <svg class="w-6 h-6 text-ww-dark-accent hidden dark:inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3c.47 0 .94.03 1.41.08a7 7 0 008.3 9.71c.05.47.08.94.08 1.41z"/>
+        </svg>
+      </button>
+      <!-- Avatar and Dropdown (desktop) -->
+      <div style="position:relative;display:inline-block;">
+        <button id="avatar-dropdown-btn" class="avatar-img-btn" tabindex="0" aria-haspopup="true" aria-expanded="false" style="padding:0;background:none;border:none;">
+          <img id="user-avatar" class="avatar-img" src="" alt="User Avatar" style="display:none;" />
+        </button>
+        <button id="hamburger-btn" class="p-2 rounded-lg focus:outline-none transition bg-transparent" style="display:none;" aria-label="Menu">
+          <!-- Hamburger Icon -->
+          <svg class="w-8 h-8 text-ww-light-yellow dark:text-ww-dark-accent" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+            <line x1="4" y1="7" x2="20" y2="7" stroke-linecap="round"/>
+            <line x1="4" y1="12" x2="20" y2="12" stroke-linecap="round"/>
+            <line x1="4" y1="17" x2="20" y2="17" stroke-linecap="round"/>
           </svg>
         </button>
-        <div style="position:relative;display:inline-block;">
-          <button id="avatar-dropdown-btn" class="avatar-img-btn" tabindex="0" aria-haspopup="true" aria-expanded="false">
-            <img id="user-avatar" class="avatar-img" src="" alt="User Avatar" />
-          </button>
-          <div class="ww-user-dropdown" id="avatar-dropdown-menu">
-            <div class="ww-user-dropdown__profile" id="ww-dropdown-profile">
-              <img class="ww-user-dropdown__profile-avatar" id="dropdown-profile-avatar" src="" alt="User Avatar" />
-              <div class="ww-user-dropdown__profile-info">
-                <span class="ww-user-dropdown__profile-name" id="dropdown-profile-name"></span>
-                <span class="ww-user-dropdown__profile-email" id="dropdown-profile-email"></span>
-              </div>
+        <div class="ww-user-dropdown" id="avatar-dropdown-menu">
+          <div class="ww-user-dropdown__profile" id="ww-dropdown-profile">
+            <img class="ww-user-dropdown__profile-avatar" id="dropdown-profile-avatar" src="" alt="User Avatar" />
+            <div class="ww-user-dropdown__profile-info">
+              <span class="ww-user-dropdown__profile-name" id="dropdown-profile-name"></span>
+              <span class="ww-user-dropdown__profile-email" id="dropdown-profile-email"></span>
             </div>
-            <button id="logout-btn" type="button" class="logout-btn" style="width:100%; text-align:left; margin:0; border-radius:0 0 0.7em 0.7em; background:none; color:inherit; font-weight:600; padding:0.7em 1.2em;">Logout</button>
           </div>
+          <button id="logout-btn" type="button" class="logout-btn">Logout</button>
         </div>
       </div>
-    </header>
-    `;
+    </div>
+  </header>
 
-    const footerHTML = `
-    <style>
-      #ww-footer-bar {
-        text-align: center;
-        color: #e5e9f2;
-        background: #1a2332;
-        border-top: 1.5px solid #e2e9f3;
-        padding: 1.1rem 0 0.85rem 0;
-        width: 100vw;
-        font-size: 0.94em;
-        font-family: 'Montserrat', Arial, sans-serif;
-        margin-top: auto;
-        box-sizing: border-box;
-      }
-      #ww-footer-bar .footer-links a {
-        margin: 0 0.6em;
-        color: #FFD600;
-        font-weight: bold;
-        text-decoration: none;
-        transition: color 0.18s;
-      }
-      #ww-footer-bar .footer-links a:hover {
-        color: #FFC300;
-      }
-      @media (max-width: 500px) {
-        #ww-footer-bar {
-          font-size: 0.82em;
-          padding: 0.7rem 0 0.5rem 0;
-        }
-        #ww-footer-bar .footer-links {
-          margin-bottom: 0.5em;
-        }
-      }
-    </style>
-    <footer id="ww-footer-bar">
-      <div class="footer-links">
-        <a href="/terms-of-service.html?return=" id="footer-terms-link">Terms of Service</a>
-        <a href="/privacy-policy/">Privacy Policy</a>
-      </div>
-      <div>&copy; 2025 Wealthwise. All rights reserved.</div>
-    </footer>
-    `;
+  <!-- ========== MAIN SECTION ========== -->
+  <main class="flex-1 flex flex-col items-center w-full px-2 transition-colors duration-200">
+    <!-- Body intentionally left blank as requested -->
+  </main>
 
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById("ww-header").innerHTML = headerHTML;
-      document.getElementById("ww-footer").innerHTML = footerHTML;
-      initLayout();
+  <!-- ========== FOOTER SECTION ========== -->
+  <footer class="text-center text-ww-dark-text bg-ww-dark-bg border-t border-ww-light-accent-contrast py-3 mt-auto w-full text-sm transition-colors duration-200">
+    <div class="mb-1 footer-links">
+      <a href="/terms-of-service.html?return=" id="footer-terms-link" class="mx-2 text-ww-light-yellow dark:text-ww-dark-accent font-bold hover:text-ww-light-yellow-hover dark:hover:text-ww-dark-accent transition-colors">Terms of Service</a>
+      <a href="/privacy-policy/" class="mx-2 text-ww-light-yellow dark:text-ww-dark-accent font-bold hover:text-ww-light-yellow-hover dark:hover:text-ww-dark-accent transition-colors">Privacy Policy</a>
+    </div>
+    <div>&copy; 2025 Wealthwise. All rights reserved.</div>
+  </footer>
+  <!-- ========== HEADER/FOOTER/AVATAR SCRIPT ========== -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    const supabase = createClient(
+      'https://anwwjqupywbnwanuckdf.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48'
+    );
+
+    // ========== THEME TOGGLE LOGIC ==========
+    document.getElementById('theme-toggle').addEventListener('click', function() {
+      const html = document.documentElement;
+      const isDark = html.classList.contains('dark');
+      if (isDark) {
+        html.classList.remove('dark');
+        localStorage.setItem('wealthwise-theme', 'light');
+      } else {
+        html.classList.add('dark');
+        localStorage.setItem('wealthwise-theme', 'dark');
+      }
     });
 
-    // Theme Functions
-    function updateThemeIcons() {
-      const isDark = document.documentElement.classList.contains('dark');
-      const sun = document.getElementById('theme-sun');
-      const moon = document.getElementById('theme-moon');
-      if (sun && moon) {
-        sun.classList.toggle('d-none', isDark);
-        moon.classList.toggle('d-none', !isDark);
-      }
-    }
-    function setDarkMode(isDark) {
-      document.documentElement.classList.toggle('dark', isDark);
-      document.body.classList.toggle('dark', isDark);
-      localStorage.setItem('wealthwise-theme', isDark ? 'dark' : 'light');
-      updateThemeIcons();
-    }
-    function initThemeToggle() {
-      let theme = localStorage.getItem('wealthwise-theme');
-      if (!theme) {
-        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      }
-      setDarkMode(theme === 'dark');
-      const toggleBtn = document.getElementById('theme-toggle');
-      if (toggleBtn) {
-        toggleBtn.addEventListener('click', () => {
-          const isDark = document.documentElement.classList.contains('dark');
-          setDarkMode(!isDark);
-        });
-      }
-    }
-
-    // Supabase: Load User Profile (Greeting + Avatar + Logout)
-    async function loadUserProfile() {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      const welcomeText = document.getElementById('welcome-text');
+    // ========== SUPABASE PROFILE DROPDOWN LOGIC ==========
+    async function loadUserProfileDropdown() {
+      const { data: { user }, error } = await supabase.auth.getUser();
       const avatarImg = document.getElementById('user-avatar');
-      const logoutBtn = document.getElementById('logout-btn');
       const avatarDropdownBtn = document.getElementById('avatar-dropdown-btn');
       const avatarDropdownMenu = document.getElementById('avatar-dropdown-menu');
       const dropdownProfileAvatar = document.getElementById('dropdown-profile-avatar');
       const dropdownProfileName = document.getElementById('dropdown-profile-name');
       const dropdownProfileEmail = document.getElementById('dropdown-profile-email');
-      if (userError || !user) {
-        if (welcomeText) welcomeText.textContent = '';
+      const logoutBtn = document.getElementById('logout-btn');
+
+      // Hide everything if not logged in
+      if (error || !user) {
         if (avatarImg) avatarImg.style.display = "none";
         if (avatarDropdownBtn) avatarDropdownBtn.style.display = "none";
         if (avatarDropdownMenu) avatarDropdownMenu.style.display = "none";
+        document.getElementById('hamburger-btn').style.display = "none";
         return;
-      }
-
-      // Show avatar and dropdown if signed in
-      if (avatarImg) avatarImg.style.display = "inline-block";
-      if (avatarDropdownBtn) avatarDropdownBtn.style.display = "inline-block";
-      if (avatarDropdownMenu) avatarDropdownMenu.style.display = "";
-
-      // Wire logout
-      if (logoutBtn) {
-        logoutBtn.onclick = async () => {
-          await supabase.auth.signOut();
-          window.location.href = "/logout.html";
-        };
       }
 
       // Fetch profile for display name and avatar
@@ -768,20 +314,24 @@ html,
       if (!profileError && profile) {
         displayName = profile.display_name || 'User';
         avatarUrl = profile.avatar_url || '';
-        if (welcomeText) welcomeText.textContent = `Welcome, ${displayName}`;
         if (avatarImg && avatarUrl) avatarImg.src = avatarUrl;
         if (dropdownProfileAvatar && avatarUrl) dropdownProfileAvatar.src = avatarUrl;
         if (dropdownProfileName) dropdownProfileName.textContent = displayName;
         if (dropdownProfileEmail) dropdownProfileEmail.textContent = user.email || '';
       } else {
-        if (welcomeText) welcomeText.textContent = `Welcome`;
         if (avatarImg) avatarImg.src = "";
         if (dropdownProfileAvatar) dropdownProfileAvatar.src = "";
         if (dropdownProfileName) dropdownProfileName.textContent = "User";
         if (dropdownProfileEmail) dropdownProfileEmail.textContent = user.email || '';
       }
 
-      // Dropdown accessibility: toggle via click for keyboard users
+      // Show avatar button for desktop, hamburger for mobile/ipad
+      if (avatarImg) avatarImg.style.display = "inline-block";
+      if (avatarDropdownBtn) avatarDropdownBtn.style.display = "";
+      const hamburgerBtn = document.getElementById('hamburger-btn');
+      if (hamburgerBtn) hamburgerBtn.style.display = "";
+
+      // Dropdown logic
       if (avatarDropdownBtn && avatarDropdownMenu) {
         let isOpen = false;
         const showDropdown = () => {
@@ -799,7 +349,7 @@ html,
           isOpen ? hideDropdown() : showDropdown();
         });
         avatarDropdownBtn.addEventListener('blur', () => {
-          setTimeout(hideDropdown, 150); // allow click on dropdown
+          setTimeout(hideDropdown, 120);
         });
         avatarDropdownBtn.addEventListener('keydown', (e) => {
           if (e.key === "Escape") hideDropdown();
@@ -809,48 +359,42 @@ html,
             hideDropdown();
           }
         });
+
+        // Hamburger opens dropdown as well
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        if (hamburgerBtn) {
+          hamburgerBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (avatarDropdownMenu.style.display === "block") {
+              avatarDropdownMenu.style.display = "none";
+            } else {
+              avatarDropdownMenu.style.display = "block";
+              // For accessibility, focus the first dropdown item
+              const firstLink = avatarDropdownMenu.querySelector('button, a, input, [tabindex]:not([tabindex="-1"])');
+              if (firstLink) firstLink.focus();
+            }
+          });
+          document.addEventListener('click', (e) => {
+            if (!avatarDropdownMenu.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+              avatarDropdownMenu.style.display = "none";
+            }
+          });
+        }
+      }
+
+      // Wire logout
+      if (logoutBtn) {
+        logoutBtn.onclick = async () => {
+          await supabase.auth.signOut();
+          window.location.href = "/logout.html";
+        };
       }
     }
 
-    // Init everything after DOM loads
-    function initLayout() {
-      initThemeToggle();
-      loadUserProfile();
-    }
-    // ====== LAYOUT.JS END ======
+    // ========== INIT ON LOAD ==========
+    document.addEventListener('DOMContentLoaded', () => {
+      loadUserProfileDropdown();
+    });
   </script>
-  <!-- ============================== -->
-  <!--       END LAYOUT.JS CODE       -->
-  <!-- ============================== -->
-</head>
-<body class="min-h-screen flex flex-col text-ww-light-text dark:text-ww-dark-text transition-colors duration-200">
-  <header id="ww-header"></header>
-  <main class="flex-1 flex flex-col items-center w-full px-2 transition-colors duration-200">
-    <div class="w-full max-w-6xl mt-8">
-      <div class="dashboard-title text-center">Your Wealthwise Dashboard</div>
-      <div class="text-center text-ww-light-secondary dark:text-ww-dark-accent mb-7">
-        Steward your time, resources, and money with wisdom.
-      </div>
-      <div id="verse-card-root" class="mb-8"></div>
-      <div class="flex flex-col md:flex-row gap-8">
-        <div id="dashboard-snapshot-root"></div>
-        <div id="trends-card-root"></div>
-        <div id="upcoming-bills-card-root"></div>
-      </div>
-    </div>
-  </main>
-  <!-- Bills Modal -->
-  <div id="bills-modal" class="modal">
-    <!-- ... -->
-  </div>
-  <!-- Allowances Modal -->
-  <div id="allowances-modal" class="modal">
-    <!-- ... -->
-  </div>
-  <footer id="ww-footer"></footer>
-  <script type="module" src="dashboard-snapshot-card.js"></script>
-  <script type="module" src="trends-card.js"></script>
-  <script type="module" src="upcoming-bills-card.js"></script>
-  <script type="module" src="verse-card.js"></script>
 </body>
 </html>
