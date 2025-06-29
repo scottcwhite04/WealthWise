@@ -868,139 +868,142 @@ html, body {
     <div>&copy; 2025 Wealthwise. All rights reserved.</div>
   </footer>
   <!-- ========== HEADER/FOOTER/AVATAR SCRIPT ========== -->
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-    const supabase = createClient(
-      'https://anwwjqupywbnwanuckdf.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48'
-    );
+<!-- Load Chart.js globally -->
+import Chart from "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js";
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-    // ========== THEME TOGGLE LOGIC ==========
-    document.getElementById('theme-toggle').addEventListener('click', function() {
-      const html = document.documentElement;
-      const isDark = html.classList.contains('dark');
-      if (isDark) {
-        html.classList.remove('dark');
-        localStorage.setItem('wealthwise-theme', 'light');
-      } else {
-        html.classList.add('dark');
-        localStorage.setItem('wealthwise-theme', 'dark');
+const supabase = createClient(
+  'https://anwwjqupywbnwanuckdf.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48'
+); 	
+
+// ========== THEME TOGGLE LOGIC ==========
+document.getElementById('theme-toggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.classList.contains('dark');
+  if (isDark) {
+    html.classList.remove('dark');
+    localStorage.setItem('wealthwise-theme', 'light');
+  } else {
+    html.classList.add('dark');
+    localStorage.setItem('wealthwise-theme', 'dark');
+  }
+});
+
+// ========== SUPABASE PROFILE DROPDOWN LOGIC ==========
+async function loadUserProfileDropdown() {
+  const { data: { user }, error } = await supabase.auth.getUser();
+  const avatarImg = document.getElementById('user-avatar');
+  const avatarDropdownBtn = document.getElementById('avatar-dropdown-btn');
+  const avatarDropdownMenu = document.getElementById('avatar-dropdown-menu');
+  const dropdownProfileAvatar = document.getElementById('dropdown-profile-avatar');
+  const dropdownProfileName = document.getElementById('dropdown-profile-name');
+  const dropdownProfileEmail = document.getElementById('dropdown-profile-email');
+  const logoutBtn = document.getElementById('logout-btn');
+
+  // Hide everything if not logged in
+  if (error || !user) {
+    if (avatarImg) avatarImg.style.display = "none";
+    if (avatarDropdownBtn) avatarDropdownBtn.style.display = "none";
+    if (avatarDropdownMenu) avatarDropdownMenu.style.display = "none";
+    document.getElementById('hamburger-btn').style.display = "none";
+    return;
+  }
+
+  // Fetch profile for display name and avatar
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('display_name, avatar_url')
+    .eq('id', user.id)
+    .single();
+
+  let displayName = 'User';
+  let avatarUrl = '';
+  if (!profileError && profile) {
+    displayName = profile.display_name || 'User';
+    avatarUrl = profile.avatar_url || '';
+    if (avatarImg && avatarUrl) avatarImg.src = avatarUrl;
+    if (dropdownProfileAvatar && avatarUrl) dropdownProfileAvatar.src = avatarUrl;
+    if (dropdownProfileName) dropdownProfileName.textContent = displayName;
+    if (dropdownProfileEmail) dropdownProfileEmail.textContent = user.email || '';
+  } else {
+    if (avatarImg) avatarImg.src = "";
+    if (dropdownProfileAvatar) dropdownProfileAvatar.src = "";
+    if (dropdownProfileName) dropdownProfileName.textContent = "User";
+    if (dropdownProfileEmail) dropdownProfileEmail.textContent = user.email || '';
+  }
+
+  // Show avatar button for desktop, hamburger for mobile/ipad
+  if (avatarImg) avatarImg.style.display = "inline-block";
+  if (avatarDropdownBtn) avatarDropdownBtn.style.display = "";
+  const hamburgerBtn = document.getElementById('hamburger-btn');
+  if (hamburgerBtn) hamburgerBtn.style.display = "";
+
+  // Dropdown logic
+  if (avatarDropdownBtn && avatarDropdownMenu) {
+    let isOpen = false;
+    const showDropdown = () => {
+      avatarDropdownMenu.style.display = "block";
+      avatarDropdownBtn.setAttribute("aria-expanded", "true");
+      isOpen = true;
+    };
+    const hideDropdown = () => {
+      avatarDropdownMenu.style.display = "none";
+      avatarDropdownBtn.setAttribute("aria-expanded", "false");
+      isOpen = false;
+    };
+    avatarDropdownBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      isOpen ? hideDropdown() : showDropdown();
+    });
+    avatarDropdownBtn.addEventListener('blur', () => {
+      setTimeout(hideDropdown, 120);
+    });
+    avatarDropdownBtn.addEventListener('keydown', (e) => {
+      if (e.key === "Escape") hideDropdown();
+    });
+    document.addEventListener('click', (e) => {
+      if (isOpen && !avatarDropdownBtn.contains(e.target)) {
+        hideDropdown();
       }
     });
 
-    // ========== SUPABASE PROFILE DROPDOWN LOGIC ==========
-    async function loadUserProfileDropdown() {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      const avatarImg = document.getElementById('user-avatar');
-      const avatarDropdownBtn = document.getElementById('avatar-dropdown-btn');
-      const avatarDropdownMenu = document.getElementById('avatar-dropdown-menu');
-      const dropdownProfileAvatar = document.getElementById('dropdown-profile-avatar');
-      const dropdownProfileName = document.getElementById('dropdown-profile-name');
-      const dropdownProfileEmail = document.getElementById('dropdown-profile-email');
-      const logoutBtn = document.getElementById('logout-btn');
-
-      // Hide everything if not logged in
-      if (error || !user) {
-        if (avatarImg) avatarImg.style.display = "none";
-        if (avatarDropdownBtn) avatarDropdownBtn.style.display = "none";
-        if (avatarDropdownMenu) avatarDropdownMenu.style.display = "none";
-        document.getElementById('hamburger-btn').style.display = "none";
-        return;
-      }
-
-      // Fetch profile for display name and avatar
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('display_name, avatar_url')
-        .eq('id', user.id)
-        .single();
-
-      let displayName = 'User';
-      let avatarUrl = '';
-      if (!profileError && profile) {
-        displayName = profile.display_name || 'User';
-        avatarUrl = profile.avatar_url || '';
-        if (avatarImg && avatarUrl) avatarImg.src = avatarUrl;
-        if (dropdownProfileAvatar && avatarUrl) dropdownProfileAvatar.src = avatarUrl;
-        if (dropdownProfileName) dropdownProfileName.textContent = displayName;
-        if (dropdownProfileEmail) dropdownProfileEmail.textContent = user.email || '';
-      } else {
-        if (avatarImg) avatarImg.src = "";
-        if (dropdownProfileAvatar) dropdownProfileAvatar.src = "";
-        if (dropdownProfileName) dropdownProfileName.textContent = "User";
-        if (dropdownProfileEmail) dropdownProfileEmail.textContent = user.email || '';
-      }
-
-      // Show avatar button for desktop, hamburger for mobile/ipad
-      if (avatarImg) avatarImg.style.display = "inline-block";
-      if (avatarDropdownBtn) avatarDropdownBtn.style.display = "";
-      const hamburgerBtn = document.getElementById('hamburger-btn');
-      if (hamburgerBtn) hamburgerBtn.style.display = "";
-
-      // Dropdown logic
-      if (avatarDropdownBtn && avatarDropdownMenu) {
-        let isOpen = false;
-        const showDropdown = () => {
-          avatarDropdownMenu.style.display = "block";
-          avatarDropdownBtn.setAttribute("aria-expanded", "true");
-          isOpen = true;
-        };
-        const hideDropdown = () => {
+    // Hamburger opens dropdown as well
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    if (hamburgerBtn) {
+      hamburgerBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (avatarDropdownMenu.style.display === "block") {
           avatarDropdownMenu.style.display = "none";
-          avatarDropdownBtn.setAttribute("aria-expanded", "false");
-          isOpen = false;
-        };
-        avatarDropdownBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          isOpen ? hideDropdown() : showDropdown();
-        });
-        avatarDropdownBtn.addEventListener('blur', () => {
-          setTimeout(hideDropdown, 120);
-        });
-        avatarDropdownBtn.addEventListener('keydown', (e) => {
-          if (e.key === "Escape") hideDropdown();
-        });
-        document.addEventListener('click', (e) => {
-          if (isOpen && !avatarDropdownBtn.contains(e.target)) {
-            hideDropdown();
-          }
-        });
-
-        // Hamburger opens dropdown as well
-        const hamburgerBtn = document.getElementById('hamburger-btn');
-        if (hamburgerBtn) {
-          hamburgerBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            if (avatarDropdownMenu.style.display === "block") {
-              avatarDropdownMenu.style.display = "none";
-            } else {
-              avatarDropdownMenu.style.display = "block";
-              // For accessibility, focus the first dropdown item
-              const firstLink = avatarDropdownMenu.querySelector('button, a, input, [tabindex]:not([tabindex="-1"])');
-              if (firstLink) firstLink.focus();
-            }
-          });
-          document.addEventListener('click', (e) => {
-            if (!avatarDropdownMenu.contains(e.target) && !hamburgerBtn.contains(e.target)) {
-              avatarDropdownMenu.style.display = "none";
-            }
-          });
+        } else {
+          avatarDropdownMenu.style.display = "block";
+          // For accessibility, focus the first dropdown item
+          const firstLink = avatarDropdownMenu.querySelector('button, a, input, [tabindex]:not([tabindex="-1"])');
+          if (firstLink) firstLink.focus();
         }
-      }
-
-      // Wire logout
-      if (logoutBtn) {
-        logoutBtn.onclick = async () => {
-          await supabase.auth.signOut();
-          window.location.href = "/logout.html";
-        };
-      }
+      });
+      document.addEventListener('click', (e) => {
+        if (!avatarDropdownMenu.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+          avatarDropdownMenu.style.display = "none";
+        }
+      });
     }
+  }
 
-    // ========== INIT ON LOAD ==========
-    document.addEventListener('DOMContentLoaded', () => {
-      loadUserProfileDropdown();
-    });
+  // Wire logout
+  if (logoutBtn) {
+    logoutBtn.onclick = async () => {
+      await supabase.auth.signOut();
+      window.location.href = "/logout.html";
+    };
+  }
+}
+
+// ========== INIT ON LOAD ==========
+document.addEventListener('DOMContentLoaded', () => {
+  loadUserProfileDropdown();
+  renderForecastTrendChart();
+});
     function formatMoney(val) {
       return "$" + Number(val || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
     }
@@ -1072,7 +1075,6 @@ html, body {
           .from('bills')
           .select('id,bill_name,due_date,amount,is_paid')
           .eq('user_id', user.id)
-          .eq('record_type', 'original')
           .gte('due_date', balance.start_date)
           .lte('due_date', balance.end_date)
           .order('due_date', { ascending: true });
@@ -1613,33 +1615,89 @@ document.getElementById("allowance-form").addEventListener("submit", async funct
   closeAllowancesModal();
   await loadAllowancesData();
 });
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+// Place this <script type="module"> block after Chart.js and after DOMContentLoaded
 
-    // --- CHART ---
-    window.addEventListener('DOMContentLoaded', function() {
-      var ctxTrend = document.getElementById('trendChart').getContext('2d');
-      new Chart(ctxTrend, {
-        type: 'line',
-        data: {
-          labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-          datasets: [{
-            label: 'Balance',
-            borderColor: '#2563eb',
-            backgroundColor: 'rgba(37,99,235,0.08)',
-            data: [3000, 3200, 2500, 4000, 4100, 7000, 7800, 7000, 4200, 2700, 2120, 4250],
-            fill: true,
-            tension: 0.34,
-            pointRadius: 3,
-          }]
-        },
-        options: {
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { beginAtZero: false, grid: { color: '#e2e9f3' } },
-            x: { grid: { display: false } }
-          }
-        }
-      });
-    });
+wwindow.renderForecastTrendChart = async function() {
+  // Get current user
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  // Query 12-month forecast for this user
+  const { data: forecast, error } = await supabase
+    .from('pay_cycle_forecast')
+    .select('cycle_number, pay_cycle_start, total_remaining_balance')
+    .eq('user_id', user.id)
+    .order('cycle_number', { ascending: true });
+
+  const chartEl = document.getElementById('trendChart');
+  if (!chartEl) return;
+
+  if (error || !forecast || forecast.length === 0) {
+    chartEl.parentElement.innerHTML = "<div class='text-center text-gray-500'>No forecast data available.</div>";
+    return;
+  }
+
+  // Prepare data for chart
+  const labels = forecast.map(row => {
+    if (row.pay_cycle_start) {
+      const d = new Date(row.pay_cycle_start);
+      return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    }
+    return `Cycle ${row.cycle_number}`;
+  });
+  const data = forecast.map(row => row.total_remaining_balance);
+
+  // Find high/low for card (and update card values if you want)
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+
+  // Update the two "High" and "Low" values in the card
+  const sectionRows = document.querySelectorAll('.pro-card .section-row');
+  sectionRows.forEach(row => {
+    if (row.querySelector('.section-label')?.textContent?.includes('12-mo High')) {
+      row.querySelector('.section-value').textContent = "$" + max.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+    if (row.querySelector('.section-label')?.textContent?.includes('12-mo Low')) {
+      row.querySelector('.section-value').textContent = "$" + min.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+  });
+
+  // Destroy any existing chart instance on this element to avoid overlay
+  if (window.trendChartInstance) {
+    window.trendChartInstance.destroy();
+  }
+
+  const ctxTrend = chartEl.getContext('2d');
+  window.trendChartInstance = new Chart(ctxTrend, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Projected Balance',
+        borderColor: '#2563eb',
+        backgroundColor: 'rgba(37,99,235,0.08)',
+        data,
+        fill: true,
+        tension: 0.28,
+        pointRadius: 3,
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: false, grid: { color: '#e2e9f3' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+};
+
+// Replace old static chart usage with dynamic one
+document.addEventListener('DOMContentLoaded', () => {
+  window.renderForecastTrendChart();
+});
   </script>
+  <script type="module" src="dashboard.js"></script>
 </body>
 </html>
