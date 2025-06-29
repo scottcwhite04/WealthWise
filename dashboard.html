@@ -869,14 +869,14 @@ html, body {
   </footer>
   <!-- ========== HEADER/FOOTER/AVATAR SCRIPT ========== -->
 <!-- Load Chart.js globally -->
-import Chart from "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js";
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
 
 const supabase = createClient(
   'https://anwwjqupywbnwanuckdf.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48'
 ); 	
-
+import Chart from "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js";
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 // ========== THEME TOGGLE LOGIC ==========
 document.getElementById('theme-toggle').addEventListener('click', function() {
   const html = document.documentElement;
