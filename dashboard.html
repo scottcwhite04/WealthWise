@@ -1,136 +1,45 @@
 <!DOCTYPE html>
 <html lang="en" class="bg-gray-100 dark:bg-gray-900">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Wealthwise Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
+      darkMode: 'class'
     }
   </script>
 </head>
-<body class="text-gray-800 dark:text-gray-100 min-h-screen">
-
-  <!-- Header -->
-  <header class="p-4 flex justify-between items-center bg-white dark:bg-gray-800 shadow">
-    <h1 class="text-xl font-bold">Wealthwise Dashboard</h1>
-    <button id="toggle-theme" class="p-2 border rounded">Toggle Theme</button>
-  </header>
+<body class="text-gray-900 dark:text-gray-100">
+  <!-- Dark Mode Toggle -->
+  <div class="p-4 flex justify-end">
+    <button onclick="document.documentElement.classList.toggle('dark')" class="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded">Toggle Mode</button>
+  </div>
 
   <!-- Daily Verse -->
-  <section id="verse" class="p-4 bg-yellow-100 dark:bg-yellow-900 rounded shadow m-4">
-    <h2 class="text-lg font-semibold">Daily Stewardship Verse</h2>
-    <p id="verse-text" class="mt-2 italic"></p>
-    <p id="verse-explanation" class="mt-2 text-sm"></p>
-    <p id="verse-application" class="mt-1 text-sm font-medium"></p>
-  </section>
+  <div id="daily-verse" class="p-4 bg-green-100 dark:bg-green-800 rounded mx-4 mb-4 shadow"></div>
 
-  <!-- Main Dashboard -->
-  <main class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-    <!-- Balances -->
-    <section class="bg-white dark:bg-gray-800 p-4 rounded shadow">
-      <h2 class="font-bold text-lg mb-2">Current Balances</h2>
-      <p><strong>Banking Balance:</strong> $<span id="banking-balance">0.00</span></p>
+  <!-- Balances Display -->
+  <div class="p-4 bg-white dark:bg-gray-800 rounded mx-4 shadow">
+    <h1 class="text-2xl font-bold mb-4">Wealthwise Dashboard</h1>
+    <div id="balance-info" class="space-y-2">
+      <p><strong>Current Balance:</strong> $<span id="current-balance">0.00</span></p>
       <p><strong>Food Allowance:</strong> $<span id="food-allowance">0.00</span></p>
       <p><strong>Fuel Allowance:</strong> $<span id="fuel-allowance">0.00</span></p>
-    </section>
+    </div>
+  </div>
 
-    <!-- Projections -->
-    <section class="bg-white dark:bg-gray-800 p-4 rounded shadow">
-      <h2 class="font-bold text-lg mb-2">12-Month Projection</h2>
-      <p><strong>Lowest Balance:</strong> $<span id="min-balance">0.00</span></p>
-      <p><strong>Highest Balance:</strong> $<span id="max-balance">0.00</span></p>
-      <ul id="monthly-projections" class="mt-4 text-sm list-disc pl-5 space-y-1"></ul>
-    </section>
-  </main>
+  <!-- Projections -->
+  <div class="p-4 mt-4 bg-white dark:bg-gray-800 rounded mx-4 shadow">
+    <h2 class="text-xl font-semibold mb-2">12-Month Balance Projections</h2>
+    <p><strong>Lowest Projected Balance:</strong> $<span id="lowest-balance">0.00</span></p>
+    <p><strong>Highest Projected Balance:</strong> $<span id="highest-balance">0.00</span></p>
+    <div id="cycle-breakdown" class="mt-4 space-y-1"></div>
+  </div>
 
-  <!-- Script -->
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-    const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0NjMxNzYsImV4cCI6MjA4ODAzOTE3Nn0.CbO9-cRu2Z1QeiBFxOb_g-TpkkV0U_Ner6GUvGTx2Xg';
-
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    const authUser = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error || !user) {
-        window.location.href = "/login.html";
-        return;
-      }
-      return user;
-    };
-
-    const loadDashboard = async () => {
-      const user = await authUser();
-      const userId = user.id;
-
-      const { data: balances } = await supabase.from('balances').select('*').eq('user_id', userId).single();
-      const { data: bills } = await supabase.from('bills').select('*').eq('user_id', userId);
-      const { data: salary } = await supabase.from('salaries').select('*').eq('user_id', userId).single();
-      const { data: bonuses } = await supabase.from('bonuses').select('*').eq('user_id', userId);
-
-      const food = parseFloat(balances?.food_allowance || 0);
-      const fuel = parseFloat(balances?.fuel_allowance || 0);
-      const bank = parseFloat(balances?.current_balance || 0);
-      const billSum = bills.reduce((sum, b) => sum + parseFloat(b.amount), 0);
-      const salaryAmount = parseFloat(salary?.amount || 0);
-
-      // Update UI
-      document.getElementById('banking-balance').textContent = bank.toFixed(2);
-      document.getElementById('food-allowance').textContent = food.toFixed(2);
-      document.getElementById('fuel-allowance').textContent = fuel.toFixed(2);
-
-      // 12-month projections
-      let projections = [];
-      let current = bank;
-      let date = new Date(salary?.last_pay_date || new Date());
-      let payCycleDays = salary?.pay_cycle === 'biweekly' ? 14 : salary?.pay_cycle === 'weekly' ? 7 : 30;
-
-      for (let i = 0; i < 12; i++) {
-        current += salaryAmount;
-        const bonus = bonuses.find(b => new Date(b.bonus_date).getMonth() === date.getMonth());
-        if (bonus) current += parseFloat(bonus.amount);
-
-        current -= (billSum + food + fuel);
-        projections.push({ month: date.toLocaleString('default', { month: 'short' }), balance: current.toFixed(2) });
-
-        date.setDate(date.getDate() + payCycleDays);
-      }
-
-      const minBal = Math.min(...projections.map(p => p.balance));
-      const maxBal = Math.max(...projections.map(p => p.balance));
-      document.getElementById('min-balance').textContent = parseFloat(minBal).toFixed(2);
-      document.getElementById('max-balance').textContent = parseFloat(maxBal).toFixed(2);
-
-      const projList = document.getElementById('monthly-projections');
-      projList.innerHTML = '';
-      projections.forEach(p => {
-        const li = document.createElement('li');
-        li.textContent = `${p.month}: $${p.balance}`;
-        projList.appendChild(li);
-      });
-    };
-
-    const loadVerse = async () => {
-      const today = new Date().toISOString().split('T')[0];
-      const { data: verse } = await supabase.from('verses').select('*').eq('verse_date', today).single();
-      if (verse) {
-        document.getElementById('verse-text').textContent = verse.verse_text;
-        document.getElementById('verse-explanation').textContent = `Explanation: ${verse.explanation}`;
-        document.getElementById('verse-application').textContent = `Application: ${verse.application}`;
-      }
-    };
-
-    document.getElementById('toggle-theme').addEventListener('click', () => {
-      document.documentElement.classList.toggle('dark');
-    });
-
-    loadDashboard();
-    loadVerse();
-  </script>
+  <!-- Script Includes -->
+  <script type="module" src="projection.js"></script>
+  <script type="module" src="daily-verse.js"></script>
 </body>
 </html>
