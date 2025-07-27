@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" class="bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+<html lang="en" class="bg-gray-100 dark:bg-gray-900">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wealthwise Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -11,135 +11,126 @@
     }
   </script>
 </head>
-<body class="min-h-screen flex flex-col items-center px-4 py-6">
+<body class="text-gray-800 dark:text-gray-100 min-h-screen">
 
   <!-- Header -->
-  <div class="w-full max-w-4xl flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold">Wealthwise</h1>
-    <div class="flex items-center space-x-2">
-      <button id="toggleTheme" class="text-sm px-3 py-1 border rounded hover:bg-gray-200 dark:hover:bg-gray-700">
-        Toggle Theme
-      </button>
-      <button id="signOutBtn" class="text-sm px-3 py-1 border border-red-500 text-red-500 rounded hover:bg-red-100 dark:hover:bg-red-900">
-        Sign Out
-      </button>
-    </div>
-  </div>
+  <header class="p-4 flex justify-between items-center bg-white dark:bg-gray-800 shadow">
+    <h1 class="text-xl font-bold">Wealthwise Dashboard</h1>
+    <button id="toggle-theme" class="p-2 border rounded">Toggle Theme</button>
+  </header>
 
-  <!-- User Info -->
-  <div id="welcomeMessage" class="mb-4 text-lg font-medium"></div>
+  <!-- Daily Verse -->
+  <section id="verse" class="p-4 bg-yellow-100 dark:bg-yellow-900 rounded shadow m-4">
+    <h2 class="text-lg font-semibold">Daily Stewardship Verse</h2>
+    <p id="verse-text" class="mt-2 italic"></p>
+    <p id="verse-explanation" class="mt-2 text-sm"></p>
+    <p id="verse-application" class="mt-1 text-sm font-medium"></p>
+  </section>
 
-  <!-- Stewardship Verse -->
-  <div class="w-full max-w-4xl bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100 p-4 rounded mb-6">
-    <h2 class="font-semibold">Daily Stewardship Verse</h2>
-    <p class="text-sm mt-1" id="verseText">"The earth is the Lord’s, and everything in it..." – Psalm 24:1</p>
-    <p class="text-xs italic mt-1" id="verseExplanation">A reminder that our finances are entrusted to us by God — to manage wisely for His purposes.</p>
-  </div>
+  <!-- Main Dashboard -->
+  <main class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+    <!-- Balances -->
+    <section class="bg-white dark:bg-gray-800 p-4 rounded shadow">
+      <h2 class="font-bold text-lg mb-2">Current Balances</h2>
+      <p><strong>Banking Balance:</strong> $<span id="banking-balance">0.00</span></p>
+      <p><strong>Food Allowance:</strong> $<span id="food-allowance">0.00</span></p>
+      <p><strong>Fuel Allowance:</strong> $<span id="fuel-allowance">0.00</span></p>
+    </section>
 
-  <!-- Dashboard Info -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
-    <div class="bg-white dark:bg-gray-800 rounded shadow p-4">
-      <h3 class="text-lg font-semibold mb-2">Current Balance</h3>
-      <p class="text-2xl font-bold text-green-600 dark:text-green-400" id="currentBalance">$0.00</p>
-    </div>
+    <!-- Projections -->
+    <section class="bg-white dark:bg-gray-800 p-4 rounded shadow">
+      <h2 class="font-bold text-lg mb-2">12-Month Projection</h2>
+      <p><strong>Lowest Balance:</strong> $<span id="min-balance">0.00</span></p>
+      <p><strong>Highest Balance:</strong> $<span id="max-balance">0.00</span></p>
+      <ul id="monthly-projections" class="mt-4 text-sm list-disc pl-5 space-y-1"></ul>
+    </section>
+  </main>
 
-    <div class="bg-white dark:bg-gray-800 rounded shadow p-4">
-      <h3 class="text-lg font-semibold mb-2">Food & Fuel Allowance</h3>
-      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="allowance">$0.00</p>
-    </div>
+  <!-- Script -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-    <div class="bg-white dark:bg-gray-800 rounded shadow p-4 md:col-span-2">
-      <h3 class="text-lg font-semibold mb-2">Upcoming Bills</h3>
-      <ul class="list-disc list-inside text-sm space-y-1" id="upcomingBills">
-        <li>No bills due soon.</li>
-      </ul>
-    </div>
+    const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0NjMxNzYsImV4cCI6MjA4ODAzOTE3Nn0.CbO9-cRu2Z1QeiBFxOb_g-TpkkV0U_Ner6GUvGTx2Xg';
 
-    <div class="bg-white dark:bg-gray-800 rounded shadow p-4 md:col-span-2">
-      <h3 class="text-lg font-semibold mb-2">Projected Balances (Next 12 Months)</h3>
-      <p class="text-sm">Lowest: <span class="font-bold text-red-500" id="lowestProjected">$0.00</span></p>
-      <p class="text-sm">Highest: <span class="font-bold text-green-500" id="highestProjected">$0.00</span></p>
-    </div>
-  </div>
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  <!-- Supabase + Logic -->
-<script type="module">
-  import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+    const authUser = async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user) {
+        window.location.href = "/login.html";
+        return;
+      }
+      return user;
+    };
 
-  const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // truncated for safety
-  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    const loadDashboard = async () => {
+      const user = await authUser();
+      const userId = user.id;
 
-  const user = await supabase.auth.getUser();
-  if (!user.data.user) {
-    window.location.href = 'login.html';
-  }
-  const userId = user.data.user.id;
-  document.getElementById('welcomeMessage').textContent = `Welcome, ${user.data.user.email}`;
+      const { data: balances } = await supabase.from('balances').select('*').eq('user_id', userId).single();
+      const { data: bills } = await supabase.from('bills').select('*').eq('user_id', userId);
+      const { data: salary } = await supabase.from('salaries').select('*').eq('user_id', userId).single();
+      const { data: bonuses } = await supabase.from('bonuses').select('*').eq('user_id', userId);
 
-  document.getElementById('signOutBtn').addEventListener('click', async () => {
-    await supabase.auth.signOut();
-    window.location.href = 'login.html';
-  });
+      const food = parseFloat(balances?.food_allowance || 0);
+      const fuel = parseFloat(balances?.fuel_allowance || 0);
+      const bank = parseFloat(balances?.current_balance || 0);
+      const billSum = bills.reduce((sum, b) => sum + parseFloat(b.amount), 0);
+      const salaryAmount = parseFloat(salary?.amount || 0);
 
-  document.getElementById('toggleTheme').addEventListener('click', () => {
-    document.documentElement.classList.toggle('dark');
-  });
+      // Update UI
+      document.getElementById('banking-balance').textContent = bank.toFixed(2);
+      document.getElementById('food-allowance').textContent = food.toFixed(2);
+      document.getElementById('fuel-allowance').textContent = fuel.toFixed(2);
 
-  // Fetch balances
-  const { data: balanceData } = await supabase
-    .from('balances')
-    .select('*')
-    .eq('user_id', userId)
-    .single();
+      // 12-month projections
+      let projections = [];
+      let current = bank;
+      let date = new Date(salary?.last_pay_date || new Date());
+      let payCycleDays = salary?.pay_cycle === 'biweekly' ? 14 : salary?.pay_cycle === 'weekly' ? 7 : 30;
 
-  document.getElementById('currentBalance').textContent = balanceData
-    ? `$${parseFloat(balanceData.current_balance).toFixed(2)}`
-    : '$0.00';
-  document.getElementById('allowance').textContent = balanceData
-    ? `$${(parseFloat(balanceData.food_allowance || 0) + parseFloat(balanceData.fuel_allowance || 0)).toFixed(2)}`
-    : '$0.00';
+      for (let i = 0; i < 12; i++) {
+        current += salaryAmount;
+        const bonus = bonuses.find(b => new Date(b.bonus_date).getMonth() === date.getMonth());
+        if (bonus) current += parseFloat(bonus.amount);
 
-  // Fetch upcoming bills
-  const today = new Date();
-  const currentDay = today.getDate();
+        current -= (billSum + food + fuel);
+        projections.push({ month: date.toLocaleString('default', { month: 'short' }), balance: current.toFixed(2) });
 
-  const { data: billData } = await supabase
-    .from('bills')
-    .select('*')
-    .eq('user_id', userId);
+        date.setDate(date.getDate() + payCycleDays);
+      }
 
-  const upcomingBills = billData
-    .filter(bill => bill.due_day >= currentDay)
-    .sort((a, b) => a.due_day - b.due_day);
+      const minBal = Math.min(...projections.map(p => p.balance));
+      const maxBal = Math.max(...projections.map(p => p.balance));
+      document.getElementById('min-balance').textContent = parseFloat(minBal).toFixed(2);
+      document.getElementById('max-balance').textContent = parseFloat(maxBal).toFixed(2);
 
-  if (upcomingBills.length) {
-    document.getElementById('upcomingBills').innerHTML = upcomingBills
-      .map(b => `<li>${b.name} - $${b.amount} due on ${b.due_day}</li>`)
-      .join('');
-  } else {
-    document.getElementById('upcomingBills').innerHTML = `<li>No bills due soon.</li>`;
-  }
+      const projList = document.getElementById('monthly-projections');
+      projList.innerHTML = '';
+      projections.forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = `${p.month}: $${p.balance}`;
+        projList.appendChild(li);
+      });
+    };
 
-  // Fetch daily verse
-  const todayStr = today.toISOString().split('T')[0];
-  const { data: verse } = await supabase
-    .from('verses')
-    .select('*')
-    .eq('verse_date', todayStr)
-    .single();
+    const loadVerse = async () => {
+      const today = new Date().toISOString().split('T')[0];
+      const { data: verse } = await supabase.from('verses').select('*').eq('verse_date', today).single();
+      if (verse) {
+        document.getElementById('verse-text').textContent = verse.verse_text;
+        document.getElementById('verse-explanation').textContent = `Explanation: ${verse.explanation}`;
+        document.getElementById('verse-application').textContent = `Application: ${verse.application}`;
+      }
+    };
 
-  if (verse) {
-    document.getElementById('verseText').textContent = verse.verse_text;
-    document.getElementById('verseExplanation').textContent = `${verse.explanation} ${verse.application || ''}`;
-  }
+    document.getElementById('toggle-theme').addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+    });
 
-  // Placeholder until projections are calculated
-  document.getElementById('lowestProjected').textContent = 'Calculating...';
-  document.getElementById('highestProjected').textContent = 'Calculating...';
-
-  // Next: implement projections here...
-</script>
-
-<\body>
-<\html>
+    loadDashboard();
+    loadVerse();
+  </script>
+</body>
+</html>
