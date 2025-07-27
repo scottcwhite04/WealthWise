@@ -1,87 +1,103 @@
 <!DOCTYPE html>
-<html lang="en" class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+<html lang="en" class="bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wealthwise - Dashboard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wealthwise Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class'
-    };
+      darkMode: 'class',
+    }
   </script>
 </head>
-<body class="min-h-screen font-sans">
-  <!-- Toggle Dark Mode -->
-  <div class="p-4 flex justify-end">
-    <button onclick="toggleDarkMode()" class="px-3 py-2 bg-gray-200 dark:bg-gray-700 rounded">
-      Toggle Dark Mode
-    </button>
+<body class="min-h-screen flex flex-col items-center px-4 py-6">
+
+  <!-- Header -->
+  <div class="w-full max-w-4xl flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Wealthwise</h1>
+    <div class="flex items-center space-x-2">
+      <button id="toggleTheme" class="text-sm px-3 py-1 border rounded hover:bg-gray-200 dark:hover:bg-gray-700">
+        Toggle Theme
+      </button>
+      <button id="signOutBtn" class="text-sm px-3 py-1 border border-red-500 text-red-500 rounded hover:bg-red-100 dark:hover:bg-red-900">
+        Sign Out
+      </button>
+    </div>
   </div>
 
-  <!-- Daily Verse -->
-  <section class="p-4 border-b border-gray-300 dark:border-gray-700">
-    <h2 class="text-xl font-semibold mb-1">📖 Daily Stewardship Verse</h2>
-    <p id="verse" class="italic"></p>
-    <p id="application" class="mt-1 text-sm text-gray-600 dark:text-gray-400"></p>
-  </section>
+  <!-- User Info -->
+  <div id="welcomeMessage" class="mb-4 text-lg font-medium"></div>
 
-  <!-- Financial Overview -->
-  <section class="p-4 grid gap-6 md:grid-cols-3">
-    <div class="bg-blue-100 dark:bg-blue-900 p-4 rounded shadow">
-      <h3 class="text-lg font-semibold">Banking Balance</h3>
-      <p id="bank-balance" class="text-2xl mt-2">$0.00</p>
+  <!-- Stewardship Verse -->
+  <div class="w-full max-w-4xl bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100 p-4 rounded mb-6">
+    <h2 class="font-semibold">Daily Stewardship Verse</h2>
+    <p class="text-sm mt-1" id="verseText">"The earth is the Lord’s, and everything in it..." – Psalm 24:1</p>
+    <p class="text-xs italic mt-1" id="verseExplanation">A reminder that our finances are entrusted to us by God — to manage wisely for His purposes.</p>
+  </div>
+
+  <!-- Dashboard Info -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+    <div class="bg-white dark:bg-gray-800 rounded shadow p-4">
+      <h3 class="text-lg font-semibold mb-2">Current Balance</h3>
+      <p class="text-2xl font-bold text-green-600 dark:text-green-400" id="currentBalance">$0.00</p>
     </div>
-    <div class="bg-green-100 dark:bg-green-900 p-4 rounded shadow">
-      <h3 class="text-lg font-semibold">Food & Fuel Allowance</h3>
-      <p id="allowance" class="text-2xl mt-2">$0.00</p>
+
+    <div class="bg-white dark:bg-gray-800 rounded shadow p-4">
+      <h3 class="text-lg font-semibold mb-2">Food & Fuel Allowance</h3>
+      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="allowance">$0.00</p>
     </div>
-    <div class="bg-purple-100 dark:bg-purple-900 p-4 rounded shadow">
-      <h3 class="text-lg font-semibold">Bills Due</h3>
-      <ul id="bills-list" class="mt-2 list-disc ml-5 text-sm"></ul>
+
+    <div class="bg-white dark:bg-gray-800 rounded shadow p-4 md:col-span-2">
+      <h3 class="text-lg font-semibold mb-2">Upcoming Bills</h3>
+      <ul class="list-disc list-inside text-sm space-y-1" id="upcomingBills">
+        <li>No bills due soon.</li>
+      </ul>
     </div>
-  </section>
 
-  <!-- Balance Projections -->
-  <section class="p-4">
-    <h2 class="text-xl font-semibold mb-3">💹 12-Month Projection</h2>
-    <div class="grid md:grid-cols-2 gap-4">
-      <div class="bg-red-100 dark:bg-red-900 p-4 rounded">
-        <h4 class="font-semibold">Lowest Balance</h4>
-        <p id="lowest-balance" class="text-2xl mt-1">$0.00</p>
-      </div>
-      <div class="bg-green-100 dark:bg-green-900 p-4 rounded">
-        <h4 class="font-semibold">Highest Balance</h4>
-        <p id="highest-balance" class="text-2xl mt-1">$0.00</p>
-      </div>
+    <div class="bg-white dark:bg-gray-800 rounded shadow p-4 md:col-span-2">
+      <h3 class="text-lg font-semibold mb-2">Projected Balances (Next 12 Months)</h3>
+      <p class="text-sm">Lowest: <span class="font-bold text-red-500" id="lowestProjected">$0.00</span></p>
+      <p class="text-sm">Highest: <span class="font-bold text-green-500" id="highestProjected">$0.00</span></p>
     </div>
-  </section>
+  </div>
 
-  <!-- Include JavaScript -->
-  <script src="https://unpkg.com/@supabase/supabase-js"></script>
-  <script>
-    const supabaseUrl = 'https://sxdqenjtkjpjcxueqror.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4ZHFlbmp0a2pwamN4dWVxcm9yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwMDc1MTksImV4cCI6MjA2NzU4MzUxOX0.s5EeCLmmTlVtV5zGv49-xeWu86Cx_8Usu9eiH59Tmy0';
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+  <!-- Supabase + Logic -->
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js'
 
-    async function fetchDashboardData() {
-      // Dummy values - replace with your Supabase table queries
-      document.getElementById('bank-balance').textContent = '$3,200.00';
-      document.getElementById('allowance').textContent = '$800.00';
-      document.getElementById('bills-list').innerHTML = '<li>Mortgage - $1,421.17</li><li>Utilities - $250</li>';
+    const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-      document.getElementById('lowest-balance').textContent = '$1,230.00';
-      document.getElementById('highest-balance').textContent = '$5,120.00';
-
-      document.getElementById('verse').textContent = '"Moreover it is required in stewards, that a man be found faithful." - 1 Corinthians 4:2';
-      document.getElementById('application').textContent = 'Apply this by consistently budgeting and honoring your commitments as a faithful steward of God’s resources.';
+    const user = await supabase.auth.getUser()
+    if (!user.data.user) {
+      window.location.href = 'login.html'
+    } else {
+      const email = user.data.user.email
+      document.getElementById('welcomeMessage').textContent = `Welcome, ${email}`
     }
 
-    function toggleDarkMode() {
-      document.documentElement.classList.toggle('dark');
-    }
+    document.getElementById('signOutBtn').addEventListener('click', async () => {
+      await supabase.auth.signOut()
+      window.location.href = 'login.html'
+    })
 
-    fetchDashboardData();
+    document.getElementById('toggleTheme').addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark')
+    })
+
+    // Sample placeholder data - replace with Supabase pulls later
+    document.getElementById('currentBalance').textContent = '$3,125.75'
+    document.getElementById('allowance').textContent = '$450.00'
+    document.getElementById('lowestProjected').textContent = '$1,872.20'
+    document.getElementById('highestProjected').textContent = '$6,320.45'
+
+    document.getElementById('upcomingBills').innerHTML = `
+      <li>Rent - $950 due Aug 1</li>
+      <li>Phone Bill - $65 due Aug 3</li>
+      <li>Car Insurance - $120 due Aug 5</li>
+    `
   </script>
 </body>
 </html>
