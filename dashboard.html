@@ -63,41 +63,83 @@
   </div>
 
   <!-- Supabase + Logic -->
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js'
 
-    const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+  const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // truncated for safety
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const user = await supabase.auth.getUser()
-    if (!user.data.user) {
-      window.location.href = 'login.html'
-    } else {
-      const email = user.data.user.email
-      document.getElementById('welcomeMessage').textContent = `Welcome, ${email}`
-    }
+  const user = await supabase.auth.getUser();
+  if (!user.data.user) {
+    window.location.href = 'login.html';
+  }
+  const userId = user.data.user.id;
+  document.getElementById('welcomeMessage').textContent = `Welcome, ${user.data.user.email}`;
 
-    document.getElementById('signOutBtn').addEventListener('click', async () => {
-      await supabase.auth.signOut()
-      window.location.href = 'login.html'
-    })
+  document.getElementById('signOutBtn').addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    window.location.href = 'login.html';
+  });
 
-    document.getElementById('toggleTheme').addEventListener('click', () => {
-      document.documentElement.classList.toggle('dark')
-    })
+  document.getElementById('toggleTheme').addEventListener('click', () => {
+    document.documentElement.classList.toggle('dark');
+  });
 
-    // Sample placeholder data - replace with Supabase pulls later
-    document.getElementById('currentBalance').textContent = '$3,125.75'
-    document.getElementById('allowance').textContent = '$450.00'
-    document.getElementById('lowestProjected').textContent = '$1,872.20'
-    document.getElementById('highestProjected').textContent = '$6,320.45'
+  // Fetch balances
+  const { data: balanceData } = await supabase
+    .from('balances')
+    .select('*')
+    .eq('user_id', userId)
+    .single();
 
-    document.getElementById('upcomingBills').innerHTML = `
-      <li>Rent - $950 due Aug 1</li>
-      <li>Phone Bill - $65 due Aug 3</li>
-      <li>Car Insurance - $120 due Aug 5</li>
-    `
-  </script>
-</body>
-</html>
+  document.getElementById('currentBalance').textContent = balanceData
+    ? `$${parseFloat(balanceData.current_balance).toFixed(2)}`
+    : '$0.00';
+  document.getElementById('allowance').textContent = balanceData
+    ? `$${(parseFloat(balanceData.food_allowance || 0) + parseFloat(balanceData.fuel_allowance || 0)).toFixed(2)}`
+    : '$0.00';
+
+  // Fetch upcoming bills
+  const today = new Date();
+  const currentDay = today.getDate();
+
+  const { data: billData } = await supabase
+    .from('bills')
+    .select('*')
+    .eq('user_id', userId);
+
+  const upcomingBills = billData
+    .filter(bill => bill.due_day >= currentDay)
+    .sort((a, b) => a.due_day - b.due_day);
+
+  if (upcomingBills.length) {
+    document.getElementById('upcomingBills').innerHTML = upcomingBills
+      .map(b => `<li>${b.name} - $${b.amount} due on ${b.due_day}</li>`)
+      .join('');
+  } else {
+    document.getElementById('upcomingBills').innerHTML = `<li>No bills due soon.</li>`;
+  }
+
+  // Fetch daily verse
+  const todayStr = today.toISOString().split('T')[0];
+  const { data: verse } = await supabase
+    .from('verses')
+    .select('*')
+    .eq('verse_date', todayStr)
+    .single();
+
+  if (verse) {
+    document.getElementById('verseText').textContent = verse.verse_text;
+    document.getElementById('verseExplanation').textContent = `${verse.explanation} ${verse.application || ''}`;
+  }
+
+  // Placeholder until projections are calculated
+  document.getElementById('lowestProjected').textContent = 'Calculating...';
+  document.getElementById('highestProjected').textContent = 'Calculating...';
+
+  // Next: implement projections here...
+</script>
+
+<\body>
+<\html>
