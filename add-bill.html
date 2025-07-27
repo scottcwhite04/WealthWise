@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Bill - Wealthwise</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' }
+  </script>
+</head>
+<body class="min-h-screen p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Add Monthly Bill</h1>
+    <button id="toggle-theme" class="text-sm border px-3 py-1 rounded">Toggle Theme</button>
+  </div>
+
+  <form id="bill-form" class="space-y-4 max-w-md">
+    <div>
+      <label class="block">Bill Name</label>
+      <input type="text" id="name" class="w-full p-2 border rounded dark:bg-gray-800" required>
+    </div>
+    <div>
+      <label class="block">Amount ($)</label>
+      <input type="number" id="amount" class="w-full p-2 border rounded dark:bg-gray-800" required>
+    </div>
+    <div>
+      <label class="block">Due Day (1-31)</label>
+      <input type="number" id="due_day" min="1" max="31" class="w-full p-2 border rounded dark:bg-gray-800" required>
+    </div>
+    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Add Bill</button>
+  </form>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+    const supabase = createClient('https://anwwjqupywbnwanuckdf.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI...');
+
+    document.getElementById('toggle-theme').onclick = () => {
+      document.documentElement.classList.toggle('dark');
+    };
+
+    const user = await supabase.auth.getUser();
+    if (!user.data.user) {
+      window.location.href = '/login.html';
+    }
+
+    document.getElementById('bill-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const { data, error } = await supabase.from('bills').insert({
+        user_id: user.data.user.id,
+        name: name.value,
+        amount: parseFloat(amount.value),
+        due_day: parseInt(due_day.value)
+      });
+      if (error) return alert(error.message);
+      alert('Bill added!');
+    });
+  </script>
+</body>
+</html>
