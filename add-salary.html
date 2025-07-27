@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-gray-100 dark:bg-gray-900">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Add Salary - Wealthwise</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
+</head>
+<body class="text-gray-900 dark:text-white">
+  <div class="max-w-xl mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded shadow">
+    <h1 class="text-2xl font-bold mb-4">Add or Update Salary</h1>
+    <form id="salaryForm" class="space-y-4">
+      <input type="number" id="amount" placeholder="Salary Amount" required class="w-full p-2 border dark:bg-gray-700 rounded" />
+      <select id="pay_cycle" required class="w-full p-2 border dark:bg-gray-700 rounded">
+        <option value="">Select Pay Cycle</option>
+        <option value="weekly">Weekly</option>
+        <option value="biweekly">Biweekly</option>
+        <option value="monthly">Monthly</option>
+      </select>
+      <input type="date" id="last_pay_date" required class="w-full p-2 border dark:bg-gray-700 rounded" />
+      <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded">Save Salary</button>
+    </form>
+  </div>
+
+  <div class="fixed top-4 right-4">
+    <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 border rounded">Toggle Theme</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    const supabase = supabase.createClient('https://YOUR_PROJECT.supabase.co', 'YOUR_ANON_KEY');
+
+    async function getUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) window.location.href = "/index.html";
+      return user;
+    }
+
+    document.getElementById('salaryForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const user = await getUser();
+      const amount = parseFloat(document.getElementById('amount').value);
+      const pay_cycle = document.getElementById('pay_cycle').value;
+      const last_pay_date = document.getElementById('last_pay_date').value;
+
+      const { error } = await supabase.from('salaries').upsert({
+        user_id: user.id,
+        amount,
+        pay_cycle,
+        last_pay_date
+      });
+
+      if (error) {
+        alert('Error saving salary: ' + error.message);
+      } else {
+        alert('Salary saved!');
+      }
+    });
+  </script>
+</body>
+</html>
