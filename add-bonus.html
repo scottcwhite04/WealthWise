@@ -1,58 +1,54 @@
 <!DOCTYPE html>
-<html lang="en" class="bg-gray-100 dark:bg-gray-900">
+<html lang="en" class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Add Bonus - Wealthwise</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = {
-      darkMode: 'class'
-    }
+    tailwind.config = { darkMode: 'class' }
   </script>
 </head>
-<body class="text-gray-900 dark:text-white">
-  <div class="max-w-xl mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded shadow">
-    <h1 class="text-2xl font-bold mb-4">Add Bonus</h1>
-    <form id="bonusForm" class="space-y-4">
-      <input type="number" id="amount" placeholder="Bonus Amount" required class="w-full p-2 border dark:bg-gray-700 rounded" />
-      <input type="date" id="bonus_date" required class="w-full p-2 border dark:bg-gray-700 rounded" />
-      <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded">Save Bonus</button>
-    </form>
+<body class="min-h-screen p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Add Bonus</h1>
+    <button id="toggle-theme" class="text-sm border px-3 py-1 rounded">Toggle Theme</button>
   </div>
 
-  <div class="fixed top-4 right-4">
-    <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 border rounded">Toggle Theme</button>
-  </div>
+  <form id="bonus-form" class="space-y-4 max-w-md">
+    <div>
+      <label class="block">Bonus Amount ($)</label>
+      <input type="number" id="amount" class="w-full p-2 border rounded dark:bg-gray-800" required>
+    </div>
+    <div>
+      <label class="block">Date</label>
+      <input type="date" id="bonus_date" class="w-full p-2 border rounded dark:bg-gray-800" required>
+    </div>
+    <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">Add Bonus</button>
+  </form>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script>
-    const supabase = supabase.createClient('https://YOUR_PROJECT.supabase.co', 'YOUR_ANON_KEY');
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+    const supabase = createClient('https://anwwjqupywbnwanuckdf.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI...');
 
-    async function getUser() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) window.location.href = "/index.html";
-      return user;
+    document.getElementById('toggle-theme').onclick = () => {
+      document.documentElement.classList.toggle('dark');
+    };
+
+    const user = await supabase.auth.getUser();
+    if (!user.data.user) {
+      window.location.href = '/login.html';
     }
 
-    document.getElementById('bonusForm').addEventListener('submit', async (e) => {
+    document.getElementById('bonus-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const user = await getUser();
-      const amount = parseFloat(document.getElementById('amount').value);
-      const bonus_date = document.getElementById('bonus_date').value;
-
-      const { error } = await supabase.from('bonuses').insert({
-        user_id: user.id,
-        amount,
-        bonus_date
+      const { data, error } = await supabase.from('bonuses').insert({
+        user_id: user.data.user.id,
+        amount: parseFloat(amount.value),
+        bonus_date: bonus_date.value
       });
-
-      if (error) {
-        alert('Error saving bonus: ' + error.message);
-      } else {
-        alert('Bonus saved!');
-        document.getElementById('bonusForm').reset();
-      }
+      if (error) return alert(error.message);
+      alert('Bonus added!');
     });
   </script>
 </body>
