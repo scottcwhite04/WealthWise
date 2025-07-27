@@ -1,56 +1,62 @@
 <!DOCTYPE html>
-<html lang="en" class="bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+<html lang="en" class="bg-gray-100 dark:bg-gray-900">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Add Monthly Bill</title>
+  <title>Add Bill - Wealthwise</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = { darkMode: 'class' }
+    tailwind.config = {
+      darkMode: 'class'
+    }
   </script>
 </head>
-<body class="min-h-screen flex flex-col items-center px-4 py-6">
-  <div class="w-full max-w-md">
-    <h1 class="text-2xl font-bold mb-6">Add Monthly Bill</h1>
+<body class="text-gray-900 dark:text-white">
+  <div class="max-w-xl mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded shadow">
+    <h1 class="text-2xl font-bold mb-4">Add a Monthly Bill</h1>
     <form id="billForm" class="space-y-4">
-      <input type="text" id="billName" placeholder="Bill Name" required class="w-full px-4 py-2 border rounded" />
-      <input type="number" id="billAmount" placeholder="Amount ($)" step="0.01" required class="w-full px-4 py-2 border rounded" />
-      <input type="number" id="dueDay" placeholder="Due Day (1-31)" min="1" max="31" required class="w-full px-4 py-2 border rounded" />
-      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Add Bill</button>
+      <input type="text" id="name" placeholder="Bill Name" required class="w-full p-2 border dark:bg-gray-700 rounded" />
+      <input type="number" id="amount" placeholder="Amount" required class="w-full p-2 border dark:bg-gray-700 rounded" />
+      <input type="number" id="due_day" placeholder="Due Day (1-31)" required class="w-full p-2 border dark:bg-gray-700 rounded" />
+      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded">Save Bill</button>
     </form>
-    <p id="statusMsg" class="mt-4 text-sm text-green-400 hidden">Bill saved!</p>
-    <a href="dashboard.html" class="text-blue-500 underline mt-6 inline-block">← Back to Dashboard</a>
   </div>
 
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+  <!-- Toggle -->
+  <div class="fixed top-4 right-4">
+    <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 border rounded">
+      Toggle Theme
+    </button>
+  </div>
 
-    const supabase = createClient(
-      'https://anwwjqupywbnwanuckdf.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-    );
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    const supabase = supabase.createClient('https://YOUR-PROJECT.supabase.co', 'YOUR-ANON-KEY')
 
-    const user = await supabase.auth.getUser()
-    if (!user.data.user) {
-      window.location.href = 'login.html'
+    async function getUser() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) window.location.href = '/index.html'
+      return user
     }
 
-    const userId = user.data.user.id
-    const form = document.getElementById('billForm')
-    const statusMsg = document.getElementById('statusMsg')
-
-    form.addEventListener('submit', async (e) => {
+    document.getElementById('billForm').addEventListener('submit', async (e) => {
       e.preventDefault()
-      const name = document.getElementById('billName').value
-      const amount = parseFloat(document.getElementById('billAmount').value)
-      const due_day = parseInt(document.getElementById('dueDay').value)
+      const user = await getUser()
 
-      const { error } = await supabase.from('bills').insert([{ user_id: userId, name, amount, due_day }])
-      if (!error) {
-        statusMsg.classList.remove('hidden')
-        form.reset()
-      } else {
+      const name = document.getElementById('name').value
+      const amount = parseFloat(document.getElementById('amount').value)
+      const due_day = parseInt(document.getElementById('due_day').value)
+
+      const { error } = await supabase.from('bills').insert({
+        user_id: user.id, name, amount, due_day
+      })
+
+      if (error) {
         alert('Error saving bill: ' + error.message)
+      } else {
+        alert('Bill saved!')
+        document.getElementById('billForm').reset()
       }
     })
   </script>
