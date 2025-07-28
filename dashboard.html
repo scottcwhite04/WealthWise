@@ -6,7 +6,7 @@
   <title>Wealthwise Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="text-gray-900 dark:text-white pb-20 p-4"> <!-- Add padding bottom for nav space -->
+<body class="text-gray-900 dark:text-white pb-20 p-4">
   <h1 class="text-2xl font-bold mb-4">Wealthwise Dashboard</h1>
 
   <form id="balance-form" class="space-y-4 bg-white dark:bg-gray-800 p-4 rounded shadow">
@@ -22,14 +22,6 @@
       <label for="fuel-allowance" class="block font-semibold">Fuel Allowance</label>
       <input type="number" id="fuel-allowance" class="w-full p-2 rounded border dark:bg-gray-900 dark:border-gray-600" required />
     </div>
-    <div>
-      <label for="pay-cycle" class="block font-semibold">Pay Cycle</label>
-      <select id="pay-cycle" class="w-full p-2 rounded border dark:bg-gray-900 dark:border-gray-600">
-        <option value="weekly">Weekly</option>
-        <option value="biweekly">Biweekly</option>
-        <option value="monthly">Monthly</option>
-      </select>
-    </div>
     <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Save</button>
   </form>
 
@@ -40,12 +32,6 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7m-7-7v18" />
       </svg>
       Dashboard
-    </a>
-    <a href="add-salary.html" class="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-blue-600">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.656 0 3 1.343 3 3s-1.344 3-3 3-3-1.343-3-3 1.344-3 3-3zm0 10c4.418 0 8-1.79 8-4v-1a7.984 7.984 0 00-1.32-4.28M4 12v1c0 2.21 3.582 4 8 4z" />
-      </svg>
-      Salary
     </a>
     <a href="add-bill.html" class="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-blue-600">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -62,7 +48,7 @@
   </nav>
 
   <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js';
 
     const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
@@ -114,18 +100,6 @@
         document.getElementById('food-allowance').value = balances.food_allowance ?? '';
         document.getElementById('fuel-allowance').value = balances.fuel_allowance ?? '';
       }
-
-      const { data: salary, error: salaryError } = await supabase
-        .from('salaries')
-        .select('pay_cycle')
-        .eq('user_id', currentUser.id)
-        .single();
-
-      if (salaryError) {
-        console.error('Error loading salary:', salaryError);
-      } else if (salary) {
-        document.getElementById('pay-cycle').value = salary.pay_cycle ?? 'weekly';
-      }
     }
 
     document.getElementById('balance-form').addEventListener('submit', async (e) => {
@@ -134,7 +108,6 @@
       const currentBalance = parseFloat(document.getElementById('current-balance').value);
       const foodAllowance = parseFloat(document.getElementById('food-allowance').value);
       const fuelAllowance = parseFloat(document.getElementById('fuel-allowance').value);
-      const payCycle = document.getElementById('pay-cycle').value;
 
       const { error: balanceError } = await supabase.from('balances').upsert({
         user_id: currentUser.id,
@@ -145,25 +118,6 @@
 
       if (balanceError) {
         alert('Error saving balances: ' + balanceError.message);
-        return;
-      }
-
-      const { data: existingSalary } = await supabase
-        .from('salaries')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .single();
-
-      const existingAmount = existingSalary?.amount || 0;
-
-      const { error: salaryError } = await supabase.from('salaries').upsert({
-        user_id: currentUser.id,
-        amount: existingAmount,
-        pay_cycle: payCycle
-      });
-
-      if (salaryError) {
-        alert('Error saving salary: ' + salaryError.message);
         return;
       }
 
