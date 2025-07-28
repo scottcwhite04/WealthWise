@@ -49,11 +49,13 @@
     const signUpBtn = document.getElementById('signUp');
     const message = document.getElementById('authMessage');
 
-    // Redirect if already logged in
-    const { data: sessionData } = await supabase.auth.getSession();
-    if (sessionData?.session) {
-      window.location.href = 'dashboard.html';
-    }
+    // Wrap async code in an IIFE
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data?.session) {
+        window.location.href = 'dashboard.html';
+      }
+    })();
 
     // Listen for sign-in state change
     supabase.auth.onAuthStateChange((event, session) => {
@@ -62,26 +64,47 @@
       }
     });
 
-    // Sign In
+    // Sign In handler
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const { error } = await supabase.auth.signInWithPassword({
-        email: emailInput.value,
-        password: passwordInput.value
+      message.textContent = '';
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      if (!email || !password) {
+        message.textContent = 'Please enter both email and password.';
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
       });
       if (error) {
         message.textContent = error.message;
       } else {
         message.textContent = "Logging in...";
+        // Redirect immediately
+        window.location.href = 'dashboard.html';
       }
     });
 
-    // Sign Up
+    // Sign Up handler
     signUpBtn.addEventListener('click', async () => {
-      const { error } = await supabase.auth.signUp({
-        email: emailInput.value,
-        password: passwordInput.value
+      message.textContent = '';
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      if (!email || !password) {
+        message.textContent = 'Please enter both email and password before signing up.';
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password
       });
+
       if (error) {
         message.textContent = error.message;
       } else {
