@@ -33,15 +33,9 @@
     <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Save</button>
   </form>
 
-  <div class="mt-8">
-    <h2 class="text-xl font-semibold mb-2">Your Bills</h2>
-    <ul id="bills-list" class="bg-white dark:bg-gray-800 p-4 rounded shadow divide-y divide-gray-200 dark:divide-gray-700"></ul>
-  </div>
-
   <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 flex justify-around py-2">
     <a href="dashboard.html" class="text-blue-600 dark:text-blue-400 font-semibold">Dashboard</a>
     <a href="add-salary.html" class="text-gray-600 dark:text-gray-300">Salary</a>
-    <a href="add-bill.html" class="text-gray-600 dark:text-gray-300">Bills</a>
     <a href="add-bonus.html" class="text-gray-600 dark:text-gray-300">Bonuses</a>
     <a href="logout.html" class="text-red-600 dark:text-red-400">Logout</a>
   </nav>
@@ -78,7 +72,6 @@
       }
 
       await loadUserBalances();
-      await loadBills();
 
       // Listen for auth state changes (like signout or token expiry)
       supabase.auth.onAuthStateChange((event, session) => {
@@ -117,33 +110,6 @@
       }
     }
 
-    async function loadBills() {
-      const { data: bills, error } = await supabase
-        .from('bills')
-        .select('*')
-        .eq('user_id', currentUser.id);
-
-      if (error) {
-        console.error('Error loading bills:', error);
-        return;
-      }
-
-      const billsList = document.getElementById('bills-list');
-      billsList.innerHTML = '';
-
-      if (bills.length === 0) {
-        billsList.innerHTML = '<li>No bills found.</li>';
-      } else {
-        bills.forEach(bill => {
-          const li = document.createElement('li');
-          li.className = 'py-2 border-b border-gray-200 dark:border-gray-700';
-          li.textContent = `${bill.name} - $${bill.amount} (${bill.frequency})`;
-          billsList.appendChild(li);
-        });
-      }
-    }
-
-    // Save form
     document.getElementById('balance-form').addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -152,7 +118,6 @@
       const fuelAllowance = parseFloat(document.getElementById('fuel-allowance').value);
       const payCycle = document.getElementById('pay-cycle').value;
 
-      // Upsert balances
       const { error: balanceError } = await supabase.from('balances').upsert({
         user_id: currentUser.id,
         current_balance: currentBalance,
@@ -165,7 +130,6 @@
         return;
       }
 
-      // Upsert salary
       const { data: existingSalary } = await supabase
         .from('salaries')
         .select('*')
