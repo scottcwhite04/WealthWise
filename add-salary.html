@@ -6,59 +6,106 @@
   <title>Add Salary - Wealthwise</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = { darkMode: 'class' }
+    tailwind.config = { darkMode: 'class' };
   </script>
 </head>
-<body class="min-h-screen p-6">
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold">Add Salary</h1>
-    <button id="toggle-theme" class="text-sm border px-3 py-1 rounded">Toggle Theme</button>
-  </div>
+<body class="min-h-screen flex flex-col justify-between p-6">
+  <main>
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Add Salary</h1>
+      <button id="toggle-theme" class="text-sm border px-3 py-1 rounded">Toggle Theme</button>
+    </div>
 
-  <form id="salary-form" class="space-y-4 max-w-md">
-    <div>
-      <label class="block">Salary Amount ($)</label>
-      <input type="number" id="amount" class="w-full p-2 border rounded dark:bg-gray-800" required>
-    </div>
-    <div>
-      <label class="block">Pay Cycle</label>
-      <select id="pay_cycle" class="w-full p-2 border rounded dark:bg-gray-800" required>
-        <option value="">Choose</option>
-        <option value="weekly">Weekly</option>
-        <option value="biweekly">Biweekly</option>
-        <option value="monthly">Monthly</option>
-      </select>
-    </div>
-    <div>
-      <label class="block">Last Pay Date</label>
-      <input type="date" id="last_pay_date" class="w-full p-2 border rounded dark:bg-gray-800" required>
-    </div>
-    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save Salary</button>
-  </form>
+    <form id="salary-form" class="space-y-4 max-w-md">
+      <div>
+        <label class="block">Amount ($)</label>
+        <input type="number" step="0.01" id="amount" class="w-full p-2 border rounded dark:bg-gray-800" required>
+      </div>
+      <div>
+        <label class="block">Pay Cycle</label>
+        <select id="pay_cycle" class="w-full p-2 border rounded dark:bg-gray-800" required>
+          <option value="">Select one</option>
+          <option value="weekly">Weekly</option>
+          <option value="biweekly">Biweekly</option>
+          <option value="monthly">Monthly</option>
+        </select>
+      </div>
+      <div>
+        <label class="block">Start Date (optional)</label>
+        <input type="date" id="start_date" class="w-full p-2 border rounded dark:bg-gray-800">
+      </div>
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save Salary</button>
+    </form>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t dark:border-gray-700 flex justify-around py-2">
+    <a href="dashboard.html" class="text-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7m-9 2v6m0 0h4m-4 0a2 2 0 01-2-2v-4a2 2 0 012-2h4a2 2 0 012 2v4a2 2 0 01-2 2h-4z" />
+      </svg>
+      <span class="text-xs">Dashboard</span>
+    </a>
+    <a href="add-bill.html" class="text-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      <span class="text-xs">Add Bill</span>
+    </a>
+    <a href="add-salary.html" class="text-center text-blue-600 dark:text-blue-400">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10zm1-16h-2v2h2V6zm0 4h-2v6h2v-6z"/>
+      </svg>
+      <span class="text-xs">Add Salary</span>
+    </a>
+  </nav>
 
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-    const supabase = createClient('https://anwwjqupywbnwanuckdf.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI...');
+
+    const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     document.getElementById('toggle-theme').onclick = () => {
       document.documentElement.classList.toggle('dark');
     };
 
-    const user = await supabase.auth.getUser();
-    if (!user.data.user) {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    if (!user) {
       window.location.href = '/login.html';
     }
 
-    document.getElementById('salary-form').addEventListener('submit', async (e) => {
+    const form = document.getElementById('salary-form');
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const { data, error } = await supabase.from('salaries').upsert({
-        user_id: user.data.user.id,
-        amount: parseFloat(amount.value),
-        pay_cycle: pay_cycle.value,
-        last_pay_date: last_pay_date.value
+
+      const amount = parseFloat(document.getElementById('amount').value);
+      const pay_cycle = document.getElementById('pay_cycle').value;
+      const start_date_input = document.getElementById('start_date').value;
+      const start_date = start_date_input ? new Date(start_date_input).toISOString() : null;
+
+      if (!amount || !pay_cycle) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+
+      const { error } = await supabase.from('salaries').insert({
+        user_id: user.id,
+        amount,
+        pay_cycle,
+        start_date
       });
-      if (error) return alert(error.message);
-      alert('Salary saved!');
+
+      if (error) {
+        alert('Error saving salary: ' + error.message);
+      } else {
+        alert('Salary saved!');
+        form.reset();
+      }
     });
   </script>
 </body>
