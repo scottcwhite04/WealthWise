@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - Wealthwise</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+  </script>
+</head>
+<body class="min-h-screen p-6">
+  <h1 class="text-2xl font-bold mb-6">Settings</h1>
+
+  <!-- Theme Toggle -->
+  <div class="flex items-center justify-between mb-6">
+    <span class="text-lg">Dark Mode</span>
+    <label class="inline-flex items-center cursor-pointer">
+      <input type="checkbox" id="theme-toggle" class="sr-only">
+      <div class="w-11 h-6 bg-gray-200 rounded-full dark:bg-gray-700 peer peer-focus:ring-4 peer-checked:bg-purple-600 relative">
+        <span class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform peer-checked:translate-x-5"></span>
+      </div>
+    </label>
+  </div>
+
+  <!-- Logout -->
+  <button id="logout-btn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Logout</button>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+    const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const user = await supabase.auth.getUser();
+    if (!user.data.user) {
+      window.location.href = '/login.html';
+    }
+
+    // Dark Mode Toggle
+    const toggle = document.getElementById('theme-toggle');
+    toggle.checked = document.documentElement.classList.contains('dark');
+
+    toggle.addEventListener('change', () => {
+      document.documentElement.classList.toggle('dark');
+    });
+
+    // Logout
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = '/login.html';
+    });
+  </script>
+</body>
+</html>
