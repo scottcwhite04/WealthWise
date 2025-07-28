@@ -5,236 +5,150 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Wealthwise Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = { darkMode: 'class' }
-  </script>
-</head>
-<body class="min-h-screen flex flex-col text-gray-900 dark:text-gray-100">
-
-  <!-- Header -->
-  <header class="flex items-center justify-between p-4 bg-white dark:bg-gray-800 shadow">
-    <h1 class="text-2xl font-bold">Wealthwise</h1>
-    <button id="toggleThemeBtn" class="px-3 py-1 border rounded hover:bg-gray-200 dark:hover:bg-gray-700">Toggle Theme</button>
-  </header>
-
-  <!-- Daily Verse -->
-  <section id="daily-verse" class="bg-green-100 dark:bg-green-800 p-4 m-4 rounded shadow"></section>
-
-  <!-- Editable User Balances and Pay Cycle -->
-  <section class="bg-white dark:bg-gray-800 rounded shadow m-4 p-4 max-w-xl mx-auto">
-    <h2 class="text-xl font-semibold mb-4">Your Finances</h2>
-    <form id="balance-form" class="space-y-4">
-      <div>
-        <label for="currentBalance" class="block font-medium mb-1">Current Balance ($)</label>
-        <input type="number" step="0.01" id="currentBalance" class="w-full p-2 rounded border dark:bg-gray-700" required />
-      </div>
-      <div>
-        <label for="foodAllowance" class="block font-medium mb-1">Food Allowance ($)</label>
-        <input type="number" step="0.01" id="foodAllowance" class="w-full p-2 rounded border dark:bg-gray-700" required />
-      </div>
-      <div>
-        <label for="fuelAllowance" class="block font-medium mb-1">Fuel Allowance ($)</label>
-        <input type="number" step="0.01" id="fuelAllowance" class="w-full p-2 rounded border dark:bg-gray-700" required />
-      </div>
-      <div>
-        <label for="payCycle" class="block font-medium mb-1">Pay Cycle</label>
-        <select id="payCycle" class="w-full p-2 rounded border dark:bg-gray-700" required>
-          <option value="">Select Pay Cycle</option>
-          <option value="weekly">Weekly</option>
-          <option value="biweekly">Biweekly</option>
-          <option value="monthly">Monthly</option>
-        </select>
-      </div>
-      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save</button>
-    </form>
-  </section>
-
-  <!-- Projected Balances -->
-  <section class="bg-white dark:bg-gray-800 rounded shadow m-4 p-4 max-w-xl mx-auto">
-    <h2 class="text-xl font-semibold mb-3">12-Month Balance Projections</h2>
-    <p>Lowest Projected Balance: <span id="lowestBalance" class="font-bold text-red-600 dark:text-red-400">$0.00</span></p>
-    <p>Highest Projected Balance: <span id="highestBalance" class="font-bold text-green-600 dark:text-green-400">$0.00</span></p>
-
-    <div id="projectionList" class="mt-4 space-y-1 text-sm"></div>
-  </section>
-
-  <!-- Bottom Navigation -->
-  <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 flex justify-around py-2">
-    <a href="add-bill.html" class="text-center text-blue-600 dark:text-blue-400 hover:underline">
-      <div>🧾</div>
-      <div class="text-xs">Add Bill</div>
-    </a>
-    <a href="add-salary.html" class="text-center text-blue-600 dark:text-blue-400 hover:underline">
-      <div>💼</div>
-      <div class="text-xs">Add Salary</div>
-    </a>
-    <a href="add-bonus.html" class="text-center text-blue-600 dark:text-blue-400 hover:underline">
-      <div>🎉</div>
-      <div class="text-xs">Add Bonus</div>
-    </a>
-  </nav>
-
-  <!-- Supabase and Logic -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
     const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTA2MTc2NzUsImV4cCI6MjAyNjk5MzY3NX0.8ccHkDWDG1c_tMXTytR3UrLKZ1ZsU1q-6Iq4RsoCiSk';
+
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    const toggleThemeBtn = document.getElementById('toggleThemeBtn');
-    toggleThemeBtn.addEventListener('click', () => {
-      document.documentElement.classList.toggle('dark');
-    });
-
-    const currentBalanceInput = document.getElementById('currentBalance');
-    const foodAllowanceInput = document.getElementById('foodAllowance');
-    const fuelAllowanceInput = document.getElementById('fuelAllowance');
-    const payCycleSelect = document.getElementById('payCycle');
-    const balanceForm = document.getElementById('balance-form');
-    const lowestBalanceEl = document.getElementById('lowestBalance');
-    const highestBalanceEl = document.getElementById('highestBalance');
-    const projectionList = document.getElementById('projectionList');
-    const dailyVerseSection = document.getElementById('daily-verse');
 
     let currentUser = null;
 
-    async function loadUserData() {
-      const { data: { user }, error } = await supabase.auth.getUser();
+    async function loadUser() {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
       if (error || !user) {
         window.location.href = 'login.html';
-        return;
+      } else {
+        currentUser = user;
+        loadUserBalances();
+        loadBills();
       }
-      currentUser = user;
+    }
 
-      // Load balance info
-      const { data: balances, error: balErr } = await supabase
+    async function loadUserBalances() {
+      const { data: balances } = await supabase
         .from('balances')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', currentUser.id)
         .single();
 
-      if (!balErr && balances) {
-        currentBalanceInput.value = balances.current_balance ?? 0;
-        foodAllowanceInput.value = balances.food_allowance ?? 0;
-        fuelAllowanceInput.value = balances.fuel_allowance ?? 0;
+      if (balances) {
+        document.getElementById('current-balance').value = balances.current_balance;
+        document.getElementById('food-allowance').value = balances.food_allowance;
+        document.getElementById('fuel-allowance').value = balances.fuel_allowance;
       }
 
-      // Load salary (to get pay_cycle)
-      const { data: salary, error: salaryErr } = await supabase
+      const { data: salary } = await supabase
         .from('salaries')
-        .select('*')
-        .eq('user_id', user.id)
+        .select('pay_cycle')
+        .eq('user_id', currentUser.id)
         .single();
 
-      if (!salaryErr && salary) {
-        payCycleSelect.value = salary.pay_cycle ?? '';
+      if (salary) {
+        document.getElementById('pay-cycle').value = salary.pay_cycle;
       }
-
-      // Load daily verse
-      loadDailyVerse();
-
-      // Load projections
-      await loadProjections();
     }
 
-    balanceForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
+    async function loadBills() {
+      const { data: bills } = await supabase
+        .from('bills')
+        .select('*')
+        .eq('user_id', currentUser.id);
 
-      // Update balances table
-      const { error: balErr } = await supabase.from('balances').upsert({
-        user_id: currentUser.id,
-        current_balance: parseFloat(currentBalanceInput.value),
-        food_allowance: parseFloat(foodAllowanceInput.value),
-        fuel_allowance: parseFloat(fuelAllowanceInput.value)
+      const billsList = document.getElementById('bills-list');
+      billsList.innerHTML = '';
+
+      bills.forEach(bill => {
+        const li = document.createElement('li');
+        li.className = 'py-2 border-b border-gray-200 dark:border-gray-700';
+        li.innerText = `${bill.name} - $${bill.amount} (${bill.frequency})`;
+        billsList.appendChild(li);
       });
+    }
 
-      if (balErr) {
-        alert('Error saving balances: ' + balErr.message);
-        return;
-      }
+    window.addEventListener('DOMContentLoaded', () => {
+      loadUser();
 
-      // Update salaries table (for pay_cycle)
-      const { error: salaryErr } = await supabase.from('salaries').upsert({
-        user_id: currentUser.id,
-        pay_cycle: payCycleSelect.value
+      const form = document.getElementById('balance-form');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const currentBalance = parseFloat(document.getElementById('current-balance').value);
+        const foodAllowance = parseFloat(document.getElementById('food-allowance').value);
+        const fuelAllowance = parseFloat(document.getElementById('fuel-allowance').value);
+        const payCycle = document.getElementById('pay-cycle').value;
+
+        // Save to balances
+        await supabase.from('balances').upsert({
+          user_id: currentUser.id,
+          current_balance: currentBalance,
+          food_allowance: foodAllowance,
+          fuel_allowance: fuelAllowance
+        });
+
+        // Upsert into salaries (preserve existing amount if possible)
+        const { data: existingSalary } = await supabase
+          .from('salaries')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .single();
+
+        const existingAmount = existingSalary?.amount || 0;
+
+        await supabase.from('salaries').upsert({
+          user_id: currentUser.id,
+          amount: existingAmount,
+          pay_cycle: payCycle
+        });
+
+        alert('Saved successfully!');
       });
-
-      if (salaryErr) {
-        alert('Error saving pay cycle: ' + salaryErr.message);
-        return;
-      }
-
-      alert('Balances and pay cycle updated!');
-      await loadProjections();
     });
-
-    async function loadProjections() {
-      // Fetch salary, bills, bonuses, balances for calculations
-      const [{ data: salary }, { data: bills }, { data: bonuses }, { data: balances }] = await Promise.all([
-        supabase.from('salaries').select('*').eq('user_id', currentUser.id).single(),
-        supabase.from('bills').select('*').eq('user_id', currentUser.id),
-        supabase.from('bonuses').select('*').eq('user_id', currentUser.id),
-        supabase.from('balances').select('*').eq('user_id', currentUser.id).single()
-      ]);
-
-      if (!salary || !balances) return;
-
-      const currentBal = parseFloat(balances.current_balance) || 0;
-      const foodAllowance = parseFloat(balances.food_allowance) || 0;
-      const fuelAllowance = parseFloat(balances.fuel_allowance) || 0;
-      const payCycle = salary.pay_cycle || 'monthly';
-      const payAmount = parseFloat(salary.amount) || 0;
-
-      const fixedBills = bills.reduce((sum, bill) => sum + parseFloat(bill.amount), 0);
-      const allowances = foodAllowance + fuelAllowance;
-
-      // Map bonuses by month
-      const bonusByMonth = Array(12).fill(0);
-      bonuses.forEach(bonus => {
-        const dt = new Date(bonus.bonus_date);
-        bonusByMonth[dt.getMonth()] += parseFloat(bonus.amount);
-      });
-
-      const projections = [];
-      for (let i = 0; i < 12; i++) {
-        let income = payAmount;
-        if (payCycle === 'biweekly') income *= 2;
-        if (payCycle === 'weekly') income *= 4;
-
-        const projectedBalance = currentBal + income + bonusByMonth[i] - fixedBills - allowances;
-        projections.push(projectedBalance);
-      }
-
-      const lowest = Math.min(...projections);
-      const highest = Math.max(...projections);
-
-      lowestBalanceEl.textContent = `$${lowest.toFixed(2)}`;
-      highestBalanceEl.textContent = `$${highest.toFixed(2)}`;
-
-      projectionList.innerHTML = '';
-      projections.forEach((val, idx) => {
-        const monthName = new Date(2025, idx).toLocaleString('default', { month: 'long' });
-        projectionList.innerHTML += `<div>${monthName}: $${val.toFixed(2)}</div>`;
-      });
-    }
-
-    async function loadDailyVerse() {
-      const today = new Date().toISOString().split('T')[0];
-      const { data: verse } = await supabase.from('verses').select('*').eq('verse_date', today).single();
-      if (verse) {
-        dailyVerseSection.innerHTML = `
-          <h2 class="font-semibold text-lg mb-1">Today's Stewardship Verse</h2>
-          <p class="italic mb-2">"${verse.verse_text}"</p>
-          <p><strong>Explanation:</strong> ${verse.explanation}</p>
-          <p><strong>Application:</strong> ${verse.application}</p>
-        `;
-      } else {
-        dailyVerseSection.innerHTML = `<p>No verse found for today.</p>`;
-      }
-    }
-
-    loadUserData();
   </script>
+</head>
+<body class="text-gray-900 dark:text-white p-4">
+  <h1 class="text-2xl font-bold mb-4">Wealthwise Dashboard</h1>
+
+  <form id="balance-form" class="space-y-4 bg-white dark:bg-gray-800 p-4 rounded shadow">
+    <div>
+      <label for="current-balance" class="block font-semibold">Current Balance</label>
+      <input type="number" id="current-balance" class="w-full p-2 rounded border dark:bg-gray-900 dark:border-gray-600" required />
+    </div>
+    <div>
+      <label for="food-allowance" class="block font-semibold">Food Allowance</label>
+      <input type="number" id="food-allowance" class="w-full p-2 rounded border dark:bg-gray-900 dark:border-gray-600" required />
+    </div>
+    <div>
+      <label for="fuel-allowance" class="block font-semibold">Fuel Allowance</label>
+      <input type="number" id="fuel-allowance" class="w-full p-2 rounded border dark:bg-gray-900 dark:border-gray-600" required />
+    </div>
+    <div>
+      <label for="pay-cycle" class="block font-semibold">Pay Cycle</label>
+      <select id="pay-cycle" class="w-full p-2 rounded border dark:bg-gray-900 dark:border-gray-600">
+        <option value="weekly">Weekly</option>
+        <option value="biweekly">Biweekly</option>
+        <option value="monthly">Monthly</option>
+      </select>
+    </div>
+    <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Save</button>
+  </form>
+
+  <div class="mt-8">
+    <h2 class="text-xl font-semibold mb-2">Your Bills</h2>
+    <ul id="bills-list" class="bg-white dark:bg-gray-800 p-4 rounded shadow divide-y divide-gray-200 dark:divide-gray-700"></ul>
+  </div>
+
+  <!-- Bottom Navigation (copied from dashboard.html) -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 flex justify-around py-2">
+    <a href="dashboard.html" class="text-blue-600 dark:text-blue-400 font-semibold">Dashboard</a>
+    <a href="add-salary.html" class="text-gray-600 dark:text-gray-300">Salary</a>
+    <a href="add-bill.html" class="text-gray-600 dark:text-gray-300">Bills</a>
+    <a href="add-bonus.html" class="text-gray-600 dark:text-gray-300">Bonuses</a>
+    <a href="logout.html" class="text-red-600 dark:text-red-400">Logout</a>
+  </nav>
 </body>
 </html>
