@@ -1,57 +1,130 @@
 <!DOCTYPE html>
-<html lang="en" class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+<html lang="en" class="bg-gray-100 dark:bg-gray-900">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard - Wealthwise</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wealthwise Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = { darkMode: 'class' }
-  </script>
 </head>
-<body class="min-h-screen flex flex-col justify-between p-6">
+<body class="text-gray-900 dark:text-white pb-20 p-4">
+  <h1 class="text-2xl font-bold mb-4">Wealthwise Dashboard</h1>
 
-  <!-- Dashboard Content -->
-  <div>
-    <h1 class="text-2xl font-bold mb-4">Welcome to Wealthwise</h1>
-    <!-- Financial Overview (add your dynamic content here) -->
-    <div class="space-y-4">
-      <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded">
-        <h2 class="text-lg font-semibold">Current Balance</h2>
-        <p>$0.00</p>
-      </div>
-      <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded">
-        <h2 class="text-lg font-semibold">Food Allowance</h2>
-        <p>$0.00</p>
-      </div>
-      <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded">
-        <h2 class="text-lg font-semibold">Fuel Allowance</h2>
-        <p>$0.00</p>
-      </div>
+  <form id="balance-form" class="space-y-4 bg-white dark:bg-gray-800 p-4 rounded shadow">
+    <div>
+      <label for="current-balance" class="block font-semibold">Current Balance</label>
+      <input type="number" id="current-balance" class="w-full p-2 rounded border dark:bg-gray-900 dark:border-gray-600" required />
     </div>
-  </div>
+    <div>
+      <label for="food-allowance" class="block font-semibold">Food Allowance</label>
+      <input type="number" id="food-allowance" class="w-full p-2 rounded border dark:bg-gray-900 dark:border-gray-600" required />
+    </div>
+    <div>
+      <label for="fuel-allowance" class="block font-semibold">Fuel Allowance</label>
+      <input type="number" id="fuel-allowance" class="w-full p-2 rounded border dark:bg-gray-900 dark:border-gray-600" required />
+    </div>
+    <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Save</button>
+  </form>
 
   <!-- Bottom Navigation -->
-  <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 flex justify-around py-2">
-    <a href="dashboard.html" class="text-center">
-      <span class="material-icons">home</span>
-      <p class="text-xs">Home</p>
+  <nav class="fixed bottom-0 inset-x-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow px-6 py-2 flex justify-between text-sm">
+    <a href="dashboard.html" class="flex flex-col items-center text-blue-600 dark:text-blue-400">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7m-7-7v18" />
+      </svg>
+      Dashboard
     </a>
-    <a href="add-salary.html" class="text-center">
-      <span class="material-icons">attach_money</span>
-      <p class="text-xs">Salary</p>
+    <a href="add-bill.html" class="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-blue-600">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l2-2 4 4m1 4H5a2 2 0 01-2-2V5a2 2 0 012-2h11l4 4v11a2 2 0 01-2 2z" />
+      </svg>
+      Bills
     </a>
-    <a href="add-bonus.html" class="text-center">
-      <span class="material-icons">card_giftcard</span>
-      <p class="text-xs">Bonus</p>
-    </a>
-    <a href="settings.html" class="text-center">
-      <span class="material-icons">menu</span>
-      <p class="text-xs">Menu</p>
+    <a href="add-bonus.html" class="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-blue-600">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 11V7a4 4 0 018 0v4m-8 4h6m2 0a2 2 0 100-4 2 2 0 000 4z" />
+      </svg>
+      Bonus
     </a>
   </nav>
 
-  <!-- Material Icons -->
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js';
+
+    const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let currentUser = null;
+
+    async function init() {
+      const {
+        data: { session },
+        error: sessionError
+      } = await supabase.auth.getSession();
+
+      if (sessionError || !session) {
+        alert('No active session. Redirecting to login.');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      currentUser = session.user;
+      if (!currentUser) {
+        alert('User not found. Redirecting to login.');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      await loadUserBalances();
+
+      supabase.auth.onAuthStateChange((event, session) => {
+        if (!session) {
+          alert('Session expired or signed out.');
+          window.location.href = 'login.html';
+        }
+      });
+    }
+
+    async function loadUserBalances() {
+      const { data: balances, error } = await supabase
+        .from('balances')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .single();
+
+      if (error) {
+        console.error('Error loading balances:', error);
+      } else if (balances) {
+        document.getElementById('current-balance').value = balances.current_balance ?? '';
+        document.getElementById('food-allowance').value = balances.food_allowance ?? '';
+        document.getElementById('fuel-allowance').value = balances.fuel_allowance ?? '';
+      }
+    }
+
+    document.getElementById('balance-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const currentBalance = parseFloat(document.getElementById('current-balance').value);
+      const foodAllowance = parseFloat(document.getElementById('food-allowance').value);
+      const fuelAllowance = parseFloat(document.getElementById('fuel-allowance').value);
+
+      const { error: balanceError } = await supabase.from('balances').upsert({
+        user_id: currentUser.id,
+        current_balance: currentBalance,
+        food_allowance: foodAllowance,
+        fuel_allowance: fuelAllowance
+      });
+
+      if (balanceError) {
+        alert('Error saving balances: ' + balanceError.message);
+        return;
+      }
+
+      alert('Saved successfully!');
+    });
+
+    window.onload = init;
+  </script>
 </body>
 </html>
