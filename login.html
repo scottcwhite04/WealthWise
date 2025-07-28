@@ -43,44 +43,71 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const form = document.getElementById('authForm')
-    const emailInput = document.getElementById('email')
-    const passwordInput = document.getElementById('password')
-    const signUpBtn = document.getElementById('signUp')
-    const message = document.getElementById('authMessage')
+    const form = document.getElementById('authForm');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const signUpBtn = document.getElementById('signUp');
+    const signInBtn = document.getElementById('signIn');
+    const message = document.getElementById('authMessage');
+
+    // Redirect if already logged in
+    async function redirectIfLoggedIn() {
+      const {
+        data: { session }
+      } = await supabase.auth.getSession();
+      if (session) {
+        window.location.href = 'dashboard.html';
+      }
+    }
+    redirectIfLoggedIn();
 
     // Sign In
     form.addEventListener('submit', async (e) => {
-      e.preventDefault()
+      e.preventDefault();
+      message.textContent = '';
+      signInBtn.disabled = true;
+      signUpBtn.disabled = true;
+
       const { error } = await supabase.auth.signInWithPassword({
         email: emailInput.value,
         password: passwordInput.value
-      })
+      });
+
       if (error) {
-        message.textContent = error.message
+        message.textContent = error.message;
+        signInBtn.disabled = false;
+        signUpBtn.disabled = false;
       } else {
-        window.location.href = 'dashboard.html'
+        window.location.href = 'dashboard.html';
       }
-    })
+    });
 
     // Sign Up
     signUpBtn.addEventListener('click', async () => {
+      message.textContent = '';
+      signInBtn.disabled = true;
+      signUpBtn.disabled = true;
+
       const { error } = await supabase.auth.signUp({
         email: emailInput.value,
         password: passwordInput.value
-      })
+      });
+
       if (error) {
-        message.textContent = error.message
+        message.textContent = error.message;
       } else {
-        message.textContent = 'Check your email to confirm sign-up.'
+        message.textContent = 'Check your email to confirm sign-up.';
       }
-    })
+
+      signInBtn.disabled = false;
+      signUpBtn.disabled = false;
+    });
 
     // Dark/Light Mode Toggle
-    const toggle = document.getElementById('toggleTheme')
+    const toggle = document.getElementById('toggleTheme');
     toggle.addEventListener('click', () => {
-      document.documentElement.classList.toggle('dark')
-    })
+      document.documentElement.classList.toggle('dark');
+    });
   </script>
 </body>
 </html>
