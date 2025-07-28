@@ -37,85 +37,50 @@
 
   <!-- Supabase & JS -->
   <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.42.3';
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js'
 
     const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const form = document.getElementById('authForm');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const signUpBtn = document.getElementById('signUp');
-    const message = document.getElementById('authMessage');
+    const form = document.getElementById('authForm')
+    const emailInput = document.getElementById('email')
+    const passwordInput = document.getElementById('password')
+    const signUpBtn = document.getElementById('signUp')
+    const message = document.getElementById('authMessage')
 
-    // Wrap async code in an IIFE
-    (async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data?.session) {
-        window.location.href = 'dashboard.html';
-      }
-    })();
-
-    // Listen for sign-in state change
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        window.location.href = 'dashboard.html';
-      }
-    });
-
-    // Sign In handler
+    // Sign In
     form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      message.textContent = '';
-      const email = emailInput.value.trim();
-      const password = passwordInput.value;
-
-      if (!email || !password) {
-        message.textContent = 'Please enter both email and password.';
-        return;
-      }
-
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
+      e.preventDefault()
+      const { error } = await supabase.auth.signInWithPassword({
+        email: emailInput.value,
+        password: passwordInput.value
+      })
       if (error) {
-        message.textContent = error.message;
+        message.textContent = error.message
       } else {
-        message.textContent = "Logging in...";
-        // Redirect immediately
-        window.location.href = 'dashboard.html';
+        window.location.href = 'dashboard.html'
       }
-    });
+    })
 
-    // Sign Up handler
+    // Sign Up
     signUpBtn.addEventListener('click', async () => {
-      message.textContent = '';
-      const email = emailInput.value.trim();
-      const password = passwordInput.value;
-
-      if (!email || !password) {
-        message.textContent = 'Please enter both email and password before signing up.';
-        return;
-      }
-
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password
-      });
-
+      const { error } = await supabase.auth.signUp({
+        email: emailInput.value,
+        password: passwordInput.value
+      })
       if (error) {
-        message.textContent = error.message;
+        message.textContent = error.message
       } else {
-        message.textContent = 'Success! Check your email to confirm your account.';
+        message.textContent = 'Check your email to confirm sign-up.'
       }
-    });
+    })
 
     // Dark/Light Mode Toggle
-    document.getElementById('toggleTheme').addEventListener('click', () => {
-      document.documentElement.classList.toggle('dark');
-    });
+    const toggle = document.getElementById('toggleTheme')
+    toggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark')
+    })
   </script>
 </body>
 </html>
