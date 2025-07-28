@@ -5,141 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Wealthwise Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.42.3';
-
-    const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
-
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    let currentUser = null;
-
-    async function checkAuth() {
-      const {
-        data: { session },
-        error: sessionError
-      } = await supabase.auth.getSession();
-
-      if (sessionError || !session) {
-        alert("No active session. Redirecting to login.");
-        window.location.href = 'index.html';
-        return false;
-      }
-
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-
-      if (userError || !userData.user) {
-        alert("No user found. Redirecting to login.");
-        window.location.href = 'index.html';
-        return false;
-      }
-
-      currentUser = userData.user;
-      return true;
-    }
-
-    async function loadDashboardData() {
-      const { data: balances, error: balancesError } = await supabase
-        .from('balances')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .single();
-
-      if (balancesError) {
-        console.error("Balances error:", balancesError);
-      } else if (balances) {
-        document.getElementById('current-balance').value = balances.current_balance ?? '';
-        document.getElementById('food-allowance').value = balances.food_allowance ?? '';
-        document.getElementById('fuel-allowance').value = balances.fuel_allowance ?? '';
-      }
-
-      const { data: salary, error: salaryError } = await supabase
-        .from('salaries')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .single();
-
-      if (salaryError) {
-        console.error("Salary error:", salaryError);
-      } else if (salary) {
-        document.getElementById('pay-cycle').value = salary.pay_cycle ?? '';
-      }
-
-      const { data: bills, error: billsError } = await supabase
-        .from('bills')
-        .select('*')
-        .eq('user_id', currentUser.id);
-
-      if (billsError) {
-        console.error("Bills error:", billsError);
-      } else {
-        const billsList = document.getElementById('bills-list');
-        billsList.innerHTML = '';
-        if (bills && bills.length > 0) {
-          bills.forEach(bill => {
-            const li = document.createElement('li');
-            li.className = 'py-2 border-b border-gray-200 dark:border-gray-700';
-            li.textContent = `${bill.name} - $${bill.amount} (${bill.frequency})`;
-            billsList.appendChild(li);
-          });
-        } else {
-          billsList.innerHTML = '<li class="text-gray-500">No bills found.</li>';
-        }
-      }
-    }
-
-    window.onload = async () => {
-      const loggedIn = await checkAuth();
-      if (!loggedIn) return;
-
-      loadDashboardData();
-
-      document.getElementById('balance-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const currentBalance = parseFloat(document.getElementById('current-balance').value) || 0;
-        const foodAllowance = parseFloat(document.getElementById('food-allowance').value) || 0;
-        const fuelAllowance = parseFloat(document.getElementById('fuel-allowance').value) || 0;
-        const payCycle = document.getElementById('pay-cycle').value;
-
-        const { error: upsertBalanceError } = await supabase.from('balances').upsert({
-          user_id: currentUser.id,
-          current_balance: currentBalance,
-          food_allowance: foodAllowance,
-          fuel_allowance: fuelAllowance
-        });
-
-        const { data: existingSalary } = await supabase
-          .from('salaries')
-          .select('*')
-          .eq('user_id', currentUser.id)
-          .single();
-
-        const existingAmount = existingSalary?.amount ?? 0;
-
-        const { error: upsertSalaryError } = await supabase.from('salaries').upsert({
-          user_id: currentUser.id,
-          amount: existingAmount,
-          pay_cycle: payCycle
-        });
-
-        if (upsertBalanceError || upsertSalaryError) {
-          alert('Error saving data. Please try again.');
-          console.error(upsertBalanceError || upsertSalaryError);
-        } else {
-          alert('Saved successfully!');
-        }
-      });
-
-      supabase.auth.onAuthStateChange((event, session) => {
-        if (!session) {
-          alert("Session expired or signed out.");
-          window.location.href = 'index.html';
-        }
-      });
-    };
-  </script>
 </head>
 <body class="text-gray-900 dark:text-white p-4">
   <h1 class="text-2xl font-bold mb-4">Wealthwise Dashboard</h1>
@@ -178,7 +43,152 @@
     <a href="add-salary.html" class="text-gray-600 dark:text-gray-300">Salary</a>
     <a href="add-bill.html" class="text-gray-600 dark:text-gray-300">Bills</a>
     <a href="add-bonus.html" class="text-gray-600 dark:text-gray-300">Bonuses</a>
-    <a href="index.html" class="text-red-600 dark:text-red-400">Logout</a>
+    <a href="logout.html" class="text-red-600 dark:text-red-400">Logout</a>
   </nav>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+
+    const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let currentUser = null;
+
+    async function init() {
+      // Get the session
+      const {
+        data: { session },
+        error: sessionError
+      } = await supabase.auth.getSession();
+
+      if (sessionError || !session) {
+        alert('No active session. Redirecting to login.');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // Get user from session
+      currentUser = session.user;
+      if (!currentUser) {
+        alert('User not found. Redirecting to login.');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      await loadUserBalances();
+      await loadBills();
+
+      // Listen for auth state changes (like signout or token expiry)
+      supabase.auth.onAuthStateChange((event, session) => {
+        if (!session) {
+          alert('Session expired or signed out.');
+          window.location.href = 'login.html';
+        }
+      });
+    }
+
+    async function loadUserBalances() {
+      const { data: balances, error } = await supabase
+        .from('balances')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .single();
+
+      if (error) {
+        console.error('Error loading balances:', error);
+      } else if (balances) {
+        document.getElementById('current-balance').value = balances.current_balance ?? '';
+        document.getElementById('food-allowance').value = balances.food_allowance ?? '';
+        document.getElementById('fuel-allowance').value = balances.fuel_allowance ?? '';
+      }
+      
+      const { data: salary, error: salaryError } = await supabase
+        .from('salaries')
+        .select('pay_cycle')
+        .eq('user_id', currentUser.id)
+        .single();
+
+      if (salaryError) {
+        console.error('Error loading salary:', salaryError);
+      } else if (salary) {
+        document.getElementById('pay-cycle').value = salary.pay_cycle ?? 'weekly';
+      }
+    }
+
+    async function loadBills() {
+      const { data: bills, error } = await supabase
+        .from('bills')
+        .select('*')
+        .eq('user_id', currentUser.id);
+
+      if (error) {
+        console.error('Error loading bills:', error);
+        return;
+      }
+
+      const billsList = document.getElementById('bills-list');
+      billsList.innerHTML = '';
+
+      if (bills.length === 0) {
+        billsList.innerHTML = '<li>No bills found.</li>';
+      } else {
+        bills.forEach(bill => {
+          const li = document.createElement('li');
+          li.className = 'py-2 border-b border-gray-200 dark:border-gray-700';
+          li.textContent = `${bill.name} - $${bill.amount} (${bill.frequency})`;
+          billsList.appendChild(li);
+        });
+      }
+    }
+
+    // Save form
+    document.getElementById('balance-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const currentBalance = parseFloat(document.getElementById('current-balance').value);
+      const foodAllowance = parseFloat(document.getElementById('food-allowance').value);
+      const fuelAllowance = parseFloat(document.getElementById('fuel-allowance').value);
+      const payCycle = document.getElementById('pay-cycle').value;
+
+      // Upsert balances
+      const { error: balanceError } = await supabase.from('balances').upsert({
+        user_id: currentUser.id,
+        current_balance: currentBalance,
+        food_allowance: foodAllowance,
+        fuel_allowance: fuelAllowance
+      });
+
+      if (balanceError) {
+        alert('Error saving balances: ' + balanceError.message);
+        return;
+      }
+
+      // Upsert salary
+      const { data: existingSalary } = await supabase
+        .from('salaries')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .single();
+
+      const existingAmount = existingSalary?.amount || 0;
+
+      const { error: salaryError } = await supabase.from('salaries').upsert({
+        user_id: currentUser.id,
+        amount: existingAmount,
+        pay_cycle: payCycle
+      });
+
+      if (salaryError) {
+        alert('Error saving salary: ' + salaryError.message);
+        return;
+      }
+
+      alert('Saved successfully!');
+    });
+
+    window.onload = init;
+  </script>
 </body>
 </html>
