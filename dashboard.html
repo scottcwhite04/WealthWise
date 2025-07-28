@@ -6,7 +6,7 @@
   <title>Wealthwise Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="text-gray-900 dark:text-white p-4">
+<body class="text-gray-900 dark:text-white pb-20 p-4"> <!-- Add padding bottom for nav space -->
   <h1 class="text-2xl font-bold mb-4">Wealthwise Dashboard</h1>
 
   <form id="balance-form" class="space-y-4 bg-white dark:bg-gray-800 p-4 rounded shadow">
@@ -33,11 +33,32 @@
     <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Save</button>
   </form>
 
-  <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 flex justify-around py-2">
-    <a href="dashboard.html" class="text-blue-600 dark:text-blue-400 font-semibold">Dashboard</a>
-    <a href="add-salary.html" class="text-gray-600 dark:text-gray-300">Salary</a>
-    <a href="add-bonus.html" class="text-gray-600 dark:text-gray-300">Bonuses</a>
-    <a href="logout.html" class="text-red-600 dark:text-red-400">Logout</a>
+  <!-- Bottom Navigation -->
+  <nav class="fixed bottom-0 inset-x-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow px-6 py-2 flex justify-between text-sm">
+    <a href="dashboard.html" class="flex flex-col items-center text-blue-600 dark:text-blue-400">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7m-7-7v18" />
+      </svg>
+      Dashboard
+    </a>
+    <a href="add-salary.html" class="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-blue-600">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.656 0 3 1.343 3 3s-1.344 3-3 3-3-1.343-3-3 1.344-3 3-3zm0 10c4.418 0 8-1.79 8-4v-1a7.984 7.984 0 00-1.32-4.28M4 12v1c0 2.21 3.582 4 8 4z" />
+      </svg>
+      Salary
+    </a>
+    <a href="add-bill.html" class="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-blue-600">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l2-2 4 4m1 4H5a2 2 0 01-2-2V5a2 2 0 012-2h11l4 4v11a2 2 0 01-2 2z" />
+      </svg>
+      Bills
+    </a>
+    <a href="add-bonus.html" class="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-blue-600">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 11V7a4 4 0 018 0v4m-8 4h6m2 0a2 2 0 100-4 2 2 0 000 4z" />
+      </svg>
+      Bonus
+    </a>
   </nav>
 
   <script type="module">
@@ -51,7 +72,6 @@
     let currentUser = null;
 
     async function init() {
-      // Get the session
       const {
         data: { session },
         error: sessionError
@@ -63,7 +83,6 @@
         return;
       }
 
-      // Get user from session
       currentUser = session.user;
       if (!currentUser) {
         alert('User not found. Redirecting to login.');
@@ -73,7 +92,6 @@
 
       await loadUserBalances();
 
-      // Listen for auth state changes (like signout or token expiry)
       supabase.auth.onAuthStateChange((event, session) => {
         if (!session) {
           alert('Session expired or signed out.');
@@ -96,7 +114,7 @@
         document.getElementById('food-allowance').value = balances.food_allowance ?? '';
         document.getElementById('fuel-allowance').value = balances.fuel_allowance ?? '';
       }
-      
+
       const { data: salary, error: salaryError } = await supabase
         .from('salaries')
         .select('pay_cycle')
