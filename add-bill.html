@@ -6,37 +6,64 @@
   <title>Add Bill - Wealthwise</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = { darkMode: 'class' };
+    tailwind.config = { darkMode: 'class' }
   </script>
 </head>
-<body class="min-h-screen p-6">
+<body class="min-h-screen p-6 pb-24">
+
   <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold">Manage Monthly Bills</h1>
+    <h1 class="text-2xl font-bold">Add Monthly Bill</h1>
     <button id="toggle-theme" class="text-sm border px-3 py-1 rounded">Toggle Theme</button>
   </div>
 
-  <form id="bill-form" class="space-y-4 max-w-md mb-10">
-    <input type="hidden" id="bill-id">
+  <form id="bill-form" class="space-y-4 max-w-md">
     <div>
       <label class="block">Bill Name</label>
       <input type="text" id="name" class="w-full p-2 border rounded dark:bg-gray-800" required>
     </div>
     <div>
-  <label class="block">Amount ($)</label>
-  <input type="number" step="0.01" id="amount" class="w-full p-2 border rounded dark:bg-gray-800" required>
-</div>
+      <label class="block">Amount ($)</label>
+      <input type="number" step="0.01" id="amount" class="w-full p-2 border rounded dark:bg-gray-800" required>
+    </div>
     <div>
       <label class="block">Due Day (1-31)</label>
       <input type="number" id="due_day" min="1" max="31" class="w-full p-2 border rounded dark:bg-gray-800" required>
     </div>
-    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" id="submit-btn">Add Bill</button>
-    <button type="button" id="cancel-edit" class="ml-2 text-sm text-red-500 hidden">Cancel Edit</button>
+    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Add Bill</button>
   </form>
 
-  <div class="max-w-xl">
-    <h2 class="text-xl font-semibold mb-4">Your Bills</h2>
-    <ul id="bills-list" class="space-y-3"></ul>
+  <div class="mt-10 max-w-md">
+    <h2 class="text-xl font-semibold mb-2">Your Bills</h2>
+    <ul id="bill-list" class="space-y-2"></ul>
   </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="fixed bottom-0 inset-x-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow px-6 py-2 flex justify-between text-sm">
+    <a href="dashboard.html" class="flex flex-col items-center text-blue-600 dark:text-blue-400">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7m-7-7v18" />
+      </svg>
+      Dashboard
+    </a>
+    <a href="add-salary.html" class="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-blue-600">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.656 0 3 1.343 3 3s-1.344 3-3 3-3-1.343-3-3 1.344-3 3-3zm0 10c4.418 0 8-1.79 8-4v-1a7.984 7.984 0 00-1.32-4.28M4 12v1c0 2.21 3.582 4 8 4z" />
+      </svg>
+      Salary
+    </a>
+    <a href="add-bill.html" class="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-blue-600">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l2-2 4 4m1 4H5a2 2 0 01-2-2V5a2 2 0 012-2h11l4 4v11a2 2 0 01-2 2z" />
+      </svg>
+      Bills
+    </a>
+    <a href="add-bonus.html" class="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-blue-600">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 11V7a4 4 0 018 0v4m-8 4h6m2 0a2 2 0 100-4 2 2 0 000 4z" />
+      </svg>
+      Bonus
+    </a>
+  </nav>
 
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
@@ -50,124 +77,58 @@
     };
 
     const { data: sessionData } = await supabase.auth.getUser();
-    if (!sessionData.user) {
+    const user = sessionData.user;
+    if (!user) {
       window.location.href = '/login.html';
     }
-    const userId = sessionData.user.id;
 
     async function loadBills() {
       const { data, error } = await supabase
         .from('bills')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', user.id)
         .order('due_day');
 
-      const list = document.getElementById('bills-list');
+      const list = document.getElementById('bill-list');
       list.innerHTML = '';
 
       if (error) {
-        list.innerHTML = `<li class="text-red-500">Error loading bills: ${error.message}</li>`;
+        list.innerHTML = `<li class="text-red-500">${error.message}</li>`;
         return;
       }
 
       if (data.length === 0) {
-        list.innerHTML = `<li class="text-gray-500">No bills added yet.</li>`;
-        return;
+        list.innerHTML = `<li class="text-gray-500">No bills found.</li>`;
+      } else {
+        data.forEach(bill => {
+          const li = document.createElement('li');
+          li.className = "p-3 bg-gray-100 dark:bg-gray-800 rounded shadow";
+          li.textContent = `${bill.name} - $${bill.amount.toFixed(2)} (Due: Day ${bill.due_day})`;
+          list.appendChild(li);
+        });
       }
-
-      data.forEach(bill => {
-        const li = document.createElement('li');
-        li.className = 'p-4 bg-gray-100 dark:bg-gray-800 rounded shadow-sm flex justify-between items-center';
-        li.innerHTML = `
-          <div>
-            <div class="font-semibold">${bill.name}</div>
-            <div class="text-sm">Amount: $${bill.amount.toFixed(2)} | Due Day: ${bill.due_day}</div>
-          </div>
-          <div class="space-x-2">
-            <button class="edit-btn text-blue-500 underline" data-id="${bill.id}" data-name="${bill.name}" data-amount="${bill.amount}" data-due="${bill.due_day}">Edit</button>
-            <button class="delete-btn text-red-500 underline" data-id="${bill.id}">Delete</button>
-          </div>
-        `;
-        list.appendChild(li);
-      });
-
-      // Attach handlers
-      document.querySelectorAll('.edit-btn').forEach(btn =>
-        btn.onclick = () => startEdit(btn.dataset)
-      );
-
-      document.querySelectorAll('.delete-btn').forEach(btn =>
-        btn.onclick = async () => {
-          if (confirm('Are you sure you want to delete this bill?')) {
-            const { error } = await supabase.from('bills').delete().eq('id', btn.dataset.id);
-            if (error) {
-              alert('Error deleting bill: ' + error.message);
-            } else {
-              await loadBills();
-            }
-          }
-        }
-      );
     }
-
-    function startEdit(data) {
-      document.getElementById('bill-id').value = data.id;
-      document.getElementById('name').value = data.name;
-      document.getElementById('amount').value = data.amount;
-      document.getElementById('due_day').value = data.due;
-      document.getElementById('submit-btn').textContent = 'Update Bill';
-      document.getElementById('cancel-edit').classList.remove('hidden');
-    }
-
-    function resetForm() {
-      document.getElementById('bill-id').value = '';
-      document.getElementById('bill-form').reset();
-      document.getElementById('submit-btn').textContent = 'Add Bill';
-      document.getElementById('cancel-edit').classList.add('hidden');
-    }
-
-    document.getElementById('cancel-edit').onclick = resetForm;
 
     document.getElementById('bill-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-
-      const id = document.getElementById('bill-id').value;
-      const name = document.getElementById('name').value.trim();
-      const amount = parseFloat(document.getElementById('amount').value);
-      const due_day = parseInt(document.getElementById('due_day').value);
-
-      if (id) {
-        // Update
-        const { error } = await supabase
-          .from('bills')
-          .update({ name, amount, due_day })
-          .eq('id', id)
-          .eq('user_id', userId);
-
-        if (error) {
-          alert('Error updating bill: ' + error.message);
-          return;
-        }
+      const { error } = await supabase.from('bills').insert({
+        user_id: user.id,
+        name: name.value,
+        amount: parseFloat(amount.value),
+        due_day: parseInt(due_day.value)
+      });
+      if (error) {
+        alert(error.message);
       } else {
-        // Insert
-        const { error } = await supabase.from('bills').insert({
-          user_id: userId,
-          name,
-          amount,
-          due_day
-        });
-
-        if (error) {
-          alert('Error adding bill: ' + error.message);
-          return;
-        }
+        alert('Bill added!');
+        name.value = '';
+        amount.value = '';
+        due_day.value = '';
+        loadBills();
       }
-
-      resetForm();
-      await loadBills();
     });
 
-    await loadBills();
+    loadBills();
   </script>
 </body>
 </html>
