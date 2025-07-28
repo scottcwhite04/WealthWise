@@ -9,7 +9,7 @@
     tailwind.config = { darkMode: 'class' }
   </script>
 </head>
-<body class="min-h-screen pb-20 p-6">
+<body class="min-h-screen p-6">
   <div class="flex justify-between items-center mb-6">
     <h1 class="text-2xl font-bold">Add Salary</h1>
     <button id="toggle-theme" class="text-sm border px-3 py-1 rounded">Toggle Theme</button>
@@ -18,12 +18,11 @@
   <form id="salary-form" class="space-y-4 max-w-md">
     <div>
       <label class="block">Amount ($)</label>
-      <input type="number" id="amount" class="w-full p-2 border rounded dark:bg-gray-800" required>
+      <input type="number" id="amount" class="w-full p-2 border rounded dark:bg-gray-800">
     </div>
     <div>
       <label class="block">Pay Frequency</label>
-      <select id="frequency" class="w-full p-2 border rounded dark:bg-gray-800" required>
-        <option value="">Select...</option>
+      <select id="frequency" class="w-full p-2 border rounded dark:bg-gray-800">
         <option value="weekly">Weekly</option>
         <option value="bi-weekly">Bi-Weekly</option>
         <option value="monthly">Monthly</option>
@@ -31,30 +30,10 @@
     </div>
     <div>
       <label class="block">Next Pay Date</label>
-      <input type="date" id="next_pay_date" class="w-full p-2 border rounded dark:bg-gray-800" required>
+      <input type="date" id="next_pay_date" class="w-full p-2 border rounded dark:bg-gray-800">
     </div>
     <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save</button>
   </form>
-
-  <!-- Bottom nav -->
-  <nav class="fixed bottom-0 inset-x-0 bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex justify-around text-sm py-2">
-    <a href="dashboard.html" class="flex flex-col items-center">
-      <span>🏠</span>
-      <span>Dashboard</span>
-    </a>
-    <a href="add-bill.html" class="flex flex-col items-center">
-      <span>📄</span>
-      <span>Bills</span>
-    </a>
-    <a href="add-salary.html" class="flex flex-col items-center font-bold text-green-600">
-      <span>💰</span>
-      <span>Salary</span>
-    </a>
-    <a href="add-bonus.html" class="flex flex-col items-center">
-      <span>🎁</span>
-      <span>Bonus</span>
-    </a>
-  </nav>
 
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
@@ -63,42 +42,33 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Theme toggle
     document.getElementById('toggle-theme').onclick = () => {
       document.documentElement.classList.toggle('dark');
     };
 
-    // Check authentication
-    const { data: { user }, error } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       window.location.href = '/login.html';
     }
 
-    // Handle form submission
     document.getElementById('salary-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const amount = parseFloat(document.getElementById('amount').value);
+      const amount = document.getElementById('amount').value;
       const frequency = document.getElementById('frequency').value;
       const next_pay_date = document.getElementById('next_pay_date').value;
 
-      if (!amount || !frequency || !next_pay_date) {
-        return alert('Please fill out all fields correctly.');
-      }
-
-      const { error: insertError } = await supabase.from('salaries').insert({
+      const { error } = await supabase.from('salaries').insert({
         user_id: user.id,
         amount,
         frequency,
         next_pay_date
       });
 
-      if (insertError) {
-        console.error(insertError);
-        return alert('Error saving salary: ' + insertError.message);
+      if (error) {
+        alert('Error saving salary: ' + error.message);
+      } else {
+        alert('Salary added successfully!');
       }
-
-      alert('Salary added successfully!');
-      document.getElementById('salary-form').reset();
     });
   </script>
 </body>
