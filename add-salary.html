@@ -17,71 +17,48 @@
 
   <form id="salary-form" class="space-y-4 max-w-md">
     <div>
-      <label class="block font-semibold">Amount ($)</label>
-      <input type="number" id="amount" step="0.01" min="0" required class="w-full p-2 border rounded dark:bg-gray-800">
+      <label class="block">Salary Amount ($)</label>
+      <input type="number" id="amount" class="w-full p-2 border rounded dark:bg-gray-800" required>
     </div>
     <div>
-      <label class="block font-semibold">Pay Frequency</label>
-      <select id="frequency" class="w-full p-2 border rounded dark:bg-gray-800">
+      <label class="block">Pay Cycle</label>
+      <select id="pay_cycle" class="w-full p-2 border rounded dark:bg-gray-800" required>
+        <option value="">Choose</option>
         <option value="weekly">Weekly</option>
-        <option value="bi-weekly">Bi-Weekly</option>
+        <option value="biweekly">Biweekly</option>
         <option value="monthly">Monthly</option>
       </select>
     </div>
     <div>
-      <label class="block font-semibold">Next Pay Date</label>
-      <input type="date" id="next_pay_date" required class="w-full p-2 border rounded dark:bg-gray-800">
+      <label class="block">Last Pay Date</label>
+      <input type="date" id="last_pay_date" class="w-full p-2 border rounded dark:bg-gray-800" required>
     </div>
-    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save</button>
+    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save Salary</button>
   </form>
 
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-    
-    const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabase = createClient('https://anwwjqupywbnwanuckdf.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI...');
 
-    // Theme toggle
     document.getElementById('toggle-theme').onclick = () => {
       document.documentElement.classList.toggle('dark');
     };
 
-    // Get authenticated user
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-    const user = userData?.user;
-
-    if (!user) {
-      alert("You must be logged in to add a salary.");
-      window.location.href = "/login.html";
+    const user = await supabase.auth.getUser();
+    if (!user.data.user) {
+      window.location.href = '/login.html';
     }
 
     document.getElementById('salary-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-
-      const amount = parseFloat(document.getElementById('amount').value);
-      const frequency = document.getElementById('frequency').value;
-      const next_pay_date = document.getElementById('next_pay_date').value;
-
-      if (!amount || !next_pay_date) {
-        alert("Please fill out all required fields.");
-        return;
-      }
-
-      const { error } = await supabase.from('salaries').insert({
-        user_id: user.id,
-        amount,
-        frequency,
-        next_pay_date
+      const { data, error } = await supabase.from('salaries').upsert({
+        user_id: user.data.user.id,
+        amount: parseFloat(amount.value),
+        pay_cycle: pay_cycle.value,
+        last_pay_date: last_pay_date.value
       });
-
-      if (error) {
-        console.error(error);
-        alert('Error saving salary: ' + error.message);
-      } else {
-        alert('Salary added successfully!');
-        window.location.href = '/dashboard.html'; // optional redirect
-      }
+      if (error) return alert(error.message);
+      alert('Salary saved!');
     });
   </script>
 </body>
