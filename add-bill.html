@@ -33,27 +33,43 @@
 
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-    const supabase = createClient('https://anwwjqupywbnwanuckdf.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI...');
+
+    const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     document.getElementById('toggle-theme').onclick = () => {
       document.documentElement.classList.toggle('dark');
     };
 
-    const user = await supabase.auth.getUser();
-    if (!user.data.user) {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+    if (!user) {
       window.location.href = '/login.html';
     }
 
     document.getElementById('bill-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const { data, error } = await supabase.from('bills').insert({
-        user_id: user.data.user.id,
-        name: name.value,
-        amount: parseFloat(amount.value),
-        due_day: parseInt(due_day.value)
+
+      const name = document.getElementById('name').value;
+      const amount = parseFloat(document.getElementById('amount').value);
+      const due_day = parseInt(document.getElementById('due_day').value);
+
+      const { error } = await supabase.from('bills').insert({
+        user_id: user.id,
+        name,
+        amount,
+        due_day
       });
-      if (error) return alert(error.message);
+
+      if (error) {
+        alert("Error: " + error.message);
+        return;
+      }
+
       alert('Bill added!');
+      document.getElementById('bill-form').reset();
     });
   </script>
 </body>
