@@ -18,57 +18,66 @@
     async function loadUser() {
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
 
-      console.log("Session:", sessionData?.session);
-
       if (!sessionData?.session || sessionError) {
         alert("Redirecting: No active session.");
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';  // fixed redirect to login page
         return;
       }
 
       const { data: { user }, error } = await supabase.auth.getUser();
       if (error || !user) {
         alert("Redirecting: No user found.");
-        window.location.href = 'login.html';
-      } else {
-        currentUser = user;
-        loadUserBalances();
-        loadBills();
+        window.location.href = 'index.html';  // fixed redirect
+        return;
       }
+
+      currentUser = user;
+      await loadUserBalances();
+      await loadBills();
     }
 
     async function loadUserBalances() {
-      const { data: balances } = await supabase
+      const { data: balances, error } = await supabase
         .from('balances')
         .select('*')
         .eq('user_id', currentUser.id)
         .single();
 
-      if (balances) {
-        document.getElementById('current-balance').value = balances.current_balance;
-        document.getElementById('food-allowance').value = balances.food_allowance;
-        document.getElementById('fuel-allowance').value = balances.fuel_allowance;
+      if (!error && balances) {
+        document.getElementById('current-balance').value = balances.current_balance ?? '';
+        document.getElementById('food-allowance').value = balances.food_allowance ?? '';
+        document.getElementById('fuel-allowance').value = balances.fuel_allowance ?? '';
       }
 
-      const { data: salary } = await supabase
+      const { data: salary, error: salaryError } = await supabase
         .from('salaries')
-        .select('pay_cycle')
+        .select('pay_cycle, amount')
         .eq('user_id', currentUser.id)
         .single();
 
-      if (salary) {
-        document.getElementById('pay-cycle').value = salary.pay_cycle;
+      if (!salaryError && salary) {
+        document.getElementById('pay-cycle').value = salary.pay_cycle ?? 'monthly';
       }
     }
 
     async function loadBills() {
-      const { data: bills } = await supabase
+      const { data: bills, error } = await supabase
         .from('bills')
         .select('*')
         .eq('user_id', currentUser.id);
 
       const billsList = document.getElementById('bills-list');
       billsList.innerHTML = '';
+
+      if (error) {
+        billsList.innerHTML = `<li class="text-red-500">Error loading bills: ${error.message}</li>`;
+        return;
+      }
+
+      if (!bills || bills.length === 0) {
+        billsList.innerHTML = `<li class="text-gray-500">No bills found.</li>`;
+        return;
+      }
 
       bills.forEach(bill => {
         const li = document.createElement('li');
@@ -90,37 +99,47 @@
         const fuelAllowance = parseFloat(document.getElementById('fuel-allowance').value);
         const payCycle = document.getElementById('pay-cycle').value;
 
-        // Save to balances
-        await supabase.from('balances').upsert({
+        // Save to balances with upsert
+        const { error: balanceError } = await supabase.from('balances').upsert({
           user_id: currentUser.id,
           current_balance: currentBalance,
           food_allowance: foodAllowance,
           fuel_allowance: fuelAllowance
-        });
+        }, { onConflict: 'user_id' });
+
+        if (balanceError) {
+          alert('Error saving balances: ' + balanceError.message);
+          return;
+        }
 
         // Upsert into salaries
-        const { data: existingSalary } = await supabase
+        const { data: existingSalary, error: salaryError } = await supabase
           .from('salaries')
           .select('*')
           .eq('user_id', currentUser.id)
           .single();
 
-        const existingAmount = existingSalary?.amount || 0;
+        const existingAmount = existingSalary?.amount ?? 0;
 
-        await supabase.from('salaries').upsert({
+        const { error: upsertSalaryError } = await supabase.from('salaries').upsert({
           user_id: currentUser.id,
           amount: existingAmount,
           pay_cycle: payCycle
-        });
+        }, { onConflict: 'user_id' });
+
+        if (upsertSalaryError) {
+          alert('Error saving salary: ' + upsertSalaryError.message);
+          return;
+        }
 
         alert('Saved successfully!');
       });
 
-      // Listen for logout or token refresh expiration
+      // Listen for logout or token expiration
       supabase.auth.onAuthStateChange((event, session) => {
         if (!session) {
           alert("Session expired or signed out.");
-          window.location.href = 'login.html';
+          window.location.href = 'index.html';  // fixed redirect
         }
       });
     };
