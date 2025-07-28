@@ -6,7 +6,7 @@
   <title>Wealthwise Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.42.3';
 
     const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTA2MTc2NzUsImV4cCI6MjAyNjk5MzY3NX0.8ccHkDWDG1c_tMXTytR3UrLKZ1ZsU1q-6Iq4RsoCiSk';
@@ -16,11 +16,19 @@
     let currentUser = null;
 
     async function loadUser() {
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+
+      console.log("Session:", sessionData?.session);
+
+      if (!sessionData?.session || sessionError) {
+        alert("Redirecting: No active session.");
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const { data: { user }, error } = await supabase.auth.getUser();
       if (error || !user) {
+        alert("Redirecting: No user found.");
         window.location.href = 'login.html';
       } else {
         currentUser = user;
@@ -70,7 +78,7 @@
       });
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
+    window.onload = () => {
       loadUser();
 
       const form = document.getElementById('balance-form');
@@ -90,7 +98,7 @@
           fuel_allowance: fuelAllowance
         });
 
-        // Upsert into salaries (preserve existing amount if possible)
+        // Upsert into salaries
         const { data: existingSalary } = await supabase
           .from('salaries')
           .select('*')
@@ -107,7 +115,15 @@
 
         alert('Saved successfully!');
       });
-    });
+
+      // Listen for logout or token refresh expiration
+      supabase.auth.onAuthStateChange((event, session) => {
+        if (!session) {
+          alert("Session expired or signed out.");
+          window.location.href = 'login.html';
+        }
+      });
+    };
   </script>
 </head>
 <body class="text-gray-900 dark:text-white p-4">
@@ -142,7 +158,6 @@
     <ul id="bills-list" class="bg-white dark:bg-gray-800 p-4 rounded shadow divide-y divide-gray-200 dark:divide-gray-700"></ul>
   </div>
 
-  <!-- Bottom Navigation (copied from dashboard.html) -->
   <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 flex justify-around py-2">
     <a href="dashboard.html" class="text-blue-600 dark:text-blue-400 font-semibold">Dashboard</a>
     <a href="add-salary.html" class="text-gray-600 dark:text-gray-300">Salary</a>
