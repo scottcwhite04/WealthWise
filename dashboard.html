@@ -3,115 +3,92 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Wealthwise Dashboard</title>
+  <title>Wealthwise – Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+  </script>
 </head>
-<body class="text-gray-900 dark:text-white pb-20 p-4">
-  <h1 class="text-2xl font-bold mb-4">Wealthwise Dashboard</h1>
+<body class="flex flex-col min-h-screen">
 
-  <form id="balance-form" class="space-y-4 bg-white dark:bg-gray-800 p-4 rounded shadow">
-    <div>
-      <label for="current-balance" class="block font-semibold">Current Balance</label>
-      <input type="number" id="current-balance" class="w-full p-2 rounded border dark:bg-gray-900 dark:border-gray-600" required />
+  <!-- Header -->
+  <header class="flex justify-between items-center px-4 py-3 bg-white dark:bg-gray-800 shadow">
+    <h1 class="text-xl font-bold dark:text-white">Wealthwise</h1>
+    <div class="relative">
+      <button onclick="toggleDropdown()" class="text-2xl">👤</button>
+      <div id="dropdown" class="hidden absolute right-0 mt-2 w-40 bg-white dark:bg-gray-700 border rounded shadow-lg z-50">
+        <a href="settings.html" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 text-sm dark:text-white">⚙️ Settings</a>
+        <button onclick="toggleTheme()" class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 text-sm dark:text-white">🌓 Theme</button>
+        <button onclick="logout()" class="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100 dark:hover:bg-gray-600 text-sm">🚪 Logout</button>
+      </div>
     </div>
-    <div>
-      <label for="food-allowance" class="block font-semibold">Food Allowance</label>
-      <input type="number" id="food-allowance" class="w-full p-2 rounded border dark:bg-gray-900 dark:border-gray-600" required />
+  </header>
+
+  <!-- Content -->
+  <main class="flex-1 px-4 py-6 space-y-4">
+    <div class="bg-blue-100 dark:bg-blue-900 p-4 rounded shadow text-center">
+      <h2 class="text-lg font-semibold dark:text-white">📖 Daily Stewardship Verse</h2>
+      <p id="verse" class="mt-2 text-gray-700 dark:text-gray-200">Loading verse...</p>
     </div>
-    <div>
-      <label for="fuel-allowance" class="block font-semibold">Fuel Allowance</label>
-      <input type="number" id="fuel-allowance" class="w-full p-2 rounded border dark:bg-gray-900 dark:border-gray-600" required />
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div class="bg-white dark:bg-gray-800 p-4 rounded shadow">
+        <h3 class="font-semibold text-gray-700 dark:text-white">💰 Your Finances</h3>
+        <p class="text-gray-500 dark:text-gray-300">Summary of income & bills.</p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 p-4 rounded shadow">
+        <h3 class="font-semibold text-gray-700 dark:text-white">📈 12-Month Projection</h3>
+        <p class="text-gray-500 dark:text-gray-300">Expected net change this year.</p>
+      </div>
     </div>
-    <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Save</button>
-  </form>
+  </main>
 
   <!-- Bottom Navigation -->
-  <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 shadow p-4 flex justify-around">
-    <a href="dashboard.html" class="text-gray-700 dark:text-white">🏠</a>
-    <a href="add-salary.html" class="text-gray-700 dark:text-white">➕💰</a>
-    <a href="add-bill.html" class="text-gray-700 dark:text-white">📄</a>
-    <a href="add-bonus.html" class="text-gray-700 dark:text-white">🎁</a>
-    <a href="settings.html" class="text-gray-700 dark:text-white">☰</a> <!-- Hamburger icon -->
+  <nav class="fixed bottom-0 inset-x-0 bg-white dark:bg-gray-800 border-t shadow-md flex justify-around py-2">
+    <a href="dashboard.html" class="flex flex-col items-center text-sm dark:text-white">
+      <span>🏠</span><span>Dashboard</span>
+    </a>
+    <a href="add-salary.html" class="flex flex-col items-center text-sm dark:text-white">
+      <span>💼</span><span>Salary</span>
+    </a>
+    <a href="add-bonus.html" class="flex flex-col items-center text-sm dark:text-white">
+      <span>🎁</span><span>Bonus</span>
+    </a>
+    <a href="add-bill.html" class="flex flex-col items-center text-sm dark:text-white">
+      <span>📅</span><span>Bills</span>
+    </a>
+    <a href="settings.html" class="flex flex-col items-center text-sm dark:text-white">
+      <span>⚙️</span><span>Settings</span>
+    </a>
   </nav>
 
   <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js';
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+    const supabase = createClient(
+      'https://anwwjqupywbnwanuckdf.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48'
+    )
 
-    const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
-
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    let currentUser = null;
-
-    async function init() {
-      const {
-        data: { session },
-        error: sessionError
-      } = await supabase.auth.getSession();
-
-      if (sessionError || !session) {
-        alert('No active session. Redirecting to login.');
-        window.location.href = 'login.html';
-        return;
-      }
-
-      currentUser = session.user;
-      if (!currentUser) {
-        alert('User not found. Redirecting to login.');
-        window.location.href = 'login.html';
-        return;
-      }
-
-      await loadUserBalances();
-
-      supabase.auth.onAuthStateChange((event, session) => {
-        if (!session) {
-          alert('Session expired or signed out.');
-          window.location.href = 'login.html';
-        }
-      });
+    const toggleDropdown = () => {
+      document.getElementById('dropdown').classList.toggle('hidden')
     }
 
-    async function loadUserBalances() {
-      const { data: balances, error } = await supabase
-        .from('balances')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .single();
-
-      if (error) {
-        console.error('Error loading balances:', error);
-      } else if (balances) {
-        document.getElementById('current-balance').value = balances.current_balance ?? '';
-        document.getElementById('food-allowance').value = balances.food_allowance ?? '';
-        document.getElementById('fuel-allowance').value = balances.fuel_allowance ?? '';
-      }
+    const toggleTheme = () => {
+      const isDark = document.documentElement.classList.toggle('dark')
+      localStorage.setItem('theme', isDark ? 'dark' : 'light')
     }
 
-    document.getElementById('balance-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
+    const logout = async () => {
+      await supabase.auth.signOut()
+      window.location.href = 'login.html'
+    }
 
-      const currentBalance = parseFloat(document.getElementById('current-balance').value);
-      const foodAllowance = parseFloat(document.getElementById('food-allowance').value);
-      const fuelAllowance = parseFloat(document.getElementById('fuel-allowance').value);
+    // Load daily verse
+    document.getElementById('verse').innerText = "Proverbs 21:5 – The plans of the diligent lead surely to abundance...";
 
-      const { error: balanceError } = await supabase.from('balances').upsert({
-        user_id: currentUser.id,
-        current_balance: currentBalance,
-        food_allowance: foodAllowance,
-        fuel_allowance: fuelAllowance
-      });
-
-      if (balanceError) {
-        alert('Error saving balances: ' + balanceError.message);
-        return;
-      }
-
-      alert('Saved successfully!');
-    });
-
-    window.onload = init;
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark')
+    }
   </script>
 </body>
 </html>
