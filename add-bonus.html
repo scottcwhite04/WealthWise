@@ -1,97 +1,79 @@
 <!DOCTYPE html>
-<html lang="en" class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+<html lang="en" class="bg-gray-100 dark:bg-gray-900">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Add Bonus - Wealthwise</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wealthwise – Add Bonus</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = { darkMode: 'class' }
+    tailwind.config = { darkMode: 'class' };
   </script>
 </head>
-<body class="min-h-screen p-6">
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold">Add Bonus</h1>
-    <button id="toggle-theme" class="text-sm border px-3 py-1 rounded">Toggle Theme</button>
-  </div>
+<body class="flex flex-col min-h-screen">
 
-  <form id="bonus-form" class="space-y-4 max-w-md">
-    <div>
-      <label class="block">Bonus Amount ($)</label>
-      <input type="number" id="amount" class="w-full p-2 border rounded dark:bg-gray-800" required>
+  <!-- Header -->
+  <header class="flex justify-between items-center px-4 py-3 bg-white dark:bg-gray-800 shadow">
+    <h1 class="text-xl font-bold dark:text-white">Add Bonus</h1>
+    <div class="relative">
+      <button onclick="toggleDropdown()" class="text-2xl">👤</button>
+      <div id="dropdown" class="hidden absolute right-0 mt-2 w-40 bg-white dark:bg-gray-700 border rounded shadow-lg z-50">
+        <a href="settings.html" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 text-sm dark:text-white">⚙️ Settings</a>
+        <button onclick="toggleTheme()" class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 text-sm dark:text-white">🌓 Theme</button>
+        <button onclick="logout()" class="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100 dark:hover:bg-gray-600 text-sm">🚪 Logout</button>
+      </div>
     </div>
-    <div>
-      <label class="block">Date</label>
-      <input type="date" id="bonus_date" class="w-full p-2 border rounded dark:bg-gray-800" required>
-    </div>
-    <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">Add Bonus</button>
-  </form>
+  </header>
 
-  <!-- Bottom Navigation -->
-  <nav class="fixed bottom-0 inset-x-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow px-6 py-2 flex justify-between text-sm">
-    <a href="dashboard.html" class="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-blue-600">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7m-7-7v18" />
-      </svg>
-      Dashboard
-    </a>
-    <a href="add-salary.html" class="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-blue-600">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.656 0 3 1.343 3 3s-1.344 3-3 3-3-1.343-3-3 1.344-3 3-3zm0 10c4.418 0 8-1.79 8-4v-1a7.984 7.984 0 00-1.32-4.28M4 12v1c0 2.21 3.582 4 8 4z" />
-      </svg>
-      Salary
-    </a>
-    <a href="add-bill.html" class="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-blue-600">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l2-2 4 4m1 4H5a2 2 0 01-2-2V5a2 2 0 012-2h11l4 4v11a2 2 0 01-2 2z" />
-      </svg>
-      Bills
-    </a>
-    <a href="add-bonus.html" class="flex flex-col items-center text-blue-600 dark:text-blue-400">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 11V7a4 4 0 018 0v4m-8 4h6m2 0a2 2 0 100-4 2 2 0 000 4z" />
-      </svg>
-      Bonus
-    </a>
+  <!-- Form -->
+  <main class="flex-1 px-4 py-6">
+    <form id="bonus-form" class="space-y-4 max-w-md mx-auto bg-white dark:bg-gray-800 p-6 rounded shadow">
+      <input type="number" id="amount" placeholder="Bonus Amount" required class="w-full px-4 py-2 rounded border dark:bg-gray-700 dark:text-white" />
+      <input type="text" id="description" placeholder="Bonus Description (optional)" class="w-full px-4 py-2 rounded border dark:bg-gray-700 dark:text-white" />
+      <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Save Bonus</button>
+      <p id="message" class="text-center text-sm mt-2"></p>
+    </form>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="fixed bottom-0 inset-x-0 bg-white dark:bg-gray-800 border-t shadow-md flex justify-around py-2">
+    <a href="dashboard.html" class="flex flex-col items-center text-sm dark:text-white"><span>🏠</span><span>Dashboard</span></a>
+    <a href="add-salary.html" class="flex flex-col items-center text-sm dark:text-white"><span>💼</span><span>Salary</span></a>
+    <a href="add-bonus.html" class="flex flex-col items-center text-sm font-bold dark:text-white"><span>🎁</span><span>Bonus</span></a>
+    <a href="add-bill.html" class="flex flex-col items-center text-sm dark:text-white"><span>📅</span><span>Bills</span></a>
+    <a href="settings.html" class="flex flex-col items-center text-sm dark:text-white"><span>⚙️</span><span>Settings</span></a>
   </nav>
 
+  <!-- Script -->
   <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
     const supabase = createClient(
       'https://anwwjqupywbnwanuckdf.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDA3OTM3NDUsImV4cCI6MjAyNjM2OTc0NX0.FvJmRBcyZ4YOs2ea6TO46ZnW1_GiPq6MW4smvffI53I'
-    );
+      'YOUR_SUPABASE_PUBLIC_ANON_KEY'
+    )
 
-    document.getElementById('toggle-theme').onclick = () => {
-      document.documentElement.classList.toggle('dark');
-    };
+    document.getElementById('bonus-form').addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const amount = parseFloat(document.getElementById('amount').value)
+      const description = document.getElementById('description').value
+      const { data: { user } } = await supabase.auth.getUser()
 
-    (async () => {
-      const { data: sessionData } = await supabase.auth.getUser();
-      if (!sessionData.user) {
-        window.location.href = '/login.html';
-        return;
-      }
+      const { error } = await supabase
+        .from('bonuses')
+        .insert([{ user_id: user.id, amount, description }])
 
-      document.getElementById('bonus-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const amount = document.getElementById('amount').value;
-        const bonus_date = document.getElementById('bonus_date').value;
+      document.getElementById('message').innerText = error ? error.message : '🎉 Bonus saved!'
+    })
 
-        const { error } = await supabase.from('bonuses').insert({
-          user_id: sessionData.user.id,
-          amount: parseFloat(amount),
-          bonus_date
-        });
-
-        if (error) {
-          alert(error.message);
-        } else {
-          alert('Bonus added!');
-          document.getElementById('bonus-form').reset();
-        }
-      });
-    })();
+    const toggleDropdown = () => document.getElementById('dropdown').classList.toggle('hidden')
+    const toggleTheme = () => {
+      const isDark = document.documentElement.classList.toggle('dark')
+      localStorage.setItem('theme', isDark ? 'dark' : 'light')
+    }
+    if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark')
+    const logout = async () => {
+      await supabase.auth.signOut()
+      window.location.href = 'login.html'
+    }
   </script>
 </body>
 </html>
