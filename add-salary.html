@@ -1,65 +1,86 @@
 <!DOCTYPE html>
-<html lang="en" class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+<html lang="en" class="bg-gray-100 dark:bg-gray-900">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Add Salary - Wealthwise</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wealthwise – Add Salary</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = { darkMode: 'class' }
+    tailwind.config = { darkMode: 'class' };
   </script>
 </head>
-<body class="min-h-screen p-6">
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold">Add Salary</h1>
-    <button id="toggle-theme" class="text-sm border px-3 py-1 rounded">Toggle Theme</button>
-  </div>
+<body class="flex flex-col min-h-screen">
 
-  <form id="salary-form" class="space-y-4 max-w-md">
-    <div>
-      <label class="block">Salary Amount ($)</label>
-      <input type="number" id="amount" class="w-full p-2 border rounded dark:bg-gray-800" required>
+  <!-- Header -->
+  <header class="flex justify-between items-center px-4 py-3 bg-white dark:bg-gray-800 shadow">
+    <h1 class="text-xl font-bold dark:text-white">Add Salary</h1>
+    <div class="relative">
+      <button onclick="toggleDropdown()" class="text-2xl">👤</button>
+      <div id="dropdown" class="hidden absolute right-0 mt-2 w-40 bg-white dark:bg-gray-700 border rounded shadow-lg z-50">
+        <a href="settings.html" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 text-sm dark:text-white">⚙️ Settings</a>
+        <button onclick="toggleTheme()" class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 text-sm dark:text-white">🌓 Theme</button>
+        <button onclick="logout()" class="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100 dark:hover:bg-gray-600 text-sm">🚪 Logout</button>
+      </div>
     </div>
-    <div>
-      <label class="block">Pay Cycle</label>
-      <select id="pay_cycle" class="w-full p-2 border rounded dark:bg-gray-800" required>
-        <option value="">Choose</option>
+  </header>
+
+  <!-- Form -->
+  <main class="flex-1 px-4 py-6">
+    <form id="salary-form" class="space-y-4 max-w-md mx-auto bg-white dark:bg-gray-800 p-6 rounded shadow">
+      <input type="number" id="amount" placeholder="Salary Amount" required class="w-full px-4 py-2 rounded border dark:bg-gray-700 dark:text-white" />
+
+      <select id="cycle" required class="w-full px-4 py-2 rounded border dark:bg-gray-700 dark:text-white">
+        <option value="">Select Pay Cycle</option>
         <option value="weekly">Weekly</option>
         <option value="biweekly">Biweekly</option>
         <option value="monthly">Monthly</option>
       </select>
-    </div>
-    <div>
-      <label class="block">Last Pay Date</label>
-      <input type="date" id="last_pay_date" class="w-full p-2 border rounded dark:bg-gray-800" required>
-    </div>
-    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save Salary</button>
-  </form>
 
+      <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Save Salary</button>
+      <p id="message" class="text-center text-sm mt-2"></p>
+    </form>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="fixed bottom-0 inset-x-0 bg-white dark:bg-gray-800 border-t shadow-md flex justify-around py-2">
+    <a href="dashboard.html" class="flex flex-col items-center text-sm dark:text-white"><span>🏠</span><span>Dashboard</span></a>
+    <a href="add-salary.html" class="flex flex-col items-center text-sm dark:text-white font-bold"><span>💼</span><span>Salary</span></a>
+    <a href="add-bonus.html" class="flex flex-col items-center text-sm dark:text-white"><span>🎁</span><span>Bonus</span></a>
+    <a href="add-bill.html" class="flex flex-col items-center text-sm dark:text-white"><span>📅</span><span>Bills</span></a>
+    <a href="settings.html" class="flex flex-col items-center text-sm dark:text-white"><span>⚙️</span><span>Settings</span></a>
+  </nav>
+
+  <!-- Script -->
   <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-    const supabase = createClient('https://anwwjqupywbnwanuckdf.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI...');
-
-    document.getElementById('toggle-theme').onclick = () => {
-      document.documentElement.classList.toggle('dark');
-    };
-
-    const user = await supabase.auth.getUser();
-    if (!user.data.user) {
-      window.location.href = '/login.html';
-    }
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+    const supabase = createClient(
+      'https://anwwjqupywbnwanuckdf.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48'
+    )
 
     document.getElementById('salary-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const { data, error } = await supabase.from('salaries').upsert({
-        user_id: user.data.user.id,
-        amount: parseFloat(amount.value),
-        pay_cycle: pay_cycle.value,
-        last_pay_date: last_pay_date.value
-      });
-      if (error) return alert(error.message);
-      alert('Salary saved!');
-    });
+      e.preventDefault()
+      const amount = parseFloat(document.getElementById('amount').value)
+      const cycle = document.getElementById('cycle').value
+      const { data: { user } } = await supabase.auth.getUser()
+
+      const { error } = await supabase
+        .from('salaries')
+        .upsert([{ user_id: user.id, amount, cycle }], { onConflict: ['user_id'] })
+
+      document.getElementById('message').innerText = error ? error.message : '💼 Salary saved!'
+    })
+
+    const toggleDropdown = () => document.getElementById('dropdown').classList.toggle('hidden')
+    const toggleTheme = () => {
+      const isDark = document.documentElement.classList.toggle('dark')
+      localStorage.setItem('theme', isDark ? 'dark' : 'light')
+    }
+    if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark')
+    const logout = async () => {
+      await supabase.auth.signOut()
+      window.location.href = 'login.html'
+    }
   </script>
 </body>
 </html>
