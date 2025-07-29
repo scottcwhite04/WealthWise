@@ -24,28 +24,32 @@
     </div>
   </div>
 
-  <!-- Form -->
-  <form id="bill-form" class="space-y-4 max-w-md">
-    <input type="hidden" id="editing-id" />
-    <div>
-      <label class="block">Bill Name</label>
-      <input type="text" id="name" class="w-full p-2 border rounded dark:bg-gray-800" required>
-    </div>
-    <div>
-      <label class="block">Amount ($)</label>
-      <input type="number" step="0.01" id="amount" class="w-full p-2 border rounded dark:bg-gray-800" required>
-    </div>
-    <div>
-      <label class="block">Due Day (1-31)</label>
-      <input type="number" id="due_day" min="1" max="31" class="w-full p-2 border rounded dark:bg-gray-800" required>
-    </div>
-    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save Bill</button>
-  </form>
+  <!-- Responsive Layout: Form + Bill List -->
+  <div class="flex flex-col md:flex-row md:gap-10">
+    
+    <!-- Form -->
+    <form id="bill-form" class="space-y-4 max-w-md w-full" autocomplete="off">
+      <input type="hidden" id="editing-id" />
+      <div>
+        <label class="block">Bill Name</label>
+        <input type="text" id="name" class="w-full p-2 border rounded dark:bg-gray-800" required>
+      </div>
+      <div>
+        <label class="block">Amount ($)</label>
+        <input type="number" step="0.01" id="amount" class="w-full p-2 border rounded dark:bg-gray-800" required>
+      </div>
+      <div>
+        <label class="block">Due Day (1-31)</label>
+        <input type="number" id="due_day" min="1" max="31" class="w-full p-2 border rounded dark:bg-gray-800" required>
+      </div>
+      <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save Bill</button>
+    </form>
 
-  <!-- Bill List -->
-  <div class="mt-12 max-w-md mb-32">
-    <h2 class="text-xl font-semibold mb-4">Your Bills</h2>
-    <ul id="bill-list" class="space-y-3"></ul>
+    <!-- Bill List -->
+    <div class="mt-10 md:mt-0 max-w-md w-full">
+      <h2 class="text-xl font-semibold mb-4">Your Bills</h2>
+      <ul id="bill-list" class="space-y-3 pb-16"></ul>
+    </div>
   </div>
 
   <!-- Bottom Navigation -->
@@ -136,6 +140,9 @@
           nameInput.value = btn.dataset.name;
           amountInput.value = btn.dataset.amount;
           dueDayInput.value = btn.dataset.day;
+
+          // Scroll to form
+          form.scrollIntoView({ behavior: 'smooth' });
         });
       });
 
