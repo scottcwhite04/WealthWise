@@ -1,194 +1,164 @@
 <!DOCTYPE html>
-<html lang="en" class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+<html lang="en" class="bg-gray-100 dark:bg-gray-900">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Add Bill - Wealthwise</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Add Bill – Wealthwise</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = { darkMode: 'class' };
+    tailwind.config = { darkMode: 'class' }
   </script>
 </head>
-<body class="min-h-screen pb-32 p-6">
-
+<body class="min-h-screen flex flex-col px-4 py-6">
   <!-- Header -->
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold">Add Monthly Bill</h1>
-    <div class="relative">
-      <button id="profile-button" class="text-2xl">👤</button>
-      <div id="dropdown-menu" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border rounded shadow-lg z-10">
-        <button id="theme-toggle" class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Toggle Theme</button>
-        <a href="settings.html" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Settings ⚙️</a>
-        <button id="logout-btn" class="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700">Logout</button>
+  <header class="flex justify-between items-center mb-6">
+    <h1 class="text-xl font-bold dark:text-white">Add a Bill</h1>
+    <button onclick="toggleTheme()" class="text-xl">🌓</button>
+  </header>
+
+  <!-- Form + List -->
+  <main class="flex flex-col gap-6 w-full max-w-3xl mx-auto">
+    <!-- Form -->
+    <form id="bill-form" class="bg-white dark:bg-gray-800 p-6 rounded shadow space-y-4">
+      <input type="hidden" id="editing-id" />
+      <h2 class="text-lg font-semibold dark:text-white">New Bill</h2>
+      <input type="text" id="name" placeholder="Bill Name" required class="w-full px-4 py-2 rounded border dark:bg-gray-700 dark:text-white" />
+      <input type="number" id="amount" placeholder="Amount" required class="w-full px-4 py-2 rounded border dark:bg-gray-700 dark:text-white" />
+      <input type="number" id="due_day" placeholder="Due Day (1-31)" min="1" max="31" required class="w-full px-4 py-2 rounded border dark:bg-gray-700 dark:text-white" />
+      <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Save Bill</button>
+    </form>
+
+    <!-- Bill List -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded shadow mb-24">
+      <h2 class="text-lg font-semibold mb-4 dark:text-white">Your Bills</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-left">
+          <thead>
+            <tr class="border-b dark:border-gray-700 text-sm text-gray-600 dark:text-gray-300">
+              <th class="px-4 py-2">Name</th>
+              <th class="px-4 py-2">Amount</th>
+              <th class="px-4 py-2">Due Date</th>
+              <th class="px-4 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="bills-body" class="text-sm dark:text-white"></tbody>
+        </table>
       </div>
     </div>
-  </div>
+  </main>
 
-  <!-- Form on top -->
-  <form id="bill-form" class="space-y-4 max-w-xl w-full mx-auto mb-10" autocomplete="off">
-    <input type="hidden" id="editing-id" />
-    <div>
-      <label class="block">Bill Name</label>
-      <input type="text" id="name" class="w-full p-2 border rounded dark:bg-gray-800" required>
-    </div>
-    <div>
-      <label class="block">Amount ($)</label>
-      <input type="number" step="0.01" id="amount" class="w-full p-2 border rounded dark:bg-gray-800" required>
-    </div>
-    <div>
-      <label class="block">Due Day (1-31)</label>
-      <input type="number" id="due_day" min="1" max="31" class="w-full p-2 border rounded dark:bg-gray-800" required>
-    </div>
-    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save Bill</button>
-  </form>
+  <!-- Bottom Nav Padding -->
+  <div class="h-20"></div>
 
-  <!-- Bills List below form -->
-  <div class="max-w-xl w-full mx-auto">
-    <h2 class="text-xl font-semibold mb-4">Your Bills</h2>
-    <ul id="bill-list" class="space-y-3 pb-16"></ul>
-  </div>
+  <!-- Toast Message -->
+  <div id="toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded shadow-lg hidden opacity-0 z-50 transition-all duration-300"></div>
 
-  <!-- Bottom Navigation -->
-  <nav class="fixed bottom-0 inset-x-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow px-6 py-2 flex justify-between text-sm">
-    <a href="dashboard.html" class="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-blue-600">
-      🏠<span>Dashboard</span>
-    </a>
-    <a href="add-salary.html" class="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-blue-600">
-      💰<span>Salary</span>
-    </a>
-    <a href="add-bill.html" class="flex flex-col items-center text-blue-600 dark:text-blue-400">
-      📄<span>Bills</span>
-    </a>
-    <a href="add-bonus.html" class="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-blue-600">
-      🎁<span>Bonus</span>
-    </a>
-    <a href="settings.html" class="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-blue-600">
-      ☰<span>Settings</span>
-    </a>
-  </nav>
-
-  <!-- JavaScript -->
   <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+    const supabase = createClient(
+      'https://anwwjqupywbnwanuckdf.supabase.co',
+      'YOUR_PUBLIC_SUPABASE_KEY'
+    )
 
-    const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    const billForm = document.getElementById('bill-form')
+    const editingId = document.getElementById('editing-id')
+    const nameInput = document.getElementById('name')
+    const amountInput = document.getElementById('amount')
+    const dueDayInput = document.getElementById('due_day')
+    const tableBody = document.getElementById('bills-body')
 
-    const form = document.getElementById('bill-form');
-    const billList = document.getElementById('bill-list');
-    const editingId = document.getElementById('editing-id');
-
-    const nameInput = document.getElementById('name');
-    const amountInput = document.getElementById('amount');
-    const dueDayInput = document.getElementById('due_day');
-
-    const { data: sessionData } = await supabase.auth.getUser();
-    const user = sessionData.user;
-    if (!user) window.location.href = 'sign-in.html';
-
-    async function loadBills() {
-      const { data, error } = await supabase
-        .from('bills')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('due_day');
-
-      billList.innerHTML = '';
-      if (error) {
-        billList.innerHTML = `<li class="text-red-500">${error.message}</li>`;
-        return;
-      }
-
-      if (data.length === 0) {
-        billList.innerHTML = `<li class="text-gray-500">No bills found.</li>`;
-        return;
-      }
-
-      const currentMonth = new Date().getMonth() + 1;
-      const currentYear = new Date().getFullYear();
-
-      data.forEach(bill => {
-        const li = document.createElement('li');
-        li.className = "p-4 bg-gray-100 dark:bg-gray-800 rounded shadow flex justify-between items-center";
-
-        const dueDate = `${currentMonth}/${bill.due_day}/${currentYear}`;
-
-        li.innerHTML = `
-          <div>
-            <p class="font-semibold">${bill.name}</p>
-            <p class="text-sm text-gray-600 dark:text-gray-400">$${bill.amount.toFixed(2)} - Due: ${dueDate}</p>
-          </div>
-          <div class="flex gap-2">
-            <button class="edit-btn text-blue-600 hover:underline text-sm"
-              data-id="${bill.id}" data-name="${bill.name}" data-amount="${bill.amount}" data-day="${bill.due_day}">Edit</button>
-            <button class="delete-btn text-red-600 hover:underline text-sm" data-id="${bill.id}">Delete</button>
-          </div>
-        `;
-        billList.appendChild(li);
-      });
-
-      document.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          editingId.value = btn.dataset.id;
-          nameInput.value = btn.dataset.name;
-          amountInput.value = btn.dataset.amount;
-          dueDayInput.value = btn.dataset.day;
-          form.scrollIntoView({ behavior: 'smooth' });
-        });
-      });
-
-      document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', async () => {
-          const id = btn.dataset.id;
-          if (confirm('Delete this bill?')) {
-            const { error } = await supabase.from('bills').delete().eq('id', id);
-            if (!error) loadBills();
-            else alert('Error: ' + error.message);
-          }
-        });
-      });
+    function toggleTheme() {
+      document.documentElement.classList.toggle('dark')
+      localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light')
+    }
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark')
     }
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+    function showToast(message, error = false) {
+      const toast = document.getElementById('toast')
+      toast.textContent = message
+      toast.classList.remove('hidden', 'opacity-0')
+      toast.classList.add('opacity-100', error ? 'bg-red-600' : 'bg-green-600')
 
-      const billData = {
-        user_id: user.id,
-        name: nameInput.value,
-        amount: parseFloat(amountInput.value),
-        due_day: parseInt(dueDayInput.value)
-      };
+      setTimeout(() => {
+        toast.classList.add('opacity-0')
+        setTimeout(() => toast.classList.add('hidden'), 300)
+      }, 2000)
+    }
 
-      const billId = editingId.value;
-      const result = billId
-        ? await supabase.from('bills').update(billData).eq('id', billId)
-        : await supabase.from('bills').insert(billData);
+    async function loadBills() {
+      const { data: { user } } = await supabase.auth.getUser()
+      const { data, error } = await supabase.from('bills').select('*').eq('user_id', user.id).order('due_day', { ascending: true })
+
+      tableBody.innerHTML = ''
+      const now = new Date()
+      const currentMonth = now.getMonth() + 1
+      const currentYear = now.getFullYear()
+
+      if (data && data.length > 0) {
+        data.forEach(bill => {
+          const fullDate = `${currentMonth}/${bill.due_day}/${currentYear}`
+          const row = document.createElement('tr')
+          row.innerHTML = `
+            <td class="px-4 py-2">${bill.name}</td>
+            <td class="px-4 py-2">$${bill.amount.toFixed(2)}</td>
+            <td class="px-4 py-2">${fullDate}</td>
+            <td class="px-4 py-2">
+              <button onclick="editBill('${bill.id}', '${bill.name}', ${bill.amount}, ${bill.due_day})" class="text-blue-600 hover:underline">Edit</button>
+              <button onclick="deleteBill('${bill.id}')" class="text-red-600 hover:underline ml-2">Delete</button>
+            </td>
+          `
+          tableBody.appendChild(row)
+        })
+      } else {
+        tableBody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-gray-500 dark:text-gray-400">No bills found.</td></tr>`
+      }
+    }
+
+    window.editBill = (id, name, amount, due_day) => {
+      editingId.value = id
+      nameInput.value = name
+      amountInput.value = amount
+      dueDayInput.value = due_day
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+
+    window.deleteBill = async (id) => {
+      const { error } = await supabase.from('bills').delete().eq('id', id)
+      if (error) {
+        showToast('Error deleting bill', true)
+      } else {
+        showToast('Bill deleted')
+        loadBills()
+      }
+    }
+
+    billForm.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const name = nameInput.value
+      const amount = parseFloat(amountInput.value)
+      const due_day = parseInt(dueDayInput.value)
+      const { data: { user } } = await supabase.auth.getUser()
+
+      let result
+      if (editingId.value) {
+        result = await supabase.from('bills').update({ name, amount, due_day }).eq('id', editingId.value)
+      } else {
+        result = await supabase.from('bills').insert([{ user_id: user.id, name, amount, due_day }])
+      }
 
       if (result.error) {
-        alert(result.error.message);
+        showToast('Error saving bill', true)
       } else {
-        form.reset();
-        editingId.value = '';
-        loadBills();
+        showToast(editingId.value ? 'Bill updated successfully!' : 'Bill added successfully!')
+        billForm.reset()
+        editingId.value = ''
+        loadBills()
       }
-    });
+    })
 
-    document.getElementById('profile-button').addEventListener('click', () => {
-      document.getElementById('dropdown-menu').classList.toggle('hidden');
-    });
-
-    document.getElementById('theme-toggle').addEventListener('click', () => {
-      document.documentElement.classList.toggle('dark');
-      document.getElementById('dropdown-menu').classList.add('hidden');
-    });
-
-    document.getElementById('logout-btn').addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      window.location.href = 'sign-in.html';
-    });
-
-    loadBills();
+    loadBills()
   </script>
 </body>
 </html>
