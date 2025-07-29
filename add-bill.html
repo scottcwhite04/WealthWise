@@ -9,19 +9,19 @@
     tailwind.config = { darkMode: 'class' }
   </script>
 </head>
-<body class="min-h-screen flex flex-col px-4 py-6">
+<body class="min-h-screen flex flex-col">
   <!-- Header -->
-  <header class="flex justify-between items-center mb-6">
-    <h1 class="text-xl font-bold dark:text-white">Add a Bill</h1>
+  <header class="w-full flex justify-between items-center px-4 py-4 bg-white dark:bg-gray-800 shadow">
+    <h1 class="text-xl font-bold dark:text-white">Wealthwise</h1>
     <button onclick="toggleTheme()" class="text-xl">🌓</button>
   </header>
 
-  <!-- Form + List -->
-  <main class="flex flex-col gap-6 w-full max-w-3xl mx-auto">
-    <!-- Form -->
+  <!-- Page Content -->
+  <main class="flex-1 px-4 py-6 w-full max-w-3xl mx-auto space-y-6">
+    <!-- Bill Form -->
     <form id="bill-form" class="bg-white dark:bg-gray-800 p-6 rounded shadow space-y-4">
       <input type="hidden" id="editing-id" />
-      <h2 class="text-lg font-semibold dark:text-white">New Bill</h2>
+      <h2 class="text-lg font-semibold dark:text-white">Add or Edit Bill</h2>
       <input type="text" id="name" placeholder="Bill Name" required class="w-full px-4 py-2 rounded border dark:bg-gray-700 dark:text-white" />
       <input type="number" id="amount" placeholder="Amount" required class="w-full px-4 py-2 rounded border dark:bg-gray-700 dark:text-white" />
       <input type="number" id="due_day" placeholder="Due Day (1-31)" min="1" max="31" required class="w-full px-4 py-2 rounded border dark:bg-gray-700 dark:text-white" />
@@ -29,7 +29,7 @@
     </form>
 
     <!-- Bill List -->
-    <div class="bg-white dark:bg-gray-800 p-6 rounded shadow mb-24">
+    <section class="bg-white dark:bg-gray-800 p-6 rounded shadow mb-20">
       <h2 class="text-lg font-semibold mb-4 dark:text-white">Your Bills</h2>
       <div class="overflow-x-auto">
         <table class="min-w-full text-left">
@@ -44,13 +44,30 @@
           <tbody id="bills-body" class="text-sm dark:text-white"></tbody>
         </table>
       </div>
-    </div>
+    </section>
   </main>
 
-  <!-- Bottom Nav Padding -->
-  <div class="h-20"></div>
+  <!-- Bottom Navigation -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex justify-around items-center h-16 shadow z-40">
+    <a href="/dashboard.html" class="text-center text-gray-700 dark:text-white hover:text-blue-600">
+      <div>🏠</div>
+      <div class="text-xs">Dashboard</div>
+    </a>
+    <a href="/add-bill.html" class="text-center text-blue-600 dark:text-blue-400">
+      <div>💸</div>
+      <div class="text-xs font-semibold">Bills</div>
+    </a>
+    <a href="/add-salary.html" class="text-center text-gray-700 dark:text-white hover:text-blue-600">
+      <div>💼</div>
+      <div class="text-xs">Salary</div>
+    </a>
+    <a href="/settings.html" class="text-center text-gray-700 dark:text-white hover:text-blue-600">
+      <div>⚙️</div>
+      <div class="text-xs">Settings</div>
+    </a>
+  </nav>
 
-  <!-- Toast Message -->
+  <!-- Toast -->
   <div id="toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded shadow-lg hidden opacity-0 z-50 transition-all duration-300"></div>
 
   <script type="module">
@@ -60,7 +77,7 @@
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48'
     )
 
-    const billForm = document.getElementById('bill-form')
+    const form = document.getElementById('bill-form')
     const editingId = document.getElementById('editing-id')
     const nameInput = document.getElementById('name')
     const amountInput = document.getElementById('amount')
@@ -89,14 +106,14 @@
 
     async function loadBills() {
       const { data: { user } } = await supabase.auth.getUser()
-      const { data, error } = await supabase.from('bills').select('*').eq('user_id', user.id).order('due_day', { ascending: true })
+      const { data, error } = await supabase.from('bills').select('*').eq('user_id', user.id).order('due_day')
 
       tableBody.innerHTML = ''
       const now = new Date()
       const currentMonth = now.getMonth() + 1
       const currentYear = now.getFullYear()
 
-      if (data && data.length > 0) {
+      if (data?.length > 0) {
         data.forEach(bill => {
           const fullDate = `${currentMonth}/${bill.due_day}/${currentYear}`
           const row = document.createElement('tr')
@@ -134,7 +151,7 @@
       }
     }
 
-    billForm.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault()
       const name = nameInput.value
       const amount = parseFloat(amountInput.value)
@@ -152,7 +169,7 @@
         showToast('Error saving bill', true)
       } else {
         showToast(editingId.value ? 'Bill updated successfully!' : 'Bill added successfully!')
-        billForm.reset()
+        form.reset()
         editingId.value = ''
         loadBills()
       }
