@@ -24,32 +24,28 @@
     </div>
   </div>
 
-  <!-- Responsive Layout: Form + Bill List -->
-  <div class="flex flex-col md:flex-row md:gap-10">
-    
-    <!-- Form -->
-    <form id="bill-form" class="space-y-4 max-w-md w-full" autocomplete="off">
-      <input type="hidden" id="editing-id" />
-      <div>
-        <label class="block">Bill Name</label>
-        <input type="text" id="name" class="w-full p-2 border rounded dark:bg-gray-800" required>
-      </div>
-      <div>
-        <label class="block">Amount ($)</label>
-        <input type="number" step="0.01" id="amount" class="w-full p-2 border rounded dark:bg-gray-800" required>
-      </div>
-      <div>
-        <label class="block">Due Day (1-31)</label>
-        <input type="number" id="due_day" min="1" max="31" class="w-full p-2 border rounded dark:bg-gray-800" required>
-      </div>
-      <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save Bill</button>
-    </form>
-
-    <!-- Bill List -->
-    <div class="mt-10 md:mt-0 max-w-md w-full">
-      <h2 class="text-xl font-semibold mb-4">Your Bills</h2>
-      <ul id="bill-list" class="space-y-3 pb-16"></ul>
+  <!-- Form on top -->
+  <form id="bill-form" class="space-y-4 max-w-xl w-full mx-auto mb-10" autocomplete="off">
+    <input type="hidden" id="editing-id" />
+    <div>
+      <label class="block">Bill Name</label>
+      <input type="text" id="name" class="w-full p-2 border rounded dark:bg-gray-800" required>
     </div>
+    <div>
+      <label class="block">Amount ($)</label>
+      <input type="number" step="0.01" id="amount" class="w-full p-2 border rounded dark:bg-gray-800" required>
+    </div>
+    <div>
+      <label class="block">Due Day (1-31)</label>
+      <input type="number" id="due_day" min="1" max="31" class="w-full p-2 border rounded dark:bg-gray-800" required>
+    </div>
+    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save Bill</button>
+  </form>
+
+  <!-- Bills List below form -->
+  <div class="max-w-xl w-full mx-auto">
+    <h2 class="text-xl font-semibold mb-4">Your Bills</h2>
+    <ul id="bill-list" class="space-y-3 pb-16"></ul>
   </div>
 
   <!-- Bottom Navigation -->
@@ -71,7 +67,7 @@
     </a>
   </nav>
 
-  <!-- Script -->
+  <!-- JavaScript -->
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
@@ -89,9 +85,7 @@
 
     const { data: sessionData } = await supabase.auth.getUser();
     const user = sessionData.user;
-    if (!user) {
-      window.location.href = 'sign-in.html';
-    }
+    if (!user) window.location.href = 'sign-in.html';
 
     async function loadBills() {
       const { data, error } = await supabase
@@ -126,37 +120,31 @@
             <p class="text-sm text-gray-600 dark:text-gray-400">$${bill.amount.toFixed(2)} - Due: ${dueDate}</p>
           </div>
           <div class="flex gap-2">
-            <button class="edit-btn text-blue-600 hover:underline text-sm" data-id="${bill.id}" data-name="${bill.name}" data-amount="${bill.amount}" data-day="${bill.due_day}">Edit</button>
+            <button class="edit-btn text-blue-600 hover:underline text-sm"
+              data-id="${bill.id}" data-name="${bill.name}" data-amount="${bill.amount}" data-day="${bill.due_day}">Edit</button>
             <button class="delete-btn text-red-600 hover:underline text-sm" data-id="${bill.id}">Delete</button>
           </div>
         `;
         billList.appendChild(li);
       });
 
-      // Edit handlers
       document.querySelectorAll('.edit-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           editingId.value = btn.dataset.id;
           nameInput.value = btn.dataset.name;
           amountInput.value = btn.dataset.amount;
           dueDayInput.value = btn.dataset.day;
-
-          // Scroll to form
           form.scrollIntoView({ behavior: 'smooth' });
         });
       });
 
-      // Delete handlers
       document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.addEventListener('click', async () => {
           const id = btn.dataset.id;
           if (confirm('Delete this bill?')) {
             const { error } = await supabase.from('bills').delete().eq('id', id);
-            if (error) {
-              alert('Error deleting: ' + error.message);
-            } else {
-              loadBills();
-            }
+            if (!error) loadBills();
+            else alert('Error: ' + error.message);
           }
         });
       });
@@ -173,13 +161,9 @@
       };
 
       const billId = editingId.value;
-
-      let result;
-      if (billId) {
-        result = await supabase.from('bills').update(billData).eq('id', billId);
-      } else {
-        result = await supabase.from('bills').insert(billData);
-      }
+      const result = billId
+        ? await supabase.from('bills').update(billData).eq('id', billId)
+        : await supabase.from('bills').insert(billData);
 
       if (result.error) {
         alert(result.error.message);
@@ -190,21 +174,15 @@
       }
     });
 
-    // Profile dropdown
-    const profileBtn = document.getElementById('profile-button');
-    const dropdownMenu = document.getElementById('dropdown-menu');
-    profileBtn.addEventListener('click', () => {
-      dropdownMenu.classList.toggle('hidden');
+    document.getElementById('profile-button').addEventListener('click', () => {
+      document.getElementById('dropdown-menu').classList.toggle('hidden');
     });
 
-    // Theme toggle
-    const themeToggle = document.getElementById('theme-toggle');
-    themeToggle.addEventListener('click', () => {
+    document.getElementById('theme-toggle').addEventListener('click', () => {
       document.documentElement.classList.toggle('dark');
-      dropdownMenu.classList.add('hidden');
+      document.getElementById('dropdown-menu').classList.add('hidden');
     });
 
-    // Logout
     document.getElementById('logout-btn').addEventListener('click', async () => {
       await supabase.auth.signOut();
       window.location.href = 'sign-in.html';
