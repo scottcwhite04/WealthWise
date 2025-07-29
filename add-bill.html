@@ -32,7 +32,7 @@
       <h2 class="text-lg font-semibold dark:text-white">New Bill</h2>
       <input type="text" id="name" placeholder="Bill Name" required class="w-full px-4 py-2 rounded border dark:bg-gray-700 dark:text-white" />
       <input type="number" id="amount" placeholder="Amount" required class="w-full px-4 py-2 rounded border dark:bg-gray-700 dark:text-white" />
-      <input type="date" id="due_date" required class="w-full px-4 py-2 rounded border dark:bg-gray-700 dark:text-white" />
+      <input type="number" id="due_day" placeholder="Due Day (1–31)" min="1" max="31" required class="w-full px-4 py-2 rounded border dark:bg-gray-700 dark:text-white" />
       <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Save Bill</button>
       <p id="message" class="text-center text-sm mt-2"></p>
     </form>
@@ -81,10 +81,12 @@
       e.preventDefault()
       const name = document.getElementById('name').value
       const amount = parseFloat(document.getElementById('amount').value)
-      const due_date = document.getElementById('due_date').value
+      const due_day = parseInt(document.getElementById('due_day').value)
       const { data: { user } } = await supabase.auth.getUser()
 
-      const { error } = await supabase.from('bills').insert([{ user_id: user.id, name, amount, due_date }])
+      const { error } = await supabase.from('bills').insert([
+        { user_id: user.id, name, amount, due_day }
+      ])
 
       if (error) {
         message.textContent = error.message
@@ -101,16 +103,21 @@
         .from('bills')
         .select('*')
         .eq('user_id', user.id)
-        .order('due_date', { ascending: true })
+        .order('due_day', { ascending: true })
 
       tableBody.innerHTML = ''
       if (data && data.length > 0) {
+        const now = new Date()
+        const month = now.getMonth() + 1
+        const year = now.getFullYear()
+
         data.forEach(bill => {
+          const formattedDate = `${month}/${bill.due_day}/${year}`
           const row = document.createElement('tr')
           row.innerHTML = `
             <td class="px-4 py-2">${bill.name}</td>
             <td class="px-4 py-2">$${bill.amount.toFixed(2)}</td>
-            <td class="px-4 py-2">${bill.due_date}</td>
+            <td class="px-4 py-2">${formattedDate}</td>
           `
           tableBody.appendChild(row)
         })
@@ -121,7 +128,6 @@
       }
     }
 
-    // Theme
     const toggleDropdown = () => document.getElementById('dropdown').classList.toggle('hidden')
     const toggleTheme = () => {
       const isDark = document.documentElement.classList.toggle('dark')
