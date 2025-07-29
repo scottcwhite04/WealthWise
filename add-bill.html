@@ -24,15 +24,36 @@
     </div>
   </header>
 
-  <!-- Form -->
-  <main class="flex-1 px-4 py-6">
-    <form id="bill-form" class="space-y-4 max-w-md mx-auto bg-white dark:bg-gray-800 p-6 rounded shadow">
+  <!-- Main Content -->
+  <main class="flex-1 px-4 py-6 max-w-2xl mx-auto w-full space-y-8">
+
+    <!-- Add Bill Form -->
+    <form id="bill-form" class="space-y-4 bg-white dark:bg-gray-800 p-6 rounded shadow">
+      <h2 class="text-lg font-semibold dark:text-white">New Bill</h2>
       <input type="text" id="name" placeholder="Bill Name" required class="w-full px-4 py-2 rounded border dark:bg-gray-700 dark:text-white" />
       <input type="number" id="amount" placeholder="Amount" required class="w-full px-4 py-2 rounded border dark:bg-gray-700 dark:text-white" />
       <input type="date" id="due_date" required class="w-full px-4 py-2 rounded border dark:bg-gray-700 dark:text-white" />
       <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Save Bill</button>
       <p id="message" class="text-center text-sm mt-2"></p>
     </form>
+
+    <!-- Bills Table -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded shadow">
+      <h2 class="text-lg font-semibold mb-4 dark:text-white">Your Bills</h2>
+      <table class="min-w-full table-auto text-sm text-left">
+        <thead class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
+          <tr>
+            <th class="px-4 py-2">Name</th>
+            <th class="px-4 py-2">Amount</th>
+            <th class="px-4 py-2">Due Date</th>
+          </tr>
+        </thead>
+        <tbody id="bill-table-body" class="divide-y dark:divide-gray-700 dark:text-white">
+          <!-- Dynamic rows -->
+        </tbody>
+      </table>
+    </div>
+
   </main>
 
   <!-- Bottom Nav -->
@@ -52,30 +73,68 @@
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48'
     )
 
-    document.getElementById('bill-form').addEventListener('submit', async (e) => {
+    const billForm = document.getElementById('bill-form')
+    const tableBody = document.getElementById('bill-table-body')
+    const message = document.getElementById('message')
+
+    billForm.addEventListener('submit', async (e) => {
       e.preventDefault()
       const name = document.getElementById('name').value
       const amount = parseFloat(document.getElementById('amount').value)
       const due_date = document.getElementById('due_date').value
       const { data: { user } } = await supabase.auth.getUser()
 
-      const { error } = await supabase
-        .from('bills')
-        .insert([{ user_id: user.id, name, amount, due_date }])
+      const { error } = await supabase.from('bills').insert([{ user_id: user.id, name, amount, due_date }])
 
-      document.getElementById('message').innerText = error ? error.message : '📅 Bill saved!'
+      if (error) {
+        message.textContent = error.message
+      } else {
+        message.textContent = '✅ Bill added!'
+        billForm.reset()
+        loadBills()
+      }
     })
 
+    async function loadBills() {
+      const { data: { user } } = await supabase.auth.getUser()
+      const { data, error } = await supabase
+        .from('bills')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('due_date', { ascending: true })
+
+      tableBody.innerHTML = ''
+      if (data && data.length > 0) {
+        data.forEach(bill => {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+            <td class="px-4 py-2">${bill.name}</td>
+            <td class="px-4 py-2">$${bill.amount.toFixed(2)}</td>
+            <td class="px-4 py-2">${bill.due_date}</td>
+          `
+          tableBody.appendChild(row)
+        })
+      } else {
+        const emptyRow = document.createElement('tr')
+        emptyRow.innerHTML = `<td colspan="3" class="px-4 py-2 text-center text-gray-500 dark:text-gray-400">No bills found</td>`
+        tableBody.appendChild(emptyRow)
+      }
+    }
+
+    // Theme
     const toggleDropdown = () => document.getElementById('dropdown').classList.toggle('hidden')
     const toggleTheme = () => {
       const isDark = document.documentElement.classList.toggle('dark')
       localStorage.setItem('theme', isDark ? 'dark' : 'light')
     }
     if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark')
+
     const logout = async () => {
       await supabase.auth.signOut()
       window.location.href = 'login.html'
     }
+
+    loadBills()
   </script>
 </body>
 </html>
