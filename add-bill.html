@@ -24,8 +24,8 @@
     </div>
   </header>
 
-  <!-- Main Content -->
-  <main class="flex-1 px-4 py-6 max-w-2xl mx-auto w-full space-y-8">
+  <!-- Main -->
+  <main class="flex-1 px-4 pt-6 pb-28 max-w-2xl mx-auto w-full space-y-8">
 
     <!-- Add Bill Form -->
     <form id="bill-form" class="space-y-4 bg-white dark:bg-gray-800 p-6 rounded shadow">
@@ -46,6 +46,7 @@
             <th class="px-4 py-2">Name</th>
             <th class="px-4 py-2">Amount</th>
             <th class="px-4 py-2">Due Date</th>
+            <th class="px-4 py-2">Actions</th>
           </tr>
         </thead>
         <tbody id="bill-table-body" class="divide-y dark:divide-gray-700 dark:text-white">
@@ -84,14 +85,10 @@
       const due_day = parseInt(document.getElementById('due_day').value)
       const { data: { user } } = await supabase.auth.getUser()
 
-      const { error } = await supabase.from('bills').insert([
-        { user_id: user.id, name, amount, due_day }
-      ])
+      const { error } = await supabase.from('bills').insert([{ user_id: user.id, name, amount, due_day }])
 
-      if (error) {
-        message.textContent = error.message
-      } else {
-        message.textContent = '✅ Bill added!'
+      message.textContent = error ? error.message : '✅ Bill added!'
+      if (!error) {
         billForm.reset()
         loadBills()
       }
@@ -115,16 +112,35 @@
           const formattedDate = `${month}/${bill.due_day}/${year}`
           const row = document.createElement('tr')
           row.innerHTML = `
-            <td class="px-4 py-2">${bill.name}</td>
-            <td class="px-4 py-2">$${bill.amount.toFixed(2)}</td>
-            <td class="px-4 py-2">${formattedDate}</td>
+            <td class="px-4 py-2"><input type="text" value="${bill.name}" class="bg-transparent border-b dark:border-gray-600 focus:outline-none editable-name" data-id="${bill.id}" /></td>
+            <td class="px-4 py-2"><input type="number" value="${bill.amount}" class="bg-transparent border-b dark:border-gray-600 focus:outline-none editable-amount" data-id="${bill.id}" /></td>
+            <td class="px-4 py-2"><input type="number" value="${bill.due_day}" min="1" max="31" class="bg-transparent border-b dark:border-gray-600 focus:outline-none editable-due_day" data-id="${bill.id}" /></td>
+            <td class="px-4 py-2">
+              <button onclick="updateBill('${bill.id}')" class="text-blue-600 hover:underline">Save</button>
+              <button onclick="deleteBill('${bill.id}')" class="text-red-600 hover:underline ml-2">Delete</button>
+            </td>
           `
           tableBody.appendChild(row)
         })
       } else {
-        const emptyRow = document.createElement('tr')
-        emptyRow.innerHTML = `<td colspan="3" class="px-4 py-2 text-center text-gray-500 dark:text-gray-400">No bills found</td>`
-        tableBody.appendChild(emptyRow)
+        tableBody.innerHTML = `<tr><td colspan="4" class="px-4 py-2 text-center text-gray-500 dark:text-gray-400">No bills found</td></tr>`
+      }
+    }
+
+    window.updateBill = async (id) => {
+      const name = document.querySelector(`.editable-name[data-id="${id}"]`).value
+      const amount = parseFloat(document.querySelector(`.editable-amount[data-id="${id}"]`).value)
+      const due_day = parseInt(document.querySelector(`.editable-due_day[data-id="${id}"]`).value)
+
+      const { error } = await supabase.from('bills').update({ name, amount, due_day }).eq('id', id)
+      if (!error) loadBills()
+    }
+
+    window.deleteBill = async (id) => {
+      const confirmed = confirm('Are you sure you want to delete this bill?')
+      if (confirmed) {
+        const { error } = await supabase.from('bills').delete().eq('id', id)
+        if (!error) loadBills()
       }
     }
 
