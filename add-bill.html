@@ -29,7 +29,7 @@
     </form>
 
     <!-- Bill List -->
-    <section class="bg-white dark:bg-gray-800 p-6 rounded shadow mb-20">
+    <section class="bg-white dark:bg-gray-800 p-6 rounded shadow mb-32">
       <h2 class="text-lg font-semibold mb-4 dark:text-white">Your Bills</h2>
       <div class="overflow-x-auto">
         <table class="min-w-full text-left">
@@ -42,12 +42,13 @@
             </tr>
           </thead>
           <tbody id="bills-body" class="text-sm dark:text-white"></tbody>
+          <tfoot id="monthly-total" class="text-sm font-bold text-right dark:text-white"></tfoot>
         </table>
       </div>
     </section>
   </main>
 
-<!-- Bottom Navigation -->
+  <!-- Bottom Navigation -->
   <nav class="fixed bottom-0 inset-x-0 bg-white dark:bg-gray-800 border-t shadow-md flex justify-around py-2">
     <a href="dashboard.html" class="flex flex-col items-center text-sm dark:text-white">
       <span>🏠</span><span>Dashboard</span>
@@ -65,7 +66,7 @@
       <span>⚙️</span><span>Settings</span>
     </a>
   </nav>
-  
+
   <!-- Toast -->
   <div id="toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded shadow-lg hidden opacity-0 z-50 transition-all duration-300"></div>
 
@@ -82,6 +83,7 @@
     const amountInput = document.getElementById('amount')
     const dueDayInput = document.getElementById('due_day')
     const tableBody = document.getElementById('bills-body')
+    const totalFooter = document.getElementById('monthly-total')
 
     function toggleTheme() {
       document.documentElement.classList.toggle('dark')
@@ -108,12 +110,15 @@
       const { data, error } = await supabase.from('bills').select('*').eq('user_id', user.id).order('due_day')
 
       tableBody.innerHTML = ''
+      totalFooter.innerHTML = ''
       const now = new Date()
       const currentMonth = now.getMonth() + 1
       const currentYear = now.getFullYear()
+      let totalAmount = 0
 
       if (data?.length > 0) {
         data.forEach(bill => {
+          totalAmount += bill.amount
           const fullDate = `${currentMonth}/${bill.due_day}/${currentYear}`
           const row = document.createElement('tr')
           row.innerHTML = `
@@ -127,6 +132,10 @@
           `
           tableBody.appendChild(row)
         })
+
+        totalFooter.innerHTML = `
+          <tr><td colspan="4" class="px-4 pt-4 text-right">Total Monthly Bills: <span class="font-bold text-green-600">$${totalAmount.toFixed(2)}</span></td></tr>
+        `
       } else {
         tableBody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-gray-500 dark:text-gray-400">No bills found.</td></tr>`
       }
