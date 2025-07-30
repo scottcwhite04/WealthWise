@@ -9,7 +9,7 @@
     tailwind.config = { darkMode: 'class' };
   </script>
 </head>
-<body class="flex flex-col min-h-screen relative">
+<body class="flex flex-col min-h-screen">
 
   <!-- Header -->
   <header class="flex justify-between items-center px-4 py-3 bg-white dark:bg-gray-800 shadow">
@@ -24,62 +24,38 @@
     </div>
   </header>
 
-  <!-- Toast Notification -->
-  <div id="toast" class="fixed top-4 right-4 z-50 hidden px-4 py-2 rounded text-white shadow-md"></div>
-
-  <!-- Content -->
-  <main class="flex-1 px-4 py-6 space-y-4 pb-28">
-    <!-- Verse Card -->
+  <!-- Main Content -->
+  <main class="flex-1 px-4 py-6 space-y-4">
+    <!-- Daily Verse -->
     <div class="bg-blue-100 dark:bg-blue-900 p-4 rounded shadow text-center">
       <h2 class="text-lg font-semibold dark:text-white">📖 Daily Stewardship Verse</h2>
       <p id="verse" class="mt-2 text-gray-700 dark:text-gray-200">Loading verse...</p>
     </div>
 
-    <!-- Financial Preferences Card -->
+    <!-- Finances & Projection Cards -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div class="bg-white dark:bg-gray-800 p-4 rounded shadow">
+        <h3 class="font-semibold text-gray-700 dark:text-white">💰 Your Finances</h3>
+        <p id="financesCard" class="text-gray-500 dark:text-gray-300">Loading...</p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 p-4 rounded shadow">
+        <h3 class="font-semibold text-gray-700 dark:text-white">📈 12-Month Projection</h3>
+        <p id="projectionCard" class="text-gray-500 dark:text-gray-300">Loading...</p>
+      </div>
+    </div>
+
+    <!-- Current Banking Balance and Allowances Card -->
     <div class="bg-white dark:bg-gray-800 p-4 rounded shadow flex justify-between items-center">
       <div>
         <h3 class="font-semibold text-gray-700 dark:text-white">🏦 Current Banking Balance and Allowances</h3>
         <p class="text-gray-600 dark:text-gray-300 text-sm mt-1" id="preferencesSummary">Loading...</p>
       </div>
-      <div class="flex gap-2">
-        <button onclick="toggleModal()" id="addBtn" class="bg-green-100 hover:bg-green-200 dark:bg-green-800 dark:hover:bg-green-700 text-green-700 dark:text-white px-3 py-2 rounded-full">
-          ➕
-        </button>
-        <button onclick="toggleModal(true)" id="editBtn" class="hidden bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-700 dark:hover:bg-yellow-600 text-yellow-800 dark:text-white px-3 py-2 rounded-full">
-          ✏️
-        </button>
-      </div>
-    </div>
-
-    <!-- Finances & Projection -->
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      <div class="bg-white dark:bg-gray-800 p-4 rounded shadow">
-        <h3 class="font-semibold text-gray-700 dark:text-white">💰 Your Finances</h3>
-        <p class="text-gray-500 dark:text-gray-300" id="financeCard">Loading...</p>
-      </div>
-      <div class="bg-white dark:bg-gray-800 p-4 rounded shadow">
-        <h3 class="font-semibold text-gray-700 dark:text-white">📈 12-Month Projection</h3>
-        <p class="text-gray-500 dark:text-gray-300" id="projectionCard">Loading...</p>
+      <div class="space-x-2">
+        <a href="preferences.html" id="addBtn" class="inline-block bg-green-100 hover:bg-green-200 dark:bg-green-800 dark:hover:bg-green-700 text-green-700 dark:text-white px-3 py-2 rounded-full text-xl">➕</a>
+        <a href="preferences.html" id="editBtn" class="hidden inline-block bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-800 dark:hover:bg-yellow-700 text-yellow-700 dark:text-white px-3 py-2 rounded-full text-xl">✏️</a>
       </div>
     </div>
   </main>
-
-  <!-- Modal -->
-  <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-    <div class="bg-white dark:bg-gray-800 p-6 rounded shadow-md w-full max-w-md">
-      <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Update Financial Preferences</h3>
-      <form id="preferencesForm" class="space-y-4">
-        <input type="number" step="0.01" name="current_balance" placeholder="Current Balance" required class="w-full p-2 rounded border dark:bg-gray-700 dark:text-white" />
-        <input type="text" name="pay_frequency" placeholder="Pay Frequency (e.g. weekly)" required class="w-full p-2 rounded border dark:bg-gray-700 dark:text-white" />
-        <input type="number" step="0.01" name="food_allowance" placeholder="Food Allowance" required class="w-full p-2 rounded border dark:bg-gray-700 dark:text-white" />
-        <input type="number" step="0.01" name="fuel_allowance" placeholder="Fuel Allowance" required class="w-full p-2 rounded border dark:bg-gray-700 dark:text-white" />
-        <div class="flex justify-between items-center mt-4">
-          <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">Save</button>
-          <button type="button" onclick="deletePreferences()" id="deleteBtn" class="hidden bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Reset</button>
-        </div>
-      </form>
-    </div>
-  </div>
 
   <!-- Bottom Navigation -->
   <nav class="fixed bottom-0 inset-x-0 bg-white dark:bg-gray-800 border-t shadow-md flex justify-around py-2">
@@ -90,23 +66,13 @@
     <a href="settings.html" class="flex flex-col items-center text-sm dark:text-white"><span>⚙️</span><span>Settings</span></a>
   </nav>
 
-  <!-- JS -->
+  <!-- Script -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
     const supabase = createClient(
       'https://anwwjqupywbnwanuckdf.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48'
     )
-
-    const toast = (msg, type = 'success') => {
-      const t = document.getElementById('toast')
-      t.textContent = msg
-      t.className = `fixed top-4 right-4 z-50 px-4 py-2 rounded text-white shadow-md ${
-        type === 'error' ? 'bg-red-500' : 'bg-green-500'
-      }`
-      t.classList.remove('hidden')
-      setTimeout(() => t.classList.add('hidden'), 3000)
-    }
 
     const toggleDropdown = () => {
       document.getElementById('dropdown').classList.toggle('hidden')
@@ -122,87 +88,47 @@
       window.location.href = 'login.html'
     }
 
-    const toggleModal = (editing = false) => {
-      document.getElementById('modal').classList.toggle('hidden')
-      if (editing) populateForm()
-    }
-
-    const populateForm = async () => {
-      const user = await supabase.auth.getUser()
-      const { data } = await supabase.from('balances').select('*').eq('user_id', user.data.user.id).single()
-      if (data) {
-        const form = document.forms['preferencesForm']
-        form.current_balance.value = data.current_balance
-        form.pay_frequency.value = data.pay_frequency
-        form.food_allowance.value = data.food_allowance
-        form.fuel_allowance.value = data.fuel_allowance
-      }
-    }
-
-    const deletePreferences = async () => {
-      const user = await supabase.auth.getUser()
-      const { error } = await supabase.from('balances').delete().eq('user_id', user.data.user.id)
-      if (error) return toast('Failed to delete preferences.', 'error')
-      toast('Preferences deleted.')
-      updateSummary()
-      toggleModal()
-    }
-
-    const updateSummary = async () => {
-      const user = await supabase.auth.getUser()
-      const { data } = await supabase.from('balances').select('*').eq('user_id', user.data.user.id).single()
-      const summary = document.getElementById('preferencesSummary')
-      const editBtn = document.getElementById('editBtn')
-      const deleteBtn = document.getElementById('deleteBtn')
-
-      if (data) {
-        summary.innerText = `Balance: $${data.current_balance} | Pay Frequency: ${data.pay_frequency} | Food: $${data.food_allowance} | Fuel: $${data.fuel_allowance}`
-        editBtn.classList.remove('hidden')
-        deleteBtn.classList.remove('hidden')
-        document.getElementById('financeCard').innerText = `Balance: $${data.current_balance}`
-        document.getElementById('projectionCard').innerText = `Yearly Food + Fuel: $${(data.food_allowance + data.fuel_allowance) * 12}`
-      } else {
-        summary.innerText = 'No preferences set.'
-        editBtn.classList.add('hidden')
-        deleteBtn.classList.add('hidden')
-        document.getElementById('financeCard').innerText = 'No data'
-        document.getElementById('projectionCard').innerText = 'No projection available'
-      }
-    }
-
-    document.getElementById('preferencesForm').addEventListener('submit', async (e) => {
-      e.preventDefault()
-      const form = e.target
-      const user = await supabase.auth.getUser()
-      const fields = {
-        user_id: user.data.user.id,
-        current_balance: parseFloat(form.current_balance.value),
-        pay_frequency: form.pay_frequency.value,
-        food_allowance: parseFloat(form.food_allowance.value),
-        fuel_allowance: parseFloat(form.fuel_allowance.value),
-      }
-
-      const { data: existing } = await supabase.from('balances').select('id').eq('user_id', user.data.user.id).single()
-      let result
-      if (existing) {
-        result = await supabase.from('balances').update(fields).eq('user_id', user.data.user.id)
-      } else {
-        result = await supabase.from('balances').insert(fields)
-      }
-
-      if (result.error) {
-        toast('Failed to save preferences.', 'error')
-      } else {
-        toast('Preferences saved.')
-        updateSummary()
-        toggleModal()
-      }
-    })
-
-    // Init
-    if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark')
+    // Daily Verse
     document.getElementById('verse').innerText = "Proverbs 21:5 – The plans of the diligent lead surely to abundance..."
-    updateSummary()
+
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark')
+    }
+
+    // Fetch and display financial preferences
+    const user = await supabase.auth.getUser()
+    const userId = user?.data?.user?.id
+
+    if (userId) {
+      const { data, error } = await supabase
+        .from('balances')
+        .select('*')
+        .eq('user_id', userId)
+        .single()
+
+      if (data) {
+        const summary = `
+          Balance: $${Number(data.current_balance).toFixed(2)} |
+          Pay Frequency: ${data.pay_frequency} |
+          Food: $${Number(data.food_allowance).toFixed(2)} |
+          Fuel: $${Number(data.fuel_allowance).toFixed(2)}
+        `
+        document.getElementById('preferencesSummary').innerText = summary
+        document.getElementById('editBtn').classList.remove('hidden')
+
+        // Update finances card
+        document.getElementById('financesCard').innerText =
+          `Balance: $${Number(data.current_balance).toFixed(2)} | Food: $${Number(data.food_allowance).toFixed(2)} | Fuel: $${Number(data.fuel_allowance).toFixed(2)}`
+        
+        // Update projection card
+        const months = 12
+        const totalAllowance = (Number(data.food_allowance) + Number(data.fuel_allowance)) * months
+        document.getElementById('projectionCard').innerText =
+          `Projected Total Spending: $${totalAllowance.toFixed(2)}`
+      } else {
+        document.getElementById('preferencesSummary').innerText = "No preferences found yet."
+      }
+    }
   </script>
 </body>
 </html>
