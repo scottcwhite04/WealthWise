@@ -9,47 +9,64 @@
     tailwind.config = { darkMode: 'class' };
   </script>
 </head>
-<body class="min-h-screen flex flex-col px-4 py-6">
+<body class="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center py-8">
 
-  <div class="flex justify-between items-center mb-6">
-    <button onclick="window.location.href='dashboard.html'" class="text-blue-600 hover:underline font-medium">
+  <!-- Back Link -->
+  <div class="w-full max-w-xl mb-4">
+    <button onclick="window.location.href='dashboard.html'" class="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium">
       ← Back to Dashboard
     </button>
-    <h1 class="text-2xl font-bold dark:text-white">🏦 Banking Balance and Allowances</h1>
   </div>
 
-  <form id="preferencesForm" class="space-y-4 bg-white dark:bg-gray-800 p-4 rounded shadow">
-    <div>
-      <label class="block text-sm font-medium dark:text-gray-200">Current Balance ($)</label>
-      <input type="number" step="0.01" id="current_balance" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white" required>
-    </div>
+  <!-- Form Container -->
+  <div class="w-full max-w-xl bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+    <h1 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-100">🏦 Banking Balance & Allowances</h1>
 
-    <div>
-      <label class="block text-sm font-medium dark:text-gray-200">Pay Frequency</label>
-      <select id="pay_frequency" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white" required>
-        <option value="weekly">Weekly</option>
-        <option value="biweekly">Biweekly</option>
-        <option value="monthly">Monthly</option>
-      </select>
-    </div>
+    <form id="preferencesForm" class="space-y-6">
+      <div>
+        <label for="current_balance" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Current Balance ($)</label>
+        <input type="number" step="0.01" id="current_balance" name="current_balance" required
+          class="mt-1 w-full px-4 py-2 border rounded-md bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+      </div>
 
-    <div>
-      <label class="block text-sm font-medium dark:text-gray-200">Food Allowance ($)</label>
-      <input type="number" step="0.01" id="food_allowance" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white" required>
-    </div>
+      <div>
+        <label for="pay_frequency" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Pay Frequency</label>
+        <select id="pay_frequency" name="pay_frequency" required
+          class="mt-1 w-full px-4 py-2 border rounded-md bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
+          <option value="">Select frequency...</option>
+          <option value="weekly">Weekly</option>
+          <option value="biweekly">Biweekly</option>
+          <option value="monthly">Monthly</option>
+        </select>
+      </div>
 
-    <div>
-      <label class="block text-sm font-medium dark:text-gray-200">Fuel Allowance ($)</label>
-      <input type="number" step="0.01" id="fuel_allowance" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white" required>
-    </div>
+      <div>
+        <label for="food_allowance" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Food Allowance ($)</label>
+        <input type="number" step="0.01" id="food_allowance" name="food_allowance" required
+          class="mt-1 w-full px-4 py-2 border rounded-md bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+      </div>
 
-    <div class="flex justify-between mt-6">
-      <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">💾 Save</button>
-      <button type="button" id="deleteBtn" class="hidden bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">🗑️ Delete</button>
-    </div>
-  </form>
+      <div>
+        <label for="fuel_allowance" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Fuel Allowance ($)</label>
+        <input type="number" step="0.01" id="fuel_allowance" name="fuel_allowance" required
+          class="mt-1 w-full px-4 py-2 border rounded-md bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+      </div>
 
-  <div id="toast" class="fixed bottom-4 right-4 hidden p-3 rounded shadow text-white text-sm"></div>
+      <div class="flex justify-end space-x-4">
+        <button type="button" id="deleteBtn"
+          class="hidden bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-md shadow-sm focus:outline-none">
+          🗑️ Delete
+        </button>
+        <button type="submit"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md shadow-sm focus:outline-none">
+          💾 Save
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 right-6 hidden px-4 py-3 rounded shadow-lg text-white text-sm"></div>
 
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
@@ -62,23 +79,20 @@
     const deleteBtn = document.getElementById('deleteBtn')
     const toast = document.getElementById('toast')
 
-    const showToast = (message, type = 'success') => {
-      toast.innerText = message
-      toast.className = `fixed bottom-4 right-4 p-3 rounded shadow text-white text-sm ${
-        type === 'success' ? 'bg-green-600' : 'bg-red-600'
+    const showToast = (msg, type = 'success') => {
+      toast.textContent = msg
+      toast.className = `fixed bottom-6 right-6 px-4 py-3 rounded shadow-lg text-white text-sm ${
+        type === 'error' ? 'bg-red-600' : 'bg-green-600'
       }`
       toast.classList.remove('hidden')
-      setTimeout(() => {
-        toast.classList.add('hidden')
-        if (type === 'success') window.location.href = 'dashboard.html'
-      }, 2000)
+      setTimeout(() => toast.classList.add('hidden'), 2000)
     }
 
     const user = await supabase.auth.getUser()
     const userId = user?.data?.user?.id
 
     async function loadPreferences() {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('balances')
         .select('*')
         .eq('user_id', userId)
@@ -95,42 +109,30 @@
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault()
-
-      const current_balance = parseFloat(document.getElementById('current_balance').value)
-      const pay_frequency = document.getElementById('pay_frequency').value
-      const food_allowance = parseFloat(document.getElementById('food_allowance').value)
-      const fuel_allowance = parseFloat(document.getElementById('fuel_allowance').value)
-
-      const { data, error } = await supabase
-        .from('balances')
-        .upsert({
-          user_id: userId,
-          current_balance,
-          pay_frequency,
-          food_allowance,
-          fuel_allowance
-        }, { onConflict: ['user_id'] })
-
-      if (error) {
-        showToast("Error saving preferences", "error")
-      } else {
+      const fields = {
+        user_id: userId,
+        current_balance: parseFloat(form.current_balance.value),
+        pay_frequency: form.pay_frequency.value,
+        food_allowance: parseFloat(form.food_allowance.value),
+        fuel_allowance: parseFloat(form.fuel_allowance.value)
+      }
+      const { error } = await supabase.from('balances').upsert(fields, { onConflict: ['user_id'] })
+      if (error) showToast("Error saving preferences", "error")
+      else {
         showToast("Preferences saved!", "success")
         deleteBtn.classList.remove('hidden')
+        setTimeout(() => window.location.href = 'dashboard.html', 2200)
       }
     })
 
     deleteBtn.addEventListener('click', async () => {
-      const { error } = await supabase
-        .from('balances')
-        .delete()
-        .eq('user_id', userId)
-
-      if (error) {
-        showToast("Error deleting preferences", "error")
-      } else {
+      const { error } = await supabase.from('balances').delete().eq('user_id', userId)
+      if (error) showToast("Error deleting preferences", "error")
+      else {
         showToast("Preferences deleted", "success")
         form.reset()
         deleteBtn.classList.add('hidden')
+        setTimeout(() => window.location.href = 'dashboard.html', 2200)
       }
     })
 
