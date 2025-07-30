@@ -25,36 +25,51 @@
   </header>
 
   <!-- Main Content -->
-  <main class="flex-1 px-4 py-6 space-y-4">
-    <!-- Daily Verse -->
-    <div class="bg-blue-100 dark:bg-blue-900 p-4 rounded shadow text-center">
-      <h2 class="text-lg font-semibold dark:text-white">📖 Daily Stewardship Verse</h2>
-      <p id="verse" class="mt-2 text-gray-700 dark:text-gray-200">Loading verse...</p>
+  <main class="flex-1 px-4 py-6 space-y-6">
+
+    <!-- Verse Card -->
+    <div class="bg-white dark:bg-gray-800 p-4 rounded shadow">
+      <h2 class="text-xl font-semibold text-gray-800 dark:text-white">📖 Daily Stewardship Verse</h2>
+      <p id="verse" class="mt-2 text-gray-700 dark:text-gray-300">
+        Proverbs 21:5 – The plans of the diligent lead surely to abundance...
+      </p>
     </div>
 
-    <!-- Finances & Projection Cards -->
+    <!-- Banking Preferences Card -->
+    <div class="bg-white dark:bg-gray-800 p-4 rounded shadow">
+      <div class="flex justify-between items-center mb-2">
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-white">
+          🏦 Current Banking Balance and Allowances
+        </h2>
+        <div class="space-x-2">
+          <button onclick="window.location.href='preferences.html'" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm">
+            ➕ Add
+          </button>
+          <button onclick="window.location.href='preferences.html'" class="bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700 text-sm">
+            ✏️ Edit
+          </button>
+        </div>
+      </div>
+      <div class="text-gray-700 dark:text-gray-300">
+        <p><strong>Balance:</strong> <span id="display_balance">$0.00</span></p>
+        <p><strong>Pay Frequency:</strong> <span id="display_frequency">N/A</span></p>
+        <p><strong>Food Allowance:</strong> <span id="display_food">$0.00</span></p>
+        <p><strong>Fuel Allowance:</strong> <span id="display_fuel">$0.00</span></p>
+      </div>
+    </div>
+
+    <!-- Finances and Projection Cards -->
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <div class="bg-white dark:bg-gray-800 p-4 rounded shadow">
         <h3 class="font-semibold text-gray-700 dark:text-white">💰 Your Finances</h3>
-        <p id="financesCard" class="text-gray-500 dark:text-gray-300">Loading...</p>
+        <p class="text-gray-500 dark:text-gray-300">Summary of income & bills.</p>
       </div>
       <div class="bg-white dark:bg-gray-800 p-4 rounded shadow">
         <h3 class="font-semibold text-gray-700 dark:text-white">📈 12-Month Projection</h3>
-        <p id="projectionCard" class="text-gray-500 dark:text-gray-300">Loading...</p>
+        <p class="text-gray-500 dark:text-gray-300">Expected net change this year.</p>
       </div>
     </div>
 
-    <!-- Current Banking Balance and Allowances Card -->
-    <div class="bg-white dark:bg-gray-800 p-4 rounded shadow flex justify-between items-center">
-      <div>
-        <h3 class="font-semibold text-gray-700 dark:text-white">🏦 Current Banking Balance and Allowances</h3>
-        <p class="text-gray-600 dark:text-gray-300 text-sm mt-1" id="preferencesSummary">Loading...</p>
-      </div>
-      <div class="space-x-2">
-        <a href="preferences.html" id="addBtn" class="inline-block bg-green-100 hover:bg-green-200 dark:bg-green-800 dark:hover:bg-green-700 text-green-700 dark:text-white px-3 py-2 rounded-full text-xl">➕</a>
-        <a href="preferences.html" id="editBtn" class="hidden inline-block bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-800 dark:hover:bg-yellow-700 text-yellow-700 dark:text-white px-3 py-2 rounded-full text-xl">✏️</a>
-      </div>
-    </div>
   </main>
 
   <!-- Bottom Navigation -->
@@ -66,9 +81,10 @@
     <a href="settings.html" class="flex flex-col items-center text-sm dark:text-white"><span>⚙️</span><span>Settings</span></a>
   </nav>
 
-  <!-- Script -->
+  <!-- Scripts -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
     const supabase = createClient(
       'https://anwwjqupywbnwanuckdf.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48'
@@ -88,47 +104,30 @@
       window.location.href = 'login.html'
     }
 
-    // Daily Verse
-    document.getElementById('verse').innerText = "Proverbs 21:5 – The plans of the diligent lead surely to abundance..."
+    // Load existing financial preferences
+    const loadPreferences = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data, error } = await supabase
+        .from('balances')
+        .select('*')
+        .eq('user_id', user.id)
+        .single()
+
+      if (data) {
+        document.getElementById('display_balance').textContent = `$${Number(data.current_balance).toFixed(2)}`
+        document.getElementById('display_frequency').textContent = data.pay_frequency || 'N/A'
+        document.getElementById('display_food').textContent = `$${Number(data.food_allowance).toFixed(2)}`
+        document.getElementById('display_fuel').textContent = `$${Number(data.fuel_allowance).toFixed(2)}`
+      }
+    }
 
     if (localStorage.getItem('theme') === 'dark') {
       document.documentElement.classList.add('dark')
     }
 
-    // Fetch and display financial preferences
-    const user = await supabase.auth.getUser()
-    const userId = user?.data?.user?.id
-
-    if (userId) {
-      const { data, error } = await supabase
-        .from('balances')
-        .select('*')
-        .eq('user_id', userId)
-        .single()
-
-      if (data) {
-        const summary = `
-          Balance: $${Number(data.current_balance).toFixed(2)} |
-          Pay Frequency: ${data.pay_frequency} |
-          Food: $${Number(data.food_allowance).toFixed(2)} |
-          Fuel: $${Number(data.fuel_allowance).toFixed(2)}
-        `
-        document.getElementById('preferencesSummary').innerText = summary
-        document.getElementById('editBtn').classList.remove('hidden')
-
-        // Update finances card
-        document.getElementById('financesCard').innerText =
-          `Balance: $${Number(data.current_balance).toFixed(2)} | Food: $${Number(data.food_allowance).toFixed(2)} | Fuel: $${Number(data.fuel_allowance).toFixed(2)}`
-        
-        // Update projection card
-        const months = 12
-        const totalAllowance = (Number(data.food_allowance) + Number(data.fuel_allowance)) * months
-        document.getElementById('projectionCard').innerText =
-          `Projected Total Spending: $${totalAllowance.toFixed(2)}`
-      } else {
-        document.getElementById('preferencesSummary').innerText = "No preferences found yet."
-      }
-    }
+    loadPreferences()
   </script>
 </body>
 </html>
