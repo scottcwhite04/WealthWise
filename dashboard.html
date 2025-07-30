@@ -41,14 +41,9 @@
         <h2 class="text-xl font-semibold text-gray-800 dark:text-white">
           🏦 Current Banking Balance and Allowances
         </h2>
-        <div class="space-x-2">
-          <button onclick="window.location.href='preferences.html'" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm">
-            ➕ Add
-          </button>
-          <button onclick="window.location.href='preferences.html'" class="bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700 text-sm">
-            ✏️ Edit
-          </button>
-        </div>
+        <button id="prefsButton" onclick="window.location.href='preferences.html'" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm">
+          ➕ Add
+        </button>
       </div>
       <div class="text-gray-700 dark:text-gray-300">
         <p><strong>Balance:</strong> <span id="display_balance">$0.00</span></p>
@@ -104,7 +99,6 @@
       window.location.href = 'login.html'
     }
 
-    // Load existing financial preferences
     const loadPreferences = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
@@ -120,6 +114,8 @@
         document.getElementById('display_frequency').textContent = data.pay_frequency || 'N/A'
         document.getElementById('display_food').textContent = `$${Number(data.food_allowance).toFixed(2)}`
         document.getElementById('display_fuel').textContent = `$${Number(data.fuel_allowance).toFixed(2)}`
+        // Change Add ➕ to Edit ✏️
+        document.getElementById('prefsButton').innerHTML = '✏️ Edit'
       }
     }
 
