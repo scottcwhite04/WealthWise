@@ -29,22 +29,10 @@
     </form>
 
     <!-- Bill List -->
-    <section class="bg-white dark:bg-gray-800 p-6 rounded shadow">
-      <h2 class="text-lg font-semibold mb-4 dark:text-white">Your Bills</h2>
-      <div class="overflow-x-auto">
-        <table class="min-w-full text-left">
-          <thead>
-            <tr class="border-b dark:border-gray-700 text-sm text-gray-600 dark:text-gray-300">
-              <th class="px-4 py-2">Name</th>
-              <th class="px-4 py-2">Amount</th>
-              <th class="px-4 py-2">Due Date</th>
-              <th class="px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="bills-body" class="text-sm dark:text-white"></tbody>
-          <tfoot id="monthly-total" class="text-sm font-bold text-right dark:text-white"></tfoot>
-        </table>
-      </div>
+    <section class="bg-white dark:bg-gray-800 p-6 rounded shadow space-y-4">
+      <h2 class="text-lg font-semibold dark:text-white">Your Bills</h2>
+      <div id="bills-body" class="space-y-4"></div>
+      <div id="monthly-total" class="text-right font-semibold text-green-600 dark:text-green-400 mt-4"></div>
     </section>
   </main>
 
@@ -82,8 +70,8 @@
     const nameInput = document.getElementById('name')
     const amountInput = document.getElementById('amount')
     const dueDayInput = document.getElementById('due_day')
-    const tableBody = document.getElementById('bills-body')
-    const totalFooter = document.getElementById('monthly-total')
+    const listContainer = document.getElementById('bills-body')
+    const totalContainer = document.getElementById('monthly-total')
 
     function toggleTheme() {
       document.documentElement.classList.toggle('dark')
@@ -109,8 +97,8 @@
       const { data: { user } } = await supabase.auth.getUser()
       const { data, error } = await supabase.from('bills').select('*').eq('user_id', user.id).order('due_day')
 
-      tableBody.innerHTML = ''
-      totalFooter.innerHTML = ''
+      listContainer.innerHTML = ''
+      totalContainer.innerHTML = ''
       const now = new Date()
       const currentMonth = now.getMonth() + 1
       const currentYear = now.getFullYear()
@@ -120,24 +108,25 @@
         data.forEach(bill => {
           totalAmount += bill.amount
           const fullDate = `${currentMonth}/${bill.due_day}/${currentYear}`
-          const row = document.createElement('tr')
-          row.innerHTML = `
-            <td class="px-4 py-2">${bill.name}</td>
-            <td class="px-4 py-2">$${bill.amount.toFixed(2)}</td>
-            <td class="px-4 py-2">${fullDate}</td>
-            <td class="px-4 py-2">
-              <button onclick="editBill('${bill.id}', '${bill.name}', ${bill.amount}, ${bill.due_day})" class="text-blue-600 hover:underline">Edit</button>
-              <button onclick="deleteBill('${bill.id}')" class="text-red-600 hover:underline ml-2">Delete</button>
-            </td>
+          const item = document.createElement('div')
+          item.className = "border rounded p-4 dark:border-gray-700 bg-gray-50 dark:bg-gray-700"
+          item.innerHTML = `
+            <div class="font-semibold text-lg dark:text-white">${bill.name}</div>
+            <div class="text-sm text-gray-700 dark:text-gray-300 mt-1">
+              Amount: $${bill.amount.toFixed(2)}<br />
+              Due: ${fullDate}
+            </div>
+            <div class="mt-2">
+              <button onclick="editBill('${bill.id}', '${bill.name}', ${bill.amount}, ${bill.due_day})" class="text-blue-600 hover:underline mr-4">Edit</button>
+              <button onclick="deleteBill('${bill.id}')" class="text-red-600 hover:underline">Delete</button>
+            </div>
           `
-          tableBody.appendChild(row)
+          listContainer.appendChild(item)
         })
 
-        totalFooter.innerHTML = `
-          <tr><td colspan="4" class="px-4 pt-4 text-right">Total Monthly Bills: <span class="font-bold text-green-600">$${totalAmount.toFixed(2)}</span></td></tr>
-        `
+        totalContainer.innerHTML = `Total Monthly Bills: $${totalAmount.toFixed(2)}`
       } else {
-        tableBody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-gray-500 dark:text-gray-400">No bills found.</td></tr>`
+        listContainer.innerHTML = `<div class="text-gray-500 dark:text-gray-400 text-center">No bills found.</div>`
       }
     }
 
