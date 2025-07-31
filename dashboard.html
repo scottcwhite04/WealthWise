@@ -1,180 +1,433 @@
 <!DOCTYPE html>
-<html lang="en" class="bg-gray-100 dark:bg-gray-900">
+<html lang="en" class="bg-gray-100 dark:bg-gray-900" >
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="min-h-screen p-4 text-gray-800 dark:text-white">
-  <!-- Finances Display -->
-  <div id="financeView" class="max-w-xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md cursor-pointer" onclick="openFinanceForm()">
-    <h2 class="text-xl font-bold mb-2">Your Finances</h2>
-    <p>Balance: $<span id="balanceDisplay">1000.00</span></p>
-    <p>Pay Frequency: <span id="frequencyDisplay">biweekly</span></p>
-    <p>Food Allowance: $<span id="foodDisplay">250.00</span></p>
-    <p>Fuel Allowance: $<span id="fuelDisplay">150.00</span></p>
-    <p>Start Date: <span id="startDateDisplay">2025-07-31</span></p>
-  </div>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WealthWise Dashboard</title>
 
-  <!-- Editable Form -->
-  <div id="financeForm" class="max-w-xl mx-auto bg-white dark:bg-gray-800 p-6 mt-4 rounded-lg shadow-md hidden">
-    <h2 class="text-xl font-bold mb-4">Edit Finances</h2>
-    <form id="saveFinanceForm" class="space-y-4">
-      <div>
-        <label class="block mb-1">Current Balance</label>
-        <input id="balanceInput" type="text" class="w-full p-2 border rounded text-gray-800 dark:text-white bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="text-gray-800 dark:text-white">
+
+  <!-- Header -->
+  <header class="flex justify-between items-center p-4 bg-white dark:bg-gray-800 shadow">
+    <h1 class="text-xl font-semibold">Dashboard</h1>
+    <button id="menu-toggle" class="text-2xl">&#9776;</button>
+  </header>
+
+  <main class="p-4 space-y-6 max-w-4xl mx-auto">
+
+    <!-- Your Finances Card -->
+    <div id="financeCard" class="bg-white dark:bg-gray-800 rounded shadow p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+      <h2 class="text-lg font-semibold mb-2">Your Finances</h2>
+      <div id="financeView" class="space-y-1 text-gray-900 dark:text-gray-100">
+        <p>Balance: $<span id="balanceDisplay"></span></p>
+        <p>Pay Frequency: <span id="frequencyDisplay"></span></p>
+        <p>Food Allowance: $<span id="foodDisplay"></span></p>
+        <p>Fuel Allowance: $<span id="fuelDisplay"></span></p>
       </div>
-      <div>
-        <label class="block mb-1">Pay Frequency</label>
-        <select id="frequencyInput" class="w-full p-2 border rounded text-gray-800 dark:text-white bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
+
+      <form id="financeForm" class="space-y-2 hidden text-gray-900 dark:text-gray-900">
+        <input id="balanceInput" type="number" step="0.01" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white" placeholder="Current Balance" />
+        <select id="frequencyInput" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white">
           <option value="weekly">Weekly</option>
           <option value="biweekly">Biweekly</option>
-          <option value="semimonthly">Semi-Monthly</option>
+          <option value="semi-monthly">Semi-Monthly</option>
           <option value="monthly">Monthly</option>
         </select>
-      </div>
-      <div>
-        <label class="block mb-1">Food Allowance</label>
-        <input id="foodInput" type="text" class="w-full p-2 border rounded text-gray-800 dark:text-white bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600" />
-      </div>
-      <div>
-        <label class="block mb-1">Fuel Allowance</label>
-        <input id="fuelInput" type="text" class="w-full p-2 border rounded text-gray-800 dark:text-white bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600" />
-      </div>
-      <div>
-        <label class="block mb-1">Pay Start Date</label>
-        <input id="startDatePicker" type="date" class="w-full p-2 border rounded text-gray-800 dark:text-white bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600" />
-      </div>
-      <div class="flex justify-between pt-2">
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Save</button>
-        <button type="button" onclick="cancelEdit()" class="text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">Cancel</button>
-      </div>
-    </form>
-  </div>
+        <input id="foodInput" type="number" step="0.01" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white" placeholder="Food Allowance" />
+        <input id="fuelInput" type="number" step="0.01" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white" placeholder="Fuel Allowance" />
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+      </form>
+    </div>
 
-  <!-- Toast -->
-  <div id="toast" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded shadow-lg hidden"></div>
+    <!-- Inline Date Picker -->
+    <div class="bg-white dark:bg-gray-800 p-4 rounded shadow text-gray-900 dark:text-gray-100">
+      <label for="startDatePicker" class="block mb-2 font-medium">Select Pay Start Date:</label>
+      <input type="date" id="startDatePicker" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white" />
+    </div>
 
-  <!-- Script -->
+    <!-- Toggle Projections -->
+    <div class="flex justify-between items-center text-gray-900 dark:text-gray-100">
+      <h2 class="text-lg font-semibold">Pay Cycle Projections</h2>
+      <button id="toggleProjections" class="text-blue-600 underline dark:text-blue-400">Hide</button>
+    </div>
+
+    <div id="projectionsContainer" class="space-y-2"></div>
+
+    <!-- Summary -->
+    <div id="summary" class="text-sm text-gray-600 dark:text-gray-300"></div>
+
+    <!-- Chart.js Monthly Summary -->
+    <div class="bg-white dark:bg-gray-800 rounded p-4 shadow text-gray-900 dark:text-gray-100">
+      <h2 class="text-lg font-semibold mb-2">Monthly Balance Trend</h2>
+      <canvas id="monthlyChart"></canvas>
+    </div>
+
+    <!-- Verse of the Day Card -->
+    <div id="verseCard" class="bg-white dark:bg-gray-800 rounded shadow p-4 text-gray-900 dark:text-gray-100">
+      <h2 class="text-lg font-semibold mb-2">📖 Verse of the Day</h2>
+      <blockquote id="verseText" class="italic text-lg">Loading verse...</blockquote>
+      <p id="verseReference" class="text-right mt-2 font-semibold"></p>
+    </div>
+
+    <!-- Other Cards Placeholder -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-900 dark:text-gray-100">
+      <div class="bg-white dark:bg-gray-800 rounded shadow p-4">🌳 Deeper Roots Card Content Here</div>
+      <div class="bg-white dark:bg-gray-800 rounded shadow p-4">🔥 Challenges Card Content Here</div>
+      <div class="bg-white dark:bg-gray-800 rounded shadow p-4">🙏 Prayers Card Content Here</div>
+    </div>
+
+  </main>
+
   <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js';
 
-    const supabase = createClient(
-      'https://anwwjqupywbnwanuckdf.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48'
-    );
+    const SUPABASE_URL = 'https://anwwjqupywbnwanuckdf.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFud3dqcXVweXdibndhbnVja2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzgxOTksImV4cCI6MjA2NTAxNDE5OX0.ExlSkJTP3mJ9u-7SVws0FYcNvlL9a4MJNsm8ZaK1X48';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const user = await supabase.auth.getUser();
-    const userId = user?.data?.user?.id;
-    if (!userId) alert('Not logged in');
+    let userId = null;
+    let currentStartDate = null;
+    let currentFrequency = 'biweekly';
+    let currentBalance = 0;
+    let currentFoodAllowance = 0;
+    let currentFuelAllowance = 0;
+    let allBills = [];
+    let monthlyChartInstance = null;
 
-    const balanceDisplay = document.getElementById('balanceDisplay');
-    const frequencyDisplay = document.getElementById('frequencyDisplay');
-    const foodDisplay = document.getElementById('foodDisplay');
-    const fuelDisplay = document.getElementById('fuelDisplay');
-    const startDateDisplay = document.getElementById('startDateDisplay');
+    // Get logged-in user ID
+    async function getUser() {
+      const {
+        data: { user },
+        error
+      } = await supabase.auth.getUser();
 
-    const balanceInput = document.getElementById('balanceInput');
-    const frequencyInput = document.getElementById('frequencyInput');
-    const foodInput = document.getElementById('foodInput');
-    const fuelInput = document.getElementById('fuelInput');
-    const startDatePicker = document.getElementById('startDatePicker');
-
-    const financeView = document.getElementById('financeView');
-    const financeForm = document.getElementById('financeForm');
-    const toast = document.getElementById('toast');
-
-    function formatCurrency(value) {
-      const num = parseFloat(value.replace(/[^\d.]/g, ''));
-      return isNaN(num) ? '' : num.toFixed(2);
+      if (error || !user) {
+        window.location.href = 'index.html';
+        return;
+      }
+      userId = user.id;
     }
 
-    function attachFormatting(input) {
-      input.addEventListener('input', () => {
-        const cursorPos = input.selectionStart;
-        const formatted = formatCurrency(input.value);
-        input.value = formatted;
-        input.setSelectionRange(cursorPos, cursorPos); // keeps caret position
-      });
-    }
+    // Load all balances and bills
+    async function loadData() {
+      const { data: balances, error } = await supabase
+        .from('balances')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
 
-    attachFormatting(balanceInput);
-    attachFormatting(foodInput);
-    attachFormatting(fuelInput);
-
-    function openFinanceForm() {
-      financeView.classList.add('hidden');
-      financeForm.classList.remove('hidden');
-
-      balanceInput.value = balanceDisplay.textContent;
-      frequencyInput.value = frequencyDisplay.textContent.toLowerCase();
-      foodInput.value = foodDisplay.textContent;
-      fuelInput.value = fuelDisplay.textContent;
-      startDatePicker.value = startDateDisplay.textContent;
-    }
-
-    function cancelEdit() {
-      financeForm.classList.add('hidden');
-      financeView.classList.remove('hidden');
-    }
-
-    document.getElementById('saveFinanceForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const balanceVal = parseFloat(balanceInput.value);
-      const foodVal = parseFloat(foodInput.value);
-      const fuelVal = parseFloat(fuelInput.value);
-      const startDateVal = startDatePicker.value;
-
-      if (
-        isNaN(balanceVal) || balanceVal < 0 ||
-        isNaN(foodVal) || foodVal < 0 ||
-        isNaN(fuelVal) || fuelVal < 0 ||
-        !startDateVal
-      ) {
-        showToast('Please fill in all fields with valid numbers', true);
+      if (error) {
+        console.error('Error loading balances:', error);
+        return;
+      }
+      if (!balances) {
+        console.warn('No balance record found.');
         return;
       }
 
-      const updates = {
-        user_id: userId,
-        current_balance: balanceVal,
-        pay_frequency: frequencyInput.value,
-        food_allowance: foodVal,
-        fuel_allowance: fuelVal,
-        payStartDate: startDateVal
-      };
+      currentBalance = parseFloat(balances.current_balance);
+      currentFrequency = balances.pay_frequency;
+      currentStartDate = balances.payStartDate ? new Date(balances.payStartDate) : new Date();
+      currentFoodAllowance = parseFloat(balances.food_allowance);
+      currentFuelAllowance = parseFloat(balances.fuel_allowance);
+
+      document.getElementById('startDatePicker').value = currentStartDate.toISOString().slice(0, 10);
+      updateFinanceView();
+
+      const { data: bills, error: billsError } = await supabase
+        .from('bills')
+        .select('*')
+        .eq('user_id', userId);
+
+      if (billsError) {
+        console.error('Error loading bills:', billsError);
+        return;
+      }
+      allBills = bills || [];
+
+      generateProjections();
+      await loadVerseOfTheDay();
+    }
+
+    // Update finance card view with current data
+    function updateFinanceView() {
+      document.getElementById('balanceDisplay').textContent = currentBalance.toFixed(2);
+      document.getElementById('frequencyDisplay').textContent = capitalizeFrequency(currentFrequency);
+      document.getElementById('foodDisplay').textContent = currentFoodAllowance.toFixed(2);
+      document.getElementById('fuelDisplay').textContent = currentFuelAllowance.toFixed(2);
+    }
+
+    // Capitalize frequency string nicely
+    function capitalizeFrequency(freq) {
+      return freq
+        .split(/[-\s]/)
+        .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ');
+    }
+
+    // Get pay cycles for projection with bill totals and balance updates
+    function getNextCycle(startDate, freq) {
+      const cycles = { weekly: 7, biweekly: 14, 'semi-monthly': 15, monthly: 30 };
+      const maxCycles = { weekly: 20, biweekly: 15, 'semi-monthly': 15, monthly: 10 };
+      const max = maxCycles[freq] || 10;
+
+      let balance = currentBalance;
+      let monthlySums = {};
+      let dates = [];
+
+      let base = new Date(startDate);
+
+      for (let i = 0; i < max; i++) {
+        let periodStart = new Date(base);
+        if (freq === 'semi-monthly') {
+          // semi-monthly = 2 periods per month, alternate 15 and 14 days approx.
+          const daysToAdd = i % 2 === 0 ? 15 : 14;
+          periodStart.setDate(base.getDate() + i * daysToAdd);
+        } else {
+          periodStart.setDate(base.getDate() + i * cycles[freq]);
+        }
+
+        let periodEnd = new Date(periodStart);
+        if (freq === 'semi-monthly') {
+          periodEnd.setDate(periodStart.getDate() + (i % 2 === 0 ? 14 : 15));
+        } else {
+          periodEnd.setDate(periodStart.getDate() + cycles[freq]);
+        }
+
+        // Get bills due within this period
+        const dueBills = allBills.filter(b => {
+          const dueDateThisCycle = new Date(periodStart.getFullYear(), periodStart.getMonth(), b.due_day);
+          return dueDateThisCycle >= periodStart && dueDateThisCycle < periodEnd;
+        });
+
+        const billTotal = dueBills.reduce((sum, b) => sum + parseFloat(b.amount), 0);
+        balance -= billTotal;
+
+        const warningClass = balance < 0 ? 'text-red-600 dark:text-red-400' : balance < 100 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400';
+
+        const label = `${periodStart.toLocaleDateString()} - ${periodEnd.toLocaleDateString()}`;
+        dates.push({
+          label,
+          billTotal,
+          balance: balance.toFixed(2),
+          warning: warningClass
+        });
+
+        const key = `${periodStart.getFullYear()}-${periodStart.getMonth() + 1}`;
+        monthlySums[key] = (monthlySums[key] || 0) + balance;
+      }
+
+      return { dates, monthlySums };
+    }
+
+    // Generate projection UI and summary
+    function generateProjections() {
+      const container = document.getElementById('projectionsContainer');
+      container.innerHTML = '';
+
+      if (!currentStartDate || !currentFrequency) {
+        container.textContent = 'Please set your pay start date and frequency.';
+        return;
+      }
+
+      const { dates, monthlySums } = getNextCycle(currentStartDate, currentFrequency);
+
+      if (!dates.length) {
+        container.textContent = 'No projections available.';
+        return;
+      }
+
+      let minCycle = dates[0];
+      let maxCycle = dates[0];
+
+      dates.forEach(cycle => {
+        if (+cycle.balance < +minCycle.balance) minCycle = cycle;
+        if (+cycle.balance > +maxCycle.balance) maxCycle = cycle;
+
+        const el = document.createElement('div');
+        el.className = `border p-2 rounded shadow ${cycle.warning} bg-white dark:bg-gray-700`;
+        el.innerHTML = `<strong>${cycle.label}</strong><br/>Bills: $${cycle.billTotal.toFixed(2)} | Balance: $${cycle.balance}`;
+        container.appendChild(el);
+      });
+
+      document.getElementById('summary').innerHTML = `
+        Lowest Balance: <span class="font-semibold">${minCycle.label}</span> ($${minCycle.balance})<br>
+        Highest Balance: <span class="font-semibold">${maxCycle.label}</span> ($${maxCycle.balance})
+      `;
+
+      updateChart(monthlySums);
+    }
+
+    // Update Chart.js monthly balance trend
+    function updateChart(monthlySums) {
+      const ctx = document.getElementById('monthlyChart').getContext('2d');
+
+      const labels = Object.keys(monthlySums).map(k => {
+        const [year, month] = k.split('-');
+        const date = new Date(year, month - 1);
+        return date.toLocaleString('default', { month: 'short', year: 'numeric' });
+      });
+
+      const values = Object.values(monthlySums).map(v => parseFloat(v.toFixed(2)));
+
+      if (monthlyChartInstance) {
+        monthlyChartInstance.data.labels = labels;
+        monthlyChartInstance.data.datasets[0].data = values;
+        monthlyChartInstance.update();
+      } else {
+        monthlyChartInstance = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [{
+              label: 'Projected Balance',
+              data: values,
+              fill: true,
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                labels: { color: getComputedStyle(document.body).color }
+              }
+            },
+            scales: {
+              x: {
+                ticks: { color: getComputedStyle(document.body).color }
+              },
+              y: {
+                ticks: { color: getComputedStyle(document.body).color }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    // Toggle projection container visibility
+    document.getElementById('toggleProjections').onclick = () => {
+      const container = document.getElementById('projectionsContainer');
+      const toggle = document.getElementById('toggleProjections');
+      if (container.classList.toggle('hidden')) {
+        toggle.textContent = 'Show';
+      } else {
+        toggle.textContent = 'Hide';
+      }
+    };
+
+    // Update pay start date picker and regenerate projections
+    document.getElementById('startDatePicker').addEventListener('change', e => {
+      currentStartDate = new Date(e.target.value);
+      generateProjections();
+    });
+
+    // Finance card click to show form
+    document.getElementById('financeCard').addEventListener('click', () => {
+      document.getElementById('financeView').classList.add('hidden');
+      document.getElementById('financeForm').classList.remove('hidden');
+
+      document.getElementById('balanceInput').value = currentBalance;
+      document.getElementById('frequencyInput').value = currentFrequency;
+      document.getElementById('foodInput').value = currentFoodAllowance;
+      document.getElementById('fuelInput').value = currentFuelAllowance;
+    });
+
+    // Save finance form handler
+    document.getElementById('financeForm').addEventListener('submit', async e => {
+      e.preventDefault();
+
+      const newBalance = parseFloat(document.getElementById('balanceInput').value);
+      const newFreq = document.getElementById('frequencyInput').value;
+      const newFood = parseFloat(document.getElementById('foodInput').value);
+      const newFuel = parseFloat(document.getElementById('fuelInput').value);
 
       const { error } = await supabase
         .from('balances')
-        .upsert(updates, { onConflict: ['user_id'] });
+        .update({
+          current_balance: newBalance,
+          pay_frequency: newFreq,
+          food_allowance: newFood,
+          fuel_allowance: newFuel,
+          payStartDate: currentStartDate.toISOString().slice(0, 10)
+        })
+        .eq('user_id', userId);
 
       if (error) {
-        showToast('Error saving preferences', true);
+        alert('Error saving financial preferences: ' + error.message);
         return;
       }
 
-      balanceDisplay.textContent = balanceVal.toFixed(2);
-      frequencyDisplay.textContent = updates.pay_frequency;
-      foodDisplay.textContent = foodVal.toFixed(2);
-      fuelDisplay.textContent = fuelVal.toFixed(2);
-      startDateDisplay.textContent = updates.payStartDate;
+      currentBalance = newBalance;
+      currentFrequency = newFreq;
+      currentFoodAllowance = newFood;
+      currentFuelAllowance = newFuel;
 
-      financeForm.classList.add('hidden');
-      financeView.classList.remove('hidden');
+      updateFinanceView();
 
-      showToast('Preferences saved successfully');
+      document.getElementById('financeView').classList.remove('hidden');
+      document.getElementById('financeForm').classList.add('hidden');
+
+      generateProjections();
     });
 
-    function showToast(message, isError = false) {
-      toast.textContent = message;
-      toast.className = `fixed bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded shadow-lg ${
-        isError ? 'bg-red-600' : 'bg-green-600'
-      } text-white`;
-      toast.classList.remove('hidden');
-      setTimeout(() => toast.classList.add('hidden'), 3000);
+    // Load Verse of the Day from public API (Bible API)
+    async function loadVerseOfTheDay() {
+      const verseTextEl = document.getElementById('verseText');
+      const verseRefEl = document.getElementById('verseReference');
+
+      try {
+        // Check localStorage for today's verse to avoid refetching same verse multiple times daily
+        const savedDate = localStorage.getItem('verseDate');
+        const today = new Date().toISOString().slice(0, 10);
+
+        if (savedDate === today) {
+          const savedVerse = localStorage.getItem('verseText');
+          const savedRef = localStorage.getItem('verseRef');
+          if (savedVerse && savedRef) {
+            verseTextEl.textContent = savedVerse;
+            verseRefEl.textContent = savedRef;
+            return;
+          }
+        }
+
+        // Fetch from Bible API (using https://bible-api.com/)
+        // Random popular verse ids could be replaced by daily date based logic for different verses if desired
+        // We'll use Psalm 23:1 as default
+        const response = await fetch('https://bible-api.com/psalm 23:1?translation=kjv');
+        if (!response.ok) throw new Error('Failed to fetch verse.');
+
+        const data = await response.json();
+        const verse = data.text.trim();
+        const ref = data.reference;
+
+        verseTextEl.textContent = verse;
+        verseRefEl.textContent = ref;
+
+        // Save verse for today
+        localStorage.setItem('verseDate', today);
+        localStorage.setItem('verseText', verse);
+        localStorage.setItem('verseRef', ref);
+      } catch (error) {
+        console.error('Error loading verse of the day:', error);
+        verseTextEl.textContent = 'Unable to load verse at this time.';
+        verseRefEl.textContent = '';
+      }
     }
+
+    // Initial startup
+    (async () => {
+      await getUser();
+      await loadData();
+    })();
+
   </script>
+
 </body>
 </html>
